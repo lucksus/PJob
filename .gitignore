@@ -1,0 +1,10 @@
+Makefile*
+ui_*.h
+*.pro.user
+lib/*
+bin/*
+src/PJobFile/debug/*
+*.o
+moc_*.cpp
+*.app
+qrc_*.cpp
