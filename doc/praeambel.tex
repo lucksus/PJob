@@ -1,0 +1,51 @@
+\documentclass[11pt,a4paper, onecolumn, twoside]{scrartcl}
+
+\usepackage[latin1]{inputenc}
+\usepackage{fancyhdr,amsmath,amsfonts, calc, tabularx, amssymb}
+\usepackage{graphicx, float, paralist}	% Bilder einbinden können, die auch gleiten können
+\usepackage{makeidx}	% Index erzeugen können
+\usepackage[usenames,dvipsnames]{xcolor}	% Farben auch direkt ansteuern können per Name
+\usepackage[font={ small}, labelsep=period,format=plain]{caption} % Bildunterschriften
+
+\usepackage[linkbordercolor={1 1 1}, citebordercolor={1 1 1}, pdfborder={1 1 1}, plainpages=false]{hyperref}	% Hyperlinks korrekt einfärben
+\usepackage[nottoc]{tocbibind}	% Inhaltsverzeichnistiefe vorgeben können
+\usepackage{subfig}	% Subbilder erzeugen können
+\usepackage{trsym}	% 
+\usepackage{multirow}	% In Tabellen auch Inhalte über mehrere Zeilen definieren können
+\usepackage{wrapfig}	% Abbildungen von Text umfließen lassen können
+\usepackage{tabularx} % Tolle Tabellen, die automatisch die korrekte Breite haben
+\usepackage{textcomp}	% "Mü" auch im normalen Text verwenden können!
+\usepackage[]{bookmark}
+\usepackage{wasysym, txfonts}	% Mathematische Elementsymbole (Complex, etc.)
+%\usepackage{cite} % Zitate auch direkt angeben können, für z.B. [1-4]
+
+
+
+% Mögliche Grafikformate, die man einbinden kann. Der Compiler sucht übrigens genau in dieser Reihenfolge,
+% falls KEINE Endung im jeweiligen \includegraphics{} verwendet wird!
+\DeclareGraphicsExtensions{.png, .jpg, .bmp, .pdf}
+
+% Style-Datei liegt um übergeordneten Verzeichnis. In dieser Datei werden alle Format-relevanten
+% Einstellungen vorgenommen. Diese betreffen das komplette Manual und sollten nur mit Bedacht geändert werden!
+\usepackage{../TexManual}
+
+%Matlab als Kommando anmelden, da es besondere Schreibweisen hat, genauso für PHOTOSS, Condor, etc.
+\newcommand{\Matt}{\mbox{MATLAB\textsuperscript{\textregistered}}}
+\newcommand{\MattZeile}{\mbox{MATLAB\textregistered}}
+\newcommand{\MAT}{\Matt}
+
+\newcommand{\PHO}{\mbox{PHOTOSS}}
+\newcommand{\PS}{PScript}
+\newcommand{\Condor}{Condor\textsuperscript{\textregistered}}
+\newcommand{\CondorZeile}{Condor\textregistered}
+
+% Name der ausführbaren PHOTOSS-EXE-Datei:
+\newcommand{\PHOEXE}{\mbox{\lstinline!PHOTOSS.exe! }}
+% Bigbreak als verkürztes Kommando:
+\newcommand{\bb}{\bigbreak}
+% Breite für die PHOTOSS-Parameter-Tabllen in pt als Platzhalter:
+\newcommand{\PHOTableWidth}{440pt}
+
+\newcommand{\PQUEUE}{\mbox{PQueue}}
+\newcommand{\PJOB}{\mbox{PJob}}
+\newcommand{\PJOBCMD}{\mbox{\PJOB Cmd}}

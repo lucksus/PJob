@@ -1,0 +1,8 @@
+<RCC>
+  <qresource prefix="MainWindow" >
+    <file>RecordDisabled.png</file>
+    <file>Play1Hot.png</file>
+    <file>Stop1NormalRed.png</file>
+    <file>StepForwardHot.png</file>
+  </qresource>
+</RCC>

@@ -1,0 +1,130 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Voreinstellungen  / Präambel:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{../praeambel.tex}
+\fancyfoot[LO,RE]{ \textcolor{phocolor}{\emph{PQueue User Manual}}}
+\usepackage{tikz}
+\usetikzlibrary{snakes}
+\usepackage{../PScript}
+\usepackage{../PQueueScript}
+
+\definecolor{gray}{gray}{0.9}
+\newcommand{\photoss}{\PHO{}}
+\newcommand{\pjob}{\PJOB{}}
+\newcommand{\matlab}{\Matt{}}
+\newcommand{\pho}{.pho}
+\newcommand{\pscript}{.pscript}
+\newcommand{\pjobeditor}{\mbox{PJobEditor}}
+\newcommand{\mac}{\mbox{MacOSX\textsuperscript{\textregistered}}}
+
+% Index (genauer: Stichwortverzeichnis) erstellen:
+\makeindex
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Eigentliches Dokument beginnen
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Titelblatt
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+	\begin{titlepage}
+
+	\vspace*{2cm}
+
+	\begin{center}
+		\includegraphics[width=11.00cm]{../../PQueue/Gui/Resources/splash_gross.png}\\
+		\vspace*{3cm}
+	 \Huge{  \textcolor{phocolor}{\textbf{User Manual}}}\\
+	\end{center}
+
+	\vspace{1cm} 
+	\begin{center}
+		% TODO: Versionsnummer
+	\textcolor{phocolor}{\textbf{\Huge \PQUEUE{} 0.1}}
+	\end{center}
+
+	\end{titlepage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Fancy Page 2 (Jens' Style == Crappy) ;-)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\newpage 
+\pagestyle{empty}
+
+\vspace*{16.0 cm}
+\noindent \Large{Creation Date:}\\
+\noindent \Large{\today}\bb
+
+\noindent \Large{\PQUEUE{} manual in \LaTeX{} by: }\\
+\noindent \Large{Nicolas Luck}\\
+\normalsize
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Schriftgröße auf normal zurückstellen:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Inhaltsverzeichnis:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\newpage
+\hypertarget{TargetEinsprungspunktHilfe}{}
+\tableofcontents
+\pagestyle{fancy}
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Eigentliche Inhalte des Manuals:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+\section{Introduction} \hypertarget{TargetIntroduction}{}
+\newpage
+\input{Chap_Introduction.tex}
+\newpage
+
+\section{\PJOB} \hypertarget{TargetPJob}{}
+\label{section:pjob}
+\newpage
+\input{Chap_PJob.tex}
+\newpage
+
+\section{\PJOBCMD} \hypertarget{TargetPJobCmd}{}
+\newpage
+\label{section:pjob-cmd}
+\input{Chap_PJobCmd.tex}
+\newpage
+
+\section{\PJOB-Editor} \hypertarget{TargetPJobEditor}{}
+\label{section:pjob-editor}
+\newpage
+\input{Chap_PJobEditor.tex}
+\newpage
+
+\section{\PQUEUE} \hypertarget{TargetPQueue}{}
+\label{section:pqueue}
+\setcounter{figure}{0}
+\newpage
+\input{Chap_PQueue.tex}
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Anhang:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\begin{appendix}
+	\input{Appendix_PJob_XSDs.tex}
+\end{appendix}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Index:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\newpage
+\footnotesize
+\printindex
+
+
+\newpage
+% Jens' expliziter Wunsch: Leere letzte Seite
+\pagestyle{empty}
+\vspace*{5cm}
+
+\end{document}

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://photoss.de/pjob"
+ elementFormDefault="qualified"
+ xmlns="http://www.w3.org/2001/XMLSchema"
+ xmlns:pjob="http://photoss.de/pjob">
+
+	<element name="resultdefinitions" type="pjob:resultdefinitions"></element>
+
+	<complexType name="resultdefinitions">
+		<sequence>
+			<element name="resultFile" type="pjob:resultFile" minOccurs="0" maxOccurs="unbounded"></element>
+		</sequence>
+	</complexType>
+
+	<complexType name="resultFile">
+		<sequence>
+			<element name="filename" type="string" minOccurs="1"
+				maxOccurs="1">
+			</element>
+			<element name="format" minOccurs="1" maxOccurs="1">
+				<simpleType>
+					<restriction base="pjob:resultFileFormat">
+						<enumeration value="value1"></enumeration>
+					</restriction>
+				</simpleType>
+			</element>
+			<element name="result" type="pjob:result" minOccurs="1" maxOccurs="unbounded"></element>
+		</sequence>
+	</complexType>
+
+	<simpleType name="resultFileFormat">
+		<restriction base="string">
+			<enumeration value="PHOTOSS_CSV"></enumeration>
+		</restriction>
+	</simpleType>
+
+	<complexType name="result">
+		<sequence>
+			<element name="name" type="string"></element>
+			<element name="unit" type="string"></element>
+		</sequence>
+	</complexType>
+</schema>

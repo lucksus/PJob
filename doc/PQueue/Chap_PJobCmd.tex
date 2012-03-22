@@ -1,0 +1,80 @@
+\PJOBCMD\ is a command line tool for creating, manipulating and extracting \PJOB\ archive files.
+It implements the format specification described in section \ref{pjob:archive_format} (\nameref{pjob:archive_format}).
+It is possible to create a valid \PJOB{} file by creating all the necessary files in one directory
+and adding that directory to a new \PJOB{} file with this tool.
+
+\subsection{Example usage}
+Suppose you have a directory \textit{My\_PJob} with contents according to the \PJOB{} format specification
+(see section \ref{pjob:structure} \nameref{pjob:structure}).
+\lstset{basicstyle=\color{white},backgroundcolor=\color{black}, language=bash}
+\begin{lstlisting}
+lucksus:~ nico$ ls
+My_PJob
+
+lucksus:~ nico$ ls My_PJob/
+Resources
+Version
+parameterdefintions.xml
+resultdefintions.xml
+
+lucksus:~ nico$ ls My_PJob/Resources/
+main.pscript
+my_system.pho
+\end{lstlisting}
+You can create a \PJOB{} archive by using the \textit{--create} command line switch:
+\begin{lstlisting}
+lucksus:~ nico$ PJobCmdLine --verbose --create My_PJob/ --file my.pjob
+
+Opening my.pjob was succesful.
+
+Creating file my.pjob containing:
+parameterdefintions.xml
+resultdefintions.xml
+Version
+Resources/main.pscript
+Resources/my_system.pho
+
+lucksus:~ nico$ 
+\end{lstlisting}\bb
+
+If you want to extract the results after the \PJOB{} was executed
+you could either extract all files with \textit{-x} or \textit{--extract},
+or you could use \textit{--peek} (\textit{-p}) to extract the result files only.
+\begin{lstlisting}
+lucksus:~ nico$ PJobCmdLine -v -p Runs/run_20110322_1748 -f my.pjob -o my_results/
+
+Opening my.pjob was succesful.
+
+Extracting files:
+/Users/nico/my_results/EyeOpeningPenalty.txt
+/Users/nico/my_results/my_system.log
+/Users/nico/my_results/parametercombination.xml
+
+lucksus:~ nico$
+\end{lstlisting}
+
+
+
+\subsection{Command line parameters}
+\PJOBCMD\ is controlled via multiple command line switches.
+Every switch has a long version that has to be prefixed by two dashes (i.e. \textit{--help})
+and an optional short, one character version that has to be prefixed by one dash (i.e. \textit{-h}).
+The following list shows all command line parameters with their long version and their optional short version
+separated by comma.
+Parameters that require arguments, like \textit{--create} or \textit{--file} for example,
+need these arguments to be the next following string.
+The same list is printed by \PJOBCMD\ when called with the \textit{help} switch.
+\begin{itemize}
+	\item \textbf{about,?} shows the about page
+	\item \textbf{add,a} adds a folder or directory to the specified file and flush() is called
+	\item \textbf{create,c} creates a new .pjob-file which ONLY contains the specified folder. Only takes effect if the file is empty,
+							doesn't exist or --force is used
+	\item \textbf{detail,d} shows a detailed description of the specified command with examples if provided
+	\item \textbf{extract,x} extracts all files
+	\item \textbf{file,f} specifies the path of the .pjob-file. If it doesn't exist, an empty file will be created automatically					
+	\item \textbf{force} sets overwrite-flag for all commands
+	\item \textbf{help,h} produces help message
+	\item \textbf{out,o} sets the target directory for --extract and --peek
+	\item \textbf{peek,p} extracts the specified source files to --out path
+	\item \textbf{verbose,v} displays detailed information about the tasks being made, e.g. list of extracted files
+\end{itemize}

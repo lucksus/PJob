@@ -1,0 +1,740 @@
+#include "MainWindow.h"
+#include <QtGui/QFileDialog>
+#include <QtGui/QDockWidget>
+#include "PQueueController.h"
+#include "Logger.h"
+#include "SettingsDialog.h"
+#include "NonEquidistantSlider.h"
+#include <QtGui/QGridLayout>
+#include "PlotWidget.h"
+#include <assert.h>
+#include "Scripter.h"
+#include "ScriptedUserInputDialog.h"
+#include <QtCore/QTimer>
+#include <QtCore/QSettings>
+#include <QSplashScreen>
+
+MainWindow::MainWindow(void)
+{
+	ui.setupUi(this);
+
+        QTimer::singleShot(1500, this, SLOT(hide_splash_screen()));
+
+	UserInputMediator::getInstance().setUserInputHandler(this);
+
+	setCentralWidget(ui.tabWidget);
+	addDockWidget(Qt::BottomDockWidgetArea, ui.newJobDockWidget);
+	ui.newJobDockWidget->hide();
+	addDockWidget(Qt::BottomDockWidgetArea, ui.logDockWidget);
+	ui.logDockWidget->hide();
+	addDockWidget(Qt::BottomDockWidgetArea, ui.scriptingConsoleDockWidget);
+	ui.scriptingConsoleDockWidget->hide();
+	addDockWidget(Qt::BottomDockWidgetArea, ui.scriptFilesDockWidget);
+	ui.scriptFilesDockWidget->hide();
+	m_plotWidget = new PlotWidget;
+	//ui.visualizationBox->setLayout(new QGridLayout);
+	QVBoxLayout* layout = dynamic_cast<QVBoxLayout*>(ui.visualizationBox->layout());
+	layout->insertWidget(0,m_plotWidget);
+	connect(ui.showInterpolant, SIGNAL(stateChanged(int)), m_plotWidget, SLOT(showInterpolant(int)));
+	QList<int> sizes1;
+	sizes1 << 100 << 500;
+	ui.visualizationVerticalSplitter->setSizes(sizes1);
+	QList<int> sizes2;
+	sizes2 << 600 << 200;
+	ui.visualizationHorizontalSplitter->setSizes(sizes2);
+	QStringList l1;
+	l1 << "Parametername" << "Parametervalue";
+	ui.parametersWidget->setColumnCount(2);
+	ui.parametersWidget->setHorizontalHeaderLabels(l1);
+	ui.parametersWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+	ui.parametersWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+
+	// Initialisieren Result View
+	ui.pjobFileSelector->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+	m_resultModel = new ResultModel(&PQueueController::getInstace().getResults(), this);
+	QSortFilterProxyModel* m_proxyResultModel = new QSortFilterProxyModel(this);
+	m_proxyResultModel->setSourceModel(m_resultModel);
+	ui.resultView->setModel(m_proxyResultModel);
+	ui.resultView->setSortingEnabled(true);
+	connect(ui.pjobFileSelector, SIGNAL(currentIndexChanged(QString)), m_resultModel, SLOT(initialize(QString)));
+	connect(&PQueueController::getInstace().getResults(), SIGNAL(newValuesSet(QString)), this, SLOT(updatePJobFileSelector(QString)));
+	connect(&PQueueController::getInstace().getResults(), SIGNAL(newValuesSet(QString)), m_resultModel, SLOT(update(QString)));
+	connect(m_resultModel, SIGNAL(layoutChanged()), ui.resultView, SLOT(resizeColumnsToContents()));
+	connect(m_resultModel, SIGNAL(modelInitialized()), this, SLOT(initialSortResultView()));
+
+	ui.scriptProgressBar->setHidden(true);
+
+	connect(&PQueueController::getInstace(), SIGNAL(jobAdded(PhotossJob*,unsigned int)), this, SLOT(jobCreated(PhotossJob*,unsigned int)));
+	connect(&PQueueController::getInstace(), SIGNAL(jobAdded(PhotossJob*,unsigned int)), this, SLOT(updateButtons()));
+	connect(&PQueueController::getInstace(), SIGNAL(jobRemoved(PhotossJob*)), this, SLOT(jobRemoved(PhotossJob*)));
+	connect(&PQueueController::getInstace(), SIGNAL(jobRemoved(PhotossJob*)), this, SLOT(updateButtons()));
+	connect(&PQueueController::getInstace(), SIGNAL(jobMoved(PhotossJob*, unsigned int)), this, SLOT(jobMoved(PhotossJob*, unsigned int)));
+	connect(ui.jobsWidget, SIGNAL(itemSelectionChanged()), this, SLOT(updateButtons()));
+	updateButtons();
+
+	connect(&Logger::getInstance(),SIGNAL(text(QString)),ui.logTextEdit,SLOT(append(QString)));
+	connect(&PQueueController::getInstace().getResults(), SIGNAL(newValueSet(QString,QString,QHash<QString,double>,double)), this, SLOT(newValue(QString,QString,QHash<QString,double>,double)));
+	connect(&PQueueController::getInstace().getResults(), SIGNAL(newValuesSet(QString)), this, SLOT(newValue()));
+	connect(&PQueueController::getInstace(), SIGNAL(started()), this, SLOT(started()));
+	connect(&PQueueController::getInstace(), SIGNAL(stopped()), this, SLOT(stopped()));
+
+	connect(&m_x_axis_button_group, SIGNAL(buttonClicked(int)), this, SLOT(updateParametersBox()));
+	connect(&m_y_axis_button_group, SIGNAL(buttonClicked(int)), this, SLOT(updateParametersBox()));
+	connect(&m_x_axis_button_group, SIGNAL(buttonClicked(int)), this, SLOT(showVisualization()));
+	connect(&m_y_axis_button_group, SIGNAL(buttonClicked(int)), this, SLOT(showVisualization()));
+
+	connect(&Scripter::getInstance(), SIGNAL(scriptFileLoaded(QString)), this, SLOT(addLoadedScriptToListWidget(QString)));
+	connect(&Scripter::getInstance(), SIGNAL(engineStarted(QString)), this, SLOT(scriptStarted(QString)));
+	connect(&Scripter::getInstance(), SIGNAL(engineFinished(QString,QString)), this, SLOT(scriptFinished(QString,QString)));
+	connect(&Scripter::getInstance(), SIGNAL(scriptOutput(QString)), ui.scriptOutput, SLOT(insertPlainText(QString)));
+	connect(&Scripter::getInstance(), SIGNAL(scriptProgessUpdated(QString, unsigned int)), this, SLOT(setScriptProgress(QString, unsigned int)));
+
+	connect(this,SIGNAL(needScriptedUserInputDialog(QScriptContext*, QScriptEngine*)),this,SLOT(openScriptedUserInputDialog(QScriptContext*, QScriptEngine*)));
+
+
+	QMenu* builtInScriptsMenu = ui.menuScripting->addMenu(tr("&Built in scripts"));
+	QString script;
+	foreach(script,Scripter::getInstance().loadedScripts()){
+		QAction* action = new QAction(script,this);
+		builtInScriptsMenu->addAction(action);
+		connect(action,SIGNAL(triggered()),&m_builtInScriptsActionsMapper,SLOT(map()));
+		m_builtInScriptsActionsMapper.setMapping(action,script);
+	}
+	connect(&m_builtInScriptsActionsMapper,SIGNAL(mapped(QString)),this,SLOT(builtInScriptTriggered(QString)));
+
+	add_calculator_object(&PQueueController::getInstace());
+	mruToFileMenu();
+}
+
+void MainWindow::builtInScriptTriggered(const QString& script){
+	Scripter::getInstance().runLoadedScript(script);
+}
+
+QScriptValue MainWindow::userInputForScript(QScriptContext *context, QScriptEngine *engine){
+	emit needScriptedUserInputDialog(context,engine);
+	scriptedUserInputDialogMutex.lock();
+	scriptedUserInputDialogWaitCondition.wait(&scriptedUserInputDialogMutex);
+	scriptedUserInputDialogMutex.unlock();
+
+	return scriptedUserInputDialogResult;
+}
+
+void MainWindow::openScriptedUserInputDialog(QScriptContext *context, QScriptEngine *engine){
+	ScriptedUserInputDialog dialog(context,engine);
+	scriptedUserInputDialogResult = dialog.getValues();
+	scriptedUserInputDialogWaitCondition.wakeOne();
+}
+
+
+
+void MainWindow::on_browsePJobFileButton_clicked(){
+	QFileInfo fileInfo(mostRecentlyUsedPJOBFiles().first());
+
+	QStringList files = QFileDialog::getOpenFileNames(this,"Select PHOTOSS PJOB File",
+		fileInfo.absolutePath(),"PJOB-File (*.pjob)");
+	if(files.isEmpty())return;
+	ui.pjobFile->setText(files.first());
+	mostRecentlyUsedPJOBFilesAdd(files.first());
+}
+
+void MainWindow::on_addParameterButton_clicked(){
+	QTableWidgetItem* name = new QTableWidgetItem();
+	QTableWidgetItem* value = new QTableWidgetItem();
+	//m_parameters.push_back(item);
+
+	int row = ui.parametersWidget->rowCount();
+	ui.parametersWidget->setRowCount(row+1);
+	ui.parametersWidget->setItem(row,0,name);
+	ui.parametersWidget->setItem(row,1,value);
+	//ui.parametersWidget->setItem (item,0, new QLineEdit(ui.parametersWidget));
+	//ui.parametersWidget->setItemWidget(item,1, new QLineEdit(ui.parametersWidget));
+}
+
+
+void MainWindow::on_delParameterButton_clicked(){
+	if(ui.parametersWidget->selectedItems().size() <= 0) return;
+	int row = ui.parametersWidget->selectionModel()->selectedRows().first().row();
+//	QTableWidgetItem* name = ui.parametersWidget->item(row,0);
+//	QTableWidgetItem* value = ui.parametersWidget->item(row,1);
+//	delete name;
+//	delete value;
+	
+	for(int i=row+1;i<ui.parametersWidget->rowCount();++i){
+		ui.parametersWidget->setItem(i-1,0,new QTableWidgetItem(ui.parametersWidget->item(i,0)->text()));
+		ui.parametersWidget->setItem(i-1,1,new QTableWidgetItem(ui.parametersWidget->item(i,1)->text()));
+	}
+	ui.parametersWidget->setRowCount(ui.parametersWidget->rowCount()-1);
+}
+
+
+void MainWindow::on_pjobFile_textChanged(QString s){
+	ui.addJobButton->setEnabled(s.length() > 0);
+
+	if(!QFileInfo(ui.pjobFile->text()).exists()) return;
+	if(!QFileInfo(ui.pjobFile->text()).isFile()) return;
+
+	ui.parametersWidget->clear();
+	QStringList l1;
+	l1 << "Parametername" << "Parametervalue";
+	ui.parametersWidget->setColumnCount(2);
+	ui.parametersWidget->setHorizontalHeaderLabels(l1);
+	ui.parametersWidget->setRowCount(0);
+
+	PJobFile pjobFile(ui.pjobFile->text());
+	QList<PJobFileParameterDefinition> params = pjobFile.parameterDefinitions();
+	PJobFileParameterDefinition p;
+	//QHash< QString,QVector<double> > variables = PhotossJob::readGlobalVariablesFromPHOFile(ui.phoFile->text());
+	//QString name;
+	foreach(p,params){
+		QTableWidgetItem* nameItem = new QTableWidgetItem();
+		QTableWidgetItem* valueItem = new QTableWidgetItem();
+		nameItem->setText(p.name());
+		//valueItem->setText(QString("%1_%2:1").arg(variables[name].front()).arg(variables[name].back()));
+		valueItem->setText(QString("%1").arg(p.defaultValue()));
+
+		int row = ui.parametersWidget->rowCount();
+		ui.parametersWidget->setRowCount(row+1);
+		ui.parametersWidget->setItem(row,0,nameItem);
+		ui.parametersWidget->setItem(row,1,valueItem);
+	}
+}
+
+void MainWindow::on_addJobButton_clicked(){
+	QHash<QString,QString> parameters;
+	for(int i=0;i<ui.parametersWidget->rowCount();++i){
+		QString name = ui.parametersWidget->item(i,0)->text();
+		QString value = ui.parametersWidget->item(i,1)->text();
+		parameters[name]  = value;
+	}
+
+	PQueueController::getInstace().addJob(new PhotossJob(ui.pjobFile->text(), parameters));
+}
+
+void MainWindow::on_jobUpButton_clicked(){
+	int selectedRow = ui.jobsWidget->selectionModel()->selectedRows().first().row();
+	QListWidgetItem* item = ui.jobsWidget->item(selectedRow);
+	PhotossJob* job = m_jobs[item];
+	PQueueController::getInstace().setQueuePosition(job,selectedRow-1);
+}
+
+void MainWindow::on_jobDownButton_clicked(){
+	int selectedRow = ui.jobsWidget->selectionModel()->selectedRows().first().row();
+	QListWidgetItem* item = ui.jobsWidget->item(selectedRow);
+	PhotossJob* job = m_jobs[item];
+	PQueueController::getInstace().setQueuePosition(job,selectedRow+1);
+}
+
+void MainWindow::on_jobDeleteButton_clicked(){
+	QModelIndex index;
+	QList<PhotossJob*> jobs;
+	foreach(index,ui.jobsWidget->selectionModel()->selectedRows()){
+		int row = index.row();
+		QListWidgetItem* item = ui.jobsWidget->item(row);
+		PhotossJob* job = m_jobs[item];
+		jobs << job;
+	}
+	PhotossJob* job;
+	foreach(job,jobs){
+		PQueueController::getInstace().removeJob(job);
+		delete job;
+	}
+}
+
+
+void MainWindow::jobCreated(PhotossJob* j, unsigned int){
+	QListWidgetItem* item = new QListWidgetItem(ui.jobsWidget);
+
+	QHash<QString,QString> parameters = j->parameters();
+	QString p;
+	QString label;
+	foreach(p,parameters.keys()){
+		label.append(p);
+		label.append("=");
+		label.append(parameters[p]);
+		label.append(" ");
+	}
+
+	item->setText(j->description() + " " + label);
+	item->setData(Qt::DecorationRole, QColor("silver"));
+	m_jobs[item] = j;
+	connect(j,SIGNAL(stateChanged(PhotossJob*,PhotossJob::State)),this,SLOT(jobStateChanged(PhotossJob*,PhotossJob::State)));
+}
+
+void MainWindow::jobRemoved(PhotossJob* job){
+	for(int row=0;row<ui.jobsWidget->count();++row){
+		QListWidgetItem* item = ui.jobsWidget->item(row);
+		PhotossJob* j = m_jobs[item];
+		if(j == job){
+			ui.jobsWidget->removeItemWidget(item);
+			delete item;
+		}
+	}
+}
+
+QListWidgetItem* MainWindow::itemForJob(PhotossJob* j){
+	QListWidgetItem* item;
+	foreach(item, m_jobs.keys()){
+		if(m_jobs[item] == j){
+			return item;
+		}
+	}
+	return 0;
+}
+
+void MainWindow::jobMoved(PhotossJob* j, unsigned int position){
+	QListWidgetItem* item = itemForJob(j);
+	int oldPosition = ui.jobsWidget->row(item);
+	ui.jobsWidget->takeItem(oldPosition);
+	ui.jobsWidget->insertItem(position,item);
+	ui.jobsWidget->setItemSelected(item,true);
+}
+
+void MainWindow::updateButtons(){
+	ui.startButton->setEnabled(!PQueueController::getInstace().isRunning() && ui.jobsWidget->count());
+	ui.stopButton->setEnabled(PQueueController::getInstace().isRunning());
+	ui.jobUpButton->setEnabled(false);
+	ui.jobDownButton->setEnabled(false);
+	ui.jobDeleteButton->setEnabled(false);
+	if(ui.jobsWidget->selectionModel()->selectedRows().isEmpty()) return;
+	ui.jobDeleteButton->setEnabled(true);
+	ui.jobUpButton->setEnabled(ui.jobsWidget->selectionModel()->selectedRows().first().row()>0);
+	ui.jobDownButton->setEnabled(ui.jobsWidget->selectionModel()->selectedRows().first().row()<ui.jobsWidget->count()-1);
+}
+
+void MainWindow::jobStateChanged(PhotossJob* j, PhotossJob::State state){
+	QListWidgetItem* item = itemForJob(j);
+	switch(state){
+		case PhotossJob::FINISHED:
+			item->setData(Qt::DecorationRole, QColor("lime"));
+			break;
+		case PhotossJob::SUBMITED:
+			item->setData(Qt::DecorationRole, QColor("yellow"));
+			break;
+		case PhotossJob::RUNNING:
+			item->setData(Qt::DecorationRole, QColor("yellowgreen"));
+			break;
+		case PhotossJob::QUEUED:
+			item->setData(Qt::DecorationRole, QColor("silver"));
+			break;
+		case PhotossJob::FAILED:
+			item->setData(Qt::DecorationRole, QColor("red"));
+			break;
+	}
+}
+
+void MainWindow::on_startButton_clicked(){
+	PQueueController::getInstace().start(ui.parallelJobs->value());
+}
+
+void MainWindow::on_stopButton_clicked(){
+	PQueueController::getInstace().stop();
+}
+
+void MainWindow::started(){
+	updateButtons();
+}
+
+void MainWindow::stopped(){
+	updateButtons();
+}
+
+void MainWindow::updatePJobFileSelector(QString pjobFile){
+	if(ui.pjobFileSelector->findText(pjobFile) != -1) return;
+	ui.pjobFileSelector->addItem(pjobFile);
+}
+
+void MainWindow::initialSortResultView(){
+	ui.resultView->sortByColumn(0, Qt::AscendingOrder);
+}
+void MainWindow::newValue(){
+	if(!ui.navigatorResultsTreeWidget->selectedItems().empty())
+		on_navigatorResultsTreeWidget_itemClicked(ui.navigatorResultsTreeWidget->selectedItems().first());
+}
+
+void MainWindow::newValue(QString phoFile, QString result, QHash<QString,double> parameters, double value){
+	QTreeWidgetItem* fileItemNavigator;
+	if(m_phoFileItemsNavigator.count(phoFile))
+		fileItemNavigator = m_phoFileItemsNavigator[phoFile];
+	else{
+		fileItemNavigator = new QTreeWidgetItem(ui.navigatorResultsTreeWidget);
+		fileItemNavigator->setText(0,phoFile);
+		m_phoFileItemsNavigator[phoFile] = fileItemNavigator;
+	}
+
+	QTreeWidgetItem* resultItemNavigator;
+	if(m_resultItemsNavigator[fileItemNavigator].count(result))
+		resultItemNavigator = m_resultItemsNavigator[fileItemNavigator][result];
+	else{
+		resultItemNavigator = new QTreeWidgetItem(fileItemNavigator);
+		resultItemNavigator->setText(0,result);
+		m_resultItemsNavigator[fileItemNavigator][result] = resultItemNavigator;
+	}
+}
+
+void MainWindow::on_actionEdit_triggered(){
+	SettingsDialog d;
+	d.exec();
+}
+
+void MainWindow::on_actionExport_To_CSV_triggered()
+{
+	QString file = QFileDialog::getSaveFileName(this, tr("Select file for CSV export"),"","*.txt");
+	
+	//Abbruch, falls der Dialog geschlossen wird
+	if(file == NULL) 
+		return;
+
+	PQueueController::getInstace().getResults().exportToCSV(file,PQueueController::getInstace().getResults().phoFiles());
+}
+
+void MainWindow::on_actionImport_From_CSV_triggered()
+{
+	QString file = QFileDialog::getOpenFileName(this, tr("Select file for CSV import"),"","*.txt");
+	
+	//Abbruch, falls der Dialog geschlossen wird
+	if(file == NULL) 
+		return;
+
+	QHash< QString,QHash< QHash<QString,double>,QHash<QString,double> > > import = PQueueController::getInstace().getResults().importFromCSV(file);
+	foreach(QString job,import.keys())
+		emit Logger::getInstance().jobResults(import[job],job);
+}
+
+void MainWindow::on_actionImport_From_PJob_triggered()
+{
+	QString file = QFileDialog::getOpenFileName(this, tr("Select file for PJob import"),"","*.pjob");
+	
+	//Abbruch, falls der Dialog geschlossen wird
+	if(file == NULL) 
+		return;
+	
+	PQueueController::getInstace().import_results_from_pjobfile(file);
+}
+
+void MainWindow::on_navigatorResultsTreeWidget_itemClicked(QTreeWidgetItem* item){
+	if(!m_phoFileItemsNavigator.values().count(item)){
+		QString result = item->text(0);
+		QString phoFile = item->parent()->text(0);
+		visualizerSelectResult(phoFile,result);
+	}
+}
+
+
+void MainWindow::visualizerSelectResult(QString pjob_file, QString result){
+	fillParametersBox(pjob_file);
+	updateParametersBox();
+	showVisualization(pjob_file, result);
+}
+
+
+void MainWindow::fillParametersBox(QString phoFile){
+	QSet<QString> set = PQueueController::getInstace().getResults().parametersFor(phoFile); 
+	QList<QString> parameters = QList<QString>::fromSet(set);
+	qSort(parameters);
+
+	bool weHaveFormerValues=false;
+	QHash<QString,double> formerSliderValues;
+	int formerXAchsis, formerYAchsis;
+	if(m_parameterSliders.size()){
+		QString p;
+		int i=0;
+		foreach(p,parameters){
+			formerSliderValues[p] = m_parameterSliders.at(i)->value();
+			++i;
+		}
+		weHaveFormerValues = true;
+		formerXAchsis = m_x_axis_button_group.checkedId();
+		formerYAchsis = m_y_axis_button_group.checkedId();
+	}
+
+	QFrame* s;
+	foreach(s,m_parameterFrames) delete s;
+	m_parameterFrames.clear();
+	m_parameterSliders.clear();
+
+	if(parameters.size() < 3) return;
+
+	ui.parametersBox->setLayout(new QVBoxLayout);
+	int i=0;
+	QString parameter;
+	foreach(parameter,parameters){
+		QVBoxLayout *verticalLayout = new QVBoxLayout;
+		QFrame *frame = new QFrame;
+		frame->setLayout(verticalLayout);
+
+		QHBoxLayout *horizontalLayout = new QHBoxLayout;
+		QFrame *innerframe = new QFrame;
+		innerframe->setLayout(horizontalLayout);
+		QLabel* label = new QLabel(QString("%1:").arg(parameter),frame);
+		horizontalLayout->addWidget(label);
+
+		QRadioButton *radio_x = new QRadioButton("x", innerframe);
+		QRadioButton *radio_y = new QRadioButton("y", innerframe);
+		m_x_axis_button_group.addButton(radio_x,i);
+		m_y_axis_button_group.addButton(radio_y,i);
+		horizontalLayout->addWidget(radio_x);
+		horizontalLayout->addWidget(radio_y);
+
+		verticalLayout->addWidget(innerframe);
+		NonEquidistantSlider* slider = new NonEquidistantSlider(frame);
+		m_parameterSliders.append(slider);
+		connect(slider,SIGNAL(valueChanged(double)),this,SLOT(showVisualization()));
+		verticalLayout->addWidget(slider);
+		ui.parametersBox->layout()->addWidget(frame);
+		m_parameterFrames.append(frame);
+
+		QList<double> values = PQueueController::getInstace().getResults().valuesFor(phoFile,parameter);
+		slider->setValues(values);
+		++i;
+	}
+
+	if(weHaveFormerValues){
+		m_x_axis_button_group.button(formerXAchsis)->setChecked(true);
+		m_y_axis_button_group.button(formerYAchsis)->setChecked(true);
+		QSet<QString> set = PQueueController::getInstace().getResults().parametersFor(phoFile); 
+		QList<QString> parameters = QList<QString>::fromSet(set);
+		qSort(parameters);
+		int psize = parameters.size();
+		int ssize = m_parameterSliders.size();
+		int fsize = formerSliderValues.size();
+		assert(psize == ssize);
+		assert(fsize == psize);
+		int i=0;
+		NonEquidistantSlider* slider;
+		foreach(slider,m_parameterSliders){
+			QString p = parameters.at(i);
+			double d = formerSliderValues[p];
+			slider->setValue(d);
+			++i;
+		}	
+	}else{
+		//Bevor die Buttons aktiviert werden können muss (indirekt) überprüft werden, ob überhaupt welche erzeugt wurden!
+		if(parameters.size() == 1)
+		{
+			m_x_axis_button_group.button(0)->setChecked(true);
+		}
+		else if(parameters.size() >= 2)
+		{
+			m_x_axis_button_group.button(0)->setChecked(true);
+			m_y_axis_button_group.button(1)->setChecked(true);
+		}
+	}
+}
+
+void MainWindow::updateParametersBox(){
+	QAbstractButton* b;
+	foreach(b,m_x_axis_button_group.buttons())
+		b->setEnabled(true);
+	foreach(b,m_y_axis_button_group.buttons())
+		b->setEnabled(true);
+	NonEquidistantSlider* s;
+	foreach(s,m_parameterSliders)
+		s->setEnabled(true);
+
+	int xaxis = m_x_axis_button_group.checkedId();
+	int yaxis = m_y_axis_button_group.checkedId();
+	if(xaxis==-1 || yaxis==-1) return;
+	m_parameterSliders.at(xaxis)->setEnabled(false);
+	m_parameterSliders.at(yaxis)->setEnabled(false);
+	m_y_axis_button_group.button(xaxis)->setEnabled(false);
+	m_x_axis_button_group.button(yaxis)->setEnabled(false);
+}
+
+void MainWindow::showVisualization(){
+	QList<QTreeWidgetItem*> selectedItems = ui.navigatorResultsTreeWidget->selectedItems();
+	assert(!selectedItems.empty());
+	QTreeWidgetItem* selected = selectedItems.first();
+	QTreeWidgetItem* parent = selected->parent();
+	assert(parent);
+	QString pjob_file = parent->text(0);
+	QString result = selected->text(0);
+	showVisualization(pjob_file,result);
+}
+
+void MainWindow::showVisualization(QString pjob_file, QString result)
+{
+	QList<QString> parameters = QList<QString>::fromSet(PQueueController::getInstace().getResults().parametersFor(pjob_file));
+	qSort(parameters);
+
+	QString xachsis = "";
+	QString yachsis = "";
+	QHash<QString,double> parameterCombination;
+
+	if(parameters.size() == 1){
+		xachsis = yachsis = parameters.front();
+	}else if(parameters.size() == 2){
+		xachsis = parameters.front();
+		yachsis = parameters.back();
+	}else{
+		//Überprüfen, ob überhaupt ein Button angewählt wurde (sonst Absturz!)
+		int id = m_x_axis_button_group.checkedId();
+		if(id != -1)
+			xachsis = parameters.at(id);
+
+		id = m_y_axis_button_group.checkedId();
+		if(id != -1)
+			yachsis = parameters.at(id);
+
+		QString p;
+		int i=0;
+		foreach(p,parameters){
+			parameterCombination[p] = m_parameterSliders.at(i)->value();
+			++i;
+		}
+	}
+
+	m_plotWidget->show(pjob_file,result,parameterCombination,xachsis,yachsis);
+}
+
+void MainWindow::on_scriptLineEdit_returnPressed(){
+	QString script = ui.scriptLineEdit->text();
+	ui.scriptLineEdit->setText("");
+
+	ui.scriptOutput->insertPlainText(">> " + script + "\n");
+
+	Scripter::getInstance().run(script);
+}
+
+
+void MainWindow::on_actionLoad_script_from_file_triggered(){
+	QStringList files = QFileDialog::getOpenFileNames(this,"Select PQueue script file",
+		"","JavaScript file (*.js)");
+	if(files.isEmpty())return;
+	Scripter::getInstance().loadScriptFile(files.first());
+}
+
+
+void MainWindow::addLoadedScriptToListWidget(QString filename){
+	QListWidgetItem* item = new QListWidgetItem;
+	item->setText(filename);
+	ui.scriptsListWidget->addItem(item);
+}
+
+void MainWindow::on_runScriptButton_clicked(){
+	int row = ui.scriptsListWidget->selectionModel()->selectedRows().first().row();
+	QListWidgetItem* item = ui.scriptsListWidget->item(row);
+	Scripter::getInstance().runLoadedScript(item->text());
+}
+
+void MainWindow::on_stopScriptButton_clicked(){
+	Scripter::getInstance().stop(m_runningScript);
+}
+
+void MainWindow::scriptStarted(QString engineName){
+	ui.scriptLineEdit->setEnabled(false);
+	ui.scriptsListWidget->setEnabled(false);
+	ui.scriptProgressBar->setHidden(false);
+	if(engineName=="console") return;
+	ui.scriptOutput->moveCursor(QTextCursor::End);
+	ui.scriptOutput->append(QString("Starting script '%1':\n--------------------------\n").arg(engineName));
+	ui.runScriptButton->setEnabled(false);
+	ui.stopScriptButton->setEnabled(true);
+	m_runningScript = engineName;
+}
+
+void MainWindow::scriptFinished(QString engineName, QString output){
+	ui.scriptLineEdit->setEnabled(true);
+	ui.scriptsListWidget->setEnabled(true);
+	ui.scriptProgressBar->setHidden(true);
+	if(engineName!="console"){
+		ui.scriptOutput->moveCursor(QTextCursor::End);
+		ui.scriptOutput->append(
+			QString("Finished script '%1'!\nOutput: %2\n--------------------------\n").arg(engineName).arg(output)
+			);
+		ui.runScriptButton->setEnabled(true);
+		ui.stopScriptButton->setEnabled(false);
+	}else
+		ui.scriptOutput->insertPlainText(output+"\n");
+	/*QString row;
+	foreach(row,output.split("\n")){
+		QListWidgetItem* item = new QListWidgetItem;
+		item->setText(row);
+		ui.scriptOutput->addItem(item);
+		ui.scriptOutput->scrollToItem(item);
+	}
+	*/
+}
+
+
+void MainWindow::setScriptProgress(QString engineName, unsigned int progress){
+	ui.scriptProgressBar->setMinimum(0);
+	ui.scriptProgressBar->setMaximum(100);
+	ui.scriptProgressBar->setValue(progress);
+}
+
+
+QStringList MainWindow::mostRecentlyUsedPJOBFiles(){
+	QStringList mru;
+	QSettings settings("HFT", "PQueue");
+	settings.beginGroup("gui");
+	mru << settings.value("mruPJOBFile1","").toString();
+	mru << settings.value("mruPJOBFile2","").toString();
+	mru << settings.value("mruPJOBFile3","").toString();
+	settings.endGroup();
+	return mru;
+}
+
+void MainWindow::mostRecentlyUsedPJOBFilesAdd(QString pjobFilePath){
+	QStringList mru = mostRecentlyUsedPJOBFiles();
+	mru.prepend(pjobFilePath);
+	mru.pop_back();
+	QSettings settings("HFT", "PQueue");
+	settings.beginGroup("gui");
+	settings.setValue("mruPJOBFile1", mru.at(0));
+	settings.setValue("mruPJOBFile2", mru.at(1));
+	settings.setValue("mruPJOBFile3", mru.at(2));
+	settings.endGroup();
+	mruToFileMenu();
+}
+
+void MainWindow::mruToFileMenu(){
+	QStringList mru = mostRecentlyUsedPJOBFiles();
+	if(mru.at(0)!=""){
+		ui.actionMruAction1->setVisible(true);
+		ui.actionMruAction1->setText(mru.at(0));
+	}else ui.actionMruAction1->setVisible(false);
+	if(mru.at(1)!=""){
+		ui.actionMruAction2->setVisible(true);
+		ui.actionMruAction2->setText(mru.at(1));
+	}else ui.actionMruAction2->setVisible(false);
+	if(mru.at(2)!=""){
+		ui.actionMruAction3->setVisible(true);
+		ui.actionMruAction3->setText(mru.at(2));
+	}else ui.actionMruAction3->setVisible(false);
+}
+
+void MainWindow::on_actionMruAction1_triggered(){
+	ui.pjobFile->setText(mostRecentlyUsedPJOBFiles().at(0));
+	ui.newJobDockWidget->show();
+}
+
+void MainWindow::on_actionMruAction2_triggered(){
+	ui.pjobFile->setText(mostRecentlyUsedPJOBFiles().at(1));
+	ui.newJobDockWidget->show();
+}
+
+void MainWindow::on_actionMruAction3_triggered(){
+	ui.pjobFile->setText(mostRecentlyUsedPJOBFiles().at(2));
+	ui.newJobDockWidget->show();
+}
+
+void MainWindow::on_loadPreviousRunsButton_clicked()
+{
+	//redundante Funktion bereits implementiert im Result-Menü
+	on_actionImport_From_PJob_triggered();
+}
+
+extern QSplashScreen* global_splash_screen;
+
+void MainWindow::hide_splash_screen(){
+    global_splash_screen->finish(this);
+    delete global_splash_screen;
+    global_splash_screen = 0;
+}
+
+
+void MainWindow::viewResult(QString pjob_file, QString result){
+	ui.tabWidget->setCurrentIndex(2);
+	visualizerSelectResult(pjob_file,result);
+}
+

@@ -1,0 +1,36 @@
+\PQUEUE{} is a software that accompanies \PHO{}.
+It's main purpose is to help distributing \PHO{} calculation jobs within a pool of working machines.
+Therefore it uses \Condor{} as underlying grid computation framework.\bb
+
+To represent a \PHO{} calculation job, a novel file format called \nameref{section:pjob} is introduced.
+\PJOB{} files can be created and edited using the \nameref{section:pjob-editor} which is also distributed together with \PHO{} and \PQUEUE{}.\bb
+
+\PQUEUE{} enables the user to open \PJOB{} files and insert them into a queue - hence it's name.
+Jobs are processed according to the sequence in this queue,
+and either are executed locally or on a remote machine via \Condor.
+In both cases, a job is calculated by running the command line version of \PHO{} on it.\bb
+
+After successfully running the simulation contained in the \PJOB{} file,
+\PQUEUE{} reads the \PJOB's results into the applications memory.
+Then, after receiving results of multiple job instances, the user may write all results into one single CSV file for example
+or visualize this potentially multidimensional data in a three dimensional view within \PQUEUE.\bb
+
+Similar to \PHO{} and PScript, utilizing a ECMAScript engine \PQUEUE{} is also scriptable.
+This enables the user to build and update the job queue automatically and with user defined behavior.
+Doing long-winded optimizations by calculating further simulation parameters as a function of former results
+is the main use case for \PQUEUE{} scripts.\bb
+
+
+
+\subsection{Outline}
+
+Because of \PJOB{} and its concepts being a prerequisite for \PQUEUE{},
+this manual starts with a detailed description of the \PJOB{} file format in section \ref{section:pjob}.
+
+\PJOB{} files have to be created and edited in order to have jobs \PQUEUE{} can work with.
+Section \ref{section:pjob-cmd} covers \nameref{section:pjob-cmd}, a command line tool that does this job.
+\nameref{section:pjob-editor} is its GUI equivalent and is described in section \ref{section:pjob-editor}.
+For a quick introduction, you could skip the first chapters and start with section \ref{section:pjob-editor}
+and learn by example.
+
+Section \ref{section:pqueue} covers \PQUEUE's main use cases. 

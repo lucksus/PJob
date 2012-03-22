@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://photoss.de/pjob"
+ elementFormDefault="qualified"
+ xmlns="http://www.w3.org/2001/XMLSchema"
+ xmlns:pjob="http://photoss.de/pjob">
+
+	<element name="parameterdefinitions" type="pjob:parameterdefinitions"></element>
+
+	<complexType name="parameterdefinitions">
+		<sequence minOccurs="0" maxOccurs="unbounded">
+			<element name="parameter" type="pjob:parameter"></element>
+		</sequence>
+	</complexType>
+
+	<complexType name="parameter">
+		<sequence>
+			<element name="name" type="string" minOccurs="1" maxOccurs="1"></element>
+			<element name="defaultValue" type="double" minOccurs="1" maxOccurs="1"></element>
+			<element name="unit" type="string" minOccurs="0" maxOccurs="1"></element>
+			<element name="min" type="double" minOccurs="0" maxOccurs="1"></element>
+			<element name="max" type="double" minOccurs="0" maxOccurs="1"></element>
+		</sequence>
+	</complexType>
+</schema>
