@@ -16,11 +16,11 @@
 
 namespace PQueueMath{
 //Dies ist kein magischen Zahlen..
-//Könnte auch irgendwas anderes negatives (keine 0!) sein.
+//KÃ¶nnte auch irgendwas anderes negatives (keine 0!) sein.
 //Dieser Wert dient der Initialisierung von RandomGenerator::m_defaultSeed.
 #define DETERMINISTIC_SEED_IDUM -11524	//sollte negativ sein
 
-// Diese Werte brauche Ich für den Zufalls-Algorithmus aus den "Numerical Recipes".
+// Diese Werte brauche Ich fÃ¼r den Zufalls-Algorithmus aus den "Numerical Recipes".
 // Die wurden (genau wie der Algorithmus in funktion _shuffle(qint32)) aus diesem
 // Buch kopiert.
 #define IA 16807
@@ -45,35 +45,35 @@ namespace PQueueMath{
 *
 * Historie:
 * Ich habe diese Klasse aus der GPC::rndGenerator gebaut. Die wesentlichen Algorithmen zur Berechnung der
-* Zufallszahlen habe ich einfach übernommen. Zuvor wurde in jeder Komponente, die Zufallszahlen benötigt,
+* Zufallszahlen habe ich einfach Ã¼bernommen. Zuvor wurde in jeder Komponente, die Zufallszahlen benÃ¶tigt,
 * ein GPC::rndGenerator erzeugt. Dieses Vorgehen macht aber Probleme, da so in jeder Komponente abgefragt
 * werden muss, ob wir deterministische oder statistische Zufallswerte haben wollen (bei deterministischen
 * ist die Zufallsfolge immer die Gleiche, so dass die Ergebnisse einer Simulation auch immer gleich sind.
-* Dies wird benötigt, um Simulationsergebnisse vergleichbar zu machen). Erreicht wird dies, indem man den
-* Zufallsgenerator mit konstanten Seed-Werten initialisiert. Also musste auch jede Komponente, abhängig von
+* Dies wird benÃ¶tigt, um Simulationsergebnisse vergleichbar zu machen). Erreicht wird dies, indem man den
+* Zufallsgenerator mit konstanten Seed-Werten initialisiert. Also musste auch jede Komponente, abhÃ¤ngig von
 * den SimulationParameters, den Zufallsgenerator mit festen Werten oder z.B. mit der Systemzeit initialisieren
 * (wenn dies von dem Komponentenprogrammierer vergessen wurde, waren Zufallszahlen statistisch, auch wenn
-* der Benutzer in den SimulationParameters deterministic ausgewählt hatte).
+* der Benutzer in den SimulationParameters deterministic ausgewÃ¤hlt hatte).
 * Ein weiteres Problem war, dass Zufallsgeneratoren, die schnell hintereinader herzeugt wurden, die gleiche
 * Folge von Zufallszahlen geliefert haben, da sie mit den gleichen Seed-Werten initialisiert wurden.
-* Idee: besser wär es, wenn es  nur ein Objekt gäbe, das für die Erzeugung von Zufallszahlen zuständig ist.
+* Idee: besser wÃ¤r es, wenn es  nur ein Objekt gÃ¤be, das fÃ¼r die Erzeugung von Zufallszahlen zustÃ¤ndig ist.
 * <br>
 *
 * Aktuell:
 * RandomGenerator ist ein Singleton, d.h. es ist sichergestellt (durch private Konstruktoren), dass in einem
-* Projekt nur ein Objekt dieser Klasse existieren kann. Die Klasse enthält statische, öffentliche Funktionen
-* wie <tt>uniform(const double min, const double max)</tt>, die Zufallswerte zurückgeben. Diese statischen
-* Funktionen bekommen über die Funktion <tt>getInstance()</tt> einen Zeiger auf das RandomGenerator Objekt
+* Projekt nur ein Objekt dieser Klasse existieren kann. Die Klasse enthÃ¤lt statische, Ã¶ffentliche Funktionen
+* wie <tt>uniform(const double min, const double max)</tt>, die Zufallswerte zurÃ¼ckgeben. Diese statischen
+* Funktionen bekommen Ã¼ber die Funktion <tt>getInstance()</tt> einen Zeiger auf das RandomGenerator Objekt
 * und rufen seine _<Verteilung>(..) - Funktionen auf.
-* Über die Funktionen <tt>setDeterministic()</tt> und <tt>setRandom()</tt> wird gesteuert, ob die
-* Zufallswerte wirklich zufällig (naja, von der Systemzeit abh.) oder deterministisch sind.
+* Ãœber die Funktionen <tt>setDeterministic()</tt> und <tt>setRandom()</tt> wird gesteuert, ob die
+* Zufallswerte wirklich zufÃ¤llig (naja, von der Systemzeit abh.) oder deterministisch sind.
 * Diese Funktionen werden nur an einer Stelle in PHOTOSS aufgerufen. Kurz bevor die Simulation gestartet
 * wird, in der <tt>GlobalSimFkt()</tt>, in der Datei PhotossDoc.cpp.
 * 
-* Alle Verteilungen (für die "public static" Funktionen existieren) habe ich am 10.02.2006 zusammen mit
+* Alle Verteilungen (fÃ¼r die "public static" Funktionen existieren) habe ich am 10.02.2006 zusammen mit
 * Martin Windmann getestet.
 * (1Mio. Werte erzeugen und in eine Datei schreiben lassen. Anschliessend mit Matlab sichergestellt, dass
-* die Zufallswerte unkorreliert sind und das Histogramm die jeweilige, für die Verteilung charakteristische,
+* die Zufallswerte unkorreliert sind und das Histogramm die jeweilige, fÃ¼r die Verteilung charakteristische,
 * Form aufweist.)
 */
 class  RandomGenerator : public QObject {
@@ -81,7 +81,7 @@ class  RandomGenerator : public QObject {
 private:
 		/**
 		* Privater Konstruktor.
-		* Niemand, außer uns, darf einen RandomGenerator erzeugen!
+		* Niemand, auÃŸer uns, darf einen RandomGenerator erzeugen!
 		*
 		* Benutzt <tt>NewRandomSeed()</tt> um den seed mithilfe der Systemzeit zu initialisieren.
 		* D.h. Default ist statistisch.
@@ -90,7 +90,7 @@ private:
 
 		/**
 		* Privater Destruktor.
-		* Niemand, außer uns, darf einen RandomGenerator zerstören!
+		* Niemand, auÃŸer uns, darf einen RandomGenerator zerstÃ¶ren!
 		*/
 		~RandomGenerator();
 		
@@ -98,16 +98,16 @@ private:
 		* Privater (leerer) Kopier-Konstruktor.
 		* Niemand darf einen RandomGenerator kopieren!
 		*/
-		RandomGenerator(const RandomGenerator& copy) {copy;};
+        RandomGenerator(const RandomGenerator&) : QObject() {};
 
 		/**
 		* Setzt einen festen Seed.
-		* Wird von <tt>setDeterministic()</tt> benötigt.
+		* Wird von <tt>setDeterministic()</tt> benÃ¶tigt.
 		*/
 		void seed(const qint32 idum);
 
 		/**
-		* Erzeugt einen zufälligen Seed mithilfe der Systemzeit.
+		* Erzeugt einen zufÃ¤lligen Seed mithilfe der Systemzeit.
 		* Wird vom Konstruktor benutzt.
 		*/
 		void NewRandSeed();
@@ -116,7 +116,7 @@ private:
 		/**
 		* Diese Funktion war vorher GPC::ran(long).
 		* Ist aus den "Numerical Recipes" kopiert.
-		* Idum wird mit dem seed initialisiert. Wird bei jedem Aufruf geändert. Siehe "Numerical Recipes" Kapitel 7.
+		* Idum wird mit dem seed initialisiert. Wird bei jedem Aufruf geÃ¤ndert. Siehe "Numerical Recipes" Kapitel 7.
 		*
 		* Liefert eine Zahl zwischen 0.0 und 1.0 (Grenzen exklusiv).
 		* Benutzt "Bays-Durham shuffle", um unkorrelierte Zufallszahlen zu erzeugen.
@@ -134,21 +134,21 @@ private:
 		*/
 		double _gauss(const double mean, const double var);
 		/**
-		* Von GPC::rndGenerator übernommen.
+		* Von GPC::rndGenerator Ã¼bernommen.
 		* Benutzt <tt>_uniform(const double, const double)</tt>.
 		*/
 		double _poisson(const double lambda);
 		/**
-		* Von GPC::rndGenerator übernommen.
+		* Von GPC::rndGenerator Ã¼bernommen.
 		* Benutzt <tt>_uniform(const double, const double)</tt> und <tt>_poisson(const double)</tt>
 		*/
 		double _fastpoisson(const double lambda);
 		/**
-		* Von GPC::rndGenerator übernommen.
+		* Von GPC::rndGenerator Ã¼bernommen.
 		*/
 		double _gammln(const double xx);
 		/**
-		* Von GPC::rndGenerator übernommen.
+		* Von GPC::rndGenerator Ã¼bernommen.
 		* Benutzt <tt>_uniform(const double, const double)</tt>.
 		*/
 		double _pareto(double MinValue, double MeanValue);
@@ -161,17 +161,17 @@ private:
 		double _negExp(double lambda);
 
 		/**
-		* Diese Variable repräsentiert den Zustand des Generators.
+		* Diese Variable reprÃ¤sentiert den Zustand des Generators.
 		* Seed setzen bedeutet, diese Variable zu setzen.
 		* Eine neue Zufallszahl wird hieraus berechnet und auch hierein geschrieben,
-		* so dass diese Variablen sich mit jedem aufruf von _shuffle() ändert.
+		* so dass diese Variablen sich mit jedem aufruf von _shuffle() Ã¤ndert.
 		* (die anderen Verteilungen werden mithilfe einer Gleichverteilung emuliert, d.h.
 		* es wird auch dann _shuffle() aufgerufen) 
 		*
-		* Ursprünglich war idum vom Typ long. Laut MSDN
+		* UrsprÃ¼nglich war idum vom Typ long. Laut MSDN
 		* (http://msdn.microsoft.com/en-us/library/s3f49ktz(VS.80).aspx)
-		* ist long das gleiche wie int, nämlich ein Interger der Größe 4 Byte.
-		* Daher wird hier nun unmissveständlich ein 32-Bit-Argument verwendet,
+		* ist long das gleiche wie int, nÃ¤mlich ein Interger der GrÃ¶ÃŸe 4 Byte.
+		* Daher wird hier nun unmissvestÃ¤ndlich ein 32-Bit-Argument verwendet,
 		* da QtScript Probleme mit long hat.
 
 		*/
@@ -179,7 +179,7 @@ private:
 
 
 		/**
-		* Diese Variable enthält den Wert, auf den idum standardmäßig beim Aufruf von
+		* Diese Variable enthÃ¤lt den Wert, auf den idum standardmÃ¤ÃŸig beim Aufruf von
 		* #setDeterministic() ohne Argumente gesetzt wird.
 		*
 		* \sa #setDefaultSeed(), #getDefaultSeed()
@@ -189,9 +189,9 @@ private:
 		/**
 		* Der Algorithmus zum berechnen der gaussverteilten Zufallszahlen erzeugt immer
 		* zwei Zahlen. Wir brauchen aber erstmal nur eine. Die zweite wird gespeichert und
-		* dieses Flag wird auf true gesetzt damit beim nächsten aufruf von gauss() nicht
+		* dieses Flag wird auf true gesetzt damit beim nÃ¤chsten aufruf von gauss() nicht
 		* wieder eine Zufallszahl berechnet werden muss sondern die zuvor gespeicherte
-		* zurückgeliefert wird.
+		* zurÃ¼ckgeliefert wird.
 		* In setDeterministic() muss dieses Flag auf false gesetzt werden, da es sonst seien
 		* kann, dass die erste gauss-Zahl abweichen kann..
 		*/
@@ -207,13 +207,13 @@ public slots:
 
 
 	/**
-	* Liefert eine, zwischen den Grenzen gleichverteilte, zufällig Zahl.
+	* Liefert eine, zwischen den Grenzen gleichverteilte, zufÃ¤llig Zahl.
 	* Wobei das Intervall, in dem die Zufallszahl liegt, zu beiden Seiten offen ist:
 	*	]xmin,xmax[		
 	*
 	* \param xmin Untere Schranke des Intervalls (exklusiv)
 	* \param xmax Obere Schranke des Intervalls (exklusiv)
-	* \return Zufällige Zahl aus ]xmin,xmax[
+	* \return ZufÃ¤llige Zahl aus ]xmin,xmax[
 	*/
 	static double			uniform(double xmin, double xmax);
 
@@ -225,11 +225,11 @@ public slots:
 	}
 
 
-	//                  1             /     (x - mean)²   \
+    //                  1             /     (x - mean)Â²   \-
 	//	pfd(x) = ---------------- Exp(  - ---------------  )
 	//           Wurzel(2 PI var)     \       2 var       /
 	/**
-	* Liefert eine normal (=gauss) verteilte, zufällige Zahl.
+	* Liefert eine normal (=gauss) verteilte, zufÃ¤llige Zahl.
 	* 
 	* \param mean Mittelwert der Verteilung
 	* \param var Varianz der Verteilung
@@ -245,7 +245,7 @@ public slots:
 	}
 
 	/**
-	* Liefert eine pareto verteilte, zufällige Zahl.
+	* Liefert eine pareto verteilte, zufÃ¤llige Zahl.
 	* 
 	* \param MinValue Minimum (=Keine Zufallszahl ist kleiner als diese Wert)
 	* \param MeanValue "Mittelwert"..?
@@ -260,7 +260,7 @@ public slots:
 	}
 
 	/**
-	* Liefert eine poisson verteilte, zufällig Zahl.
+	* Liefert eine poisson verteilte, zufÃ¤llig Zahl.
 	* 
 	* \param lambda Parameter der Poissonverteilung (=Erwartungswert=Varianz=3. zentriertes Moment)
 	*/
@@ -275,7 +275,7 @@ public slots:
 
 
 	/**
-	* Liefert eine poisson verteilte, zufällig Zahl.
+	* Liefert eine poisson verteilte, zufÃ¤llig Zahl.
 	* Ist etwa doppelt so schnell, wie <tt>poisson(double)</tt>.
 	*
 	* \param lambda Parameter der Poissonverteilung (=Erwartungswert=Varianz=3. zentriertes Moment)
@@ -291,7 +291,7 @@ public slots:
 
 	
 	/**
-	* Liefert eine negativ exponential verteilte, zufällige Zahl.
+	* Liefert eine negativ exponential verteilte, zufÃ¤llige Zahl.
 	*
 	* \param lambda Parameter der Exponentialverteilung
 	*/
@@ -311,10 +311,10 @@ public slots:
 	* 
 	* Der default-seed bleibt von dieser Funktion unbeeinflusst.
 	* 
-	* Ursprünglich war das Argument vom Typ long. Laut der MSDN
+	* UrsprÃ¼nglich war das Argument vom Typ long. Laut der MSDN
 	* (http://msdn.microsoft.com/en-us/library/s3f49ktz(VS.80).aspx)
-	* ist long das gleiche wie int, nämlich ein Interger der Größe 4 Byte.
-	* Daher wird hier nun unmissveständlich ein 32-Bit-Argument verwendet,
+	* ist long das gleiche wie int, nÃ¤mlich ein Interger der GrÃ¶ÃŸe 4 Byte.
+	* Daher wird hier nun unmissvestÃ¤ndlich ein 32-Bit-Argument verwendet,
 	* da QtScript Probleme mit long hat.
 	*
 	* Achtung! idum sollte negativ sein!
@@ -335,10 +335,10 @@ public slots:
 	* Diese Funktion setzt das Standard-Idum, das beim Aufruf von #setDeterministic()
 	* ohne Argumente gesetzt wird. 
 	* Wenn eine Simulation einen deterministischen RNG verwendet, ruft sie jedesmal
-	* o.g. Funktion auf, so dass über #setDefaultSeed() der Seed für deterministische
+	* o.g. Funktion auf, so dass Ã¼ber #setDefaultSeed() der Seed fÃ¼r deterministische
 	* Simulationen gesetzt werden kann.
 	*
-	* Der Zustand des RNG bleibt von dieser Funktion unbeeinflusst. Um den übergebenen
+	* Der Zustand des RNG bleibt von dieser Funktion unbeeinflusst. Um den Ã¼bergebenen
 	* default-seed zu aktivieren, muss also noch die Funktion #setDeterministic()
 	* aufgerufen werden!
 	*/
@@ -348,13 +348,13 @@ public slots:
 
 	/**
 	* Setzt den Zufallsgenerator auf statistisch.
-	* D.h. die Folge von Zufallswerten hängt von der Systemzeit ab.
+	* D.h. die Folge von Zufallswerten hÃ¤ngt von der Systemzeit ab.
 	* (Default Verhalten)
 	*/
 	static void				setRandom();
 
 	/**
-	* Ruft abhängig von den übergebenen SimulationParameters
+	* Ruft abhÃ¤ngig von den Ã¼bergebenen SimulationParameters
 	* setDeterministic() oder setRandom() auf.
 	*/
 	static void				initFromSimulationParameters(bool isDeterministic,bool isTransientCalc);

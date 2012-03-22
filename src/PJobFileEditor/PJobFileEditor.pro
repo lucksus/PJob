@@ -1,11 +1,10 @@
 QT += xml
-CONFIG += debug_and_release
 TEMPLATE = app
-TARGET = 
+CONFIG += debug_and_release
 DEPENDPATH += . ../PJobFile
 INCLUDEPATH += . ../PJobFile
 ICON = Resources/MacOSXIcon.icns
-LIBS += ../../lib
+LIBS += -L../../lib
 DESTDIR=../../bin
 
 include(../src.pri)
@@ -13,8 +12,11 @@ include(../src.pri)
 build_pass:CONFIG(debug, debug|release) {
     mac: LIBS +=  -lPJobFile_debug
     !mac: LIBS +=  -lPJobFiled
+    mac: POST_TARGETDEPS += ../../lib/libPJobFile_debug.a
+    !mac: POST_TARGETDEPS += ../../lib/libPJobFiled.a
 } else {
     LIBS +=  -lPJobFile
+    POST_TARGETDEPS += ../../lib/libPJobFile.a
 }
 
 # Input

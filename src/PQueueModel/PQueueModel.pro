@@ -1,11 +1,11 @@
 TEMPLATE = lib
 CONFIG += qt staticlib 
 CONFIG += debug_and_release
-DEPENDPATH += . ../CondorC++Adapter ../../PJobFile/PJobFile
-INCLUDEPATH += . ../CondorC++Adapter ../../PJobFile/PJobFile ../../3rdparty/boost
+DEPENDPATH += . ../CondorC++Adapter ../PJobFile
+INCLUDEPATH += . ../CondorC++Adapter ../PJobFile
 LIBS += -L../../lib 
 QT += script
-
+DESTDIR=../../lib
 include(../src.pri)
 
 # Input

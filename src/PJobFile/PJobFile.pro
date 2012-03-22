@@ -7,7 +7,7 @@ DEPENDPATH += .
 INCLUDEPATH += .
 DESTDIR=../../lib
 
-include(../PQueue.pri)
+include(../src.pri)
 
 # Input
 HEADERS += FileHelperFunctions.h \

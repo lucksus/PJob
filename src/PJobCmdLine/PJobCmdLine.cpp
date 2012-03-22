@@ -142,8 +142,9 @@ int main(int argc, char* argv[])
 		{
 			if(verbose)
 				std::cout << "\nCreating file " << filePath << " containing:\n";
-			if(!file->appendFolder(QString::fromStdString(create)))
-			{
+            QString s=QString::fromStdString(create);
+            if(!file->appendFolder(s))
+            {
 				std::cerr << "\nCouldn't append data to file.\n";
 				return 1;
 			}

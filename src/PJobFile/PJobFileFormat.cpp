@@ -5,13 +5,13 @@
 #include <QtCore/QDateTime>
 
 PJobFileFormat::PJobFileFormat(QString path):QFile(path)
-//lädt eine .pjob-Datei oder erstellt eine leere .pjob-Datei (inklusive Header) falls diese noch nicht existiert
+//lÃ¤dt eine .pjob-Datei oder erstellt eine leere .pjob-Datei (inklusive Header) falls diese noch nicht existiert
 {
     m_path=path;
     m_modified=false;
     m_version = c_version;
 
-    //Wenn relativer Pfad angegeben wurde, zunächst in absoluten Pfad umrechnen
+    //Wenn relativer Pfad angegeben wurde, zunÃ¤chst in absoluten Pfad umrechnen
     if(QDir::isRelativePath(m_path))
     {
         //aktuellen Verzeichnispfad auslesen
@@ -26,7 +26,7 @@ PJobFileFormat::PJobFileFormat(QString path):QFile(path)
     if(!dir.exists())
         dir.mkpath(m_path.section('/',0,-2));
 
-    //Datei öffnen
+    //Datei Ã¶ffnen
     if(!QFile::open(QIODevice::ReadWrite))
 		throw ReadFileError("Could not open .pjob-file. Is the file write-protected?");
 
@@ -35,8 +35,8 @@ PJobFileFormat::PJobFileFormat(QString path):QFile(path)
 	m_data.append(this->readAll());
 
     //Header schreiben falls Datei nicht existiert
-//~~isValid() wird NUR EINMAL aufgerufen, wenn Datei geöffnet wird
-//~~Wenn die Datei nicht valid ist wird sie (z.Z.) überschrieben! (leere Datei)
+//~~isValid() wird NUR EINMAL aufgerufen, wenn Datei geÃ¶ffnet wird
+//~~Wenn die Datei nicht valid ist wird sie (z.Z.) Ã¼berschrieben! (leere Datei)
     if(!this->isValid())
 	{
         createNewFile();
@@ -61,13 +61,13 @@ bool PJobFileFormat::appendFile(QString sourceAbsolutePath, QString targetRelati
     if(targetRelativePath==NULL)
         targetRelativePath=sourceAbsolutePath.section('/',-1);
 
-    //Wenn relativer Pfad angegeben wurde, zunächst in absoluten Pfad umrechnen
+    //Wenn relativer Pfad angegeben wurde, zunÃ¤chst in absoluten Pfad umrechnen
     if(QDir::isRelativePath(sourceAbsolutePath))
     {
         sourceAbsolutePath = m_path.section('/',0,-2) + '/' + sourceAbsolutePath;
     }
 
-    //Datei öffnen
+    //Datei Ã¶ffnen
     QFile fileToAdd(sourceAbsolutePath);
     if(!fileToAdd.open(QIODevice::ReadOnly))
 		throw ReadFileError("Couldn't add \"" + sourceAbsolutePath + "\" to .pjob-file.");
@@ -76,7 +76,7 @@ bool PJobFileFormat::appendFile(QString sourceAbsolutePath, QString targetRelati
     quint64 mtime = QFileInfo(fileToAdd).lastModified().toTime_t();
     fileToAdd.close();
 
-	//Datei hinzufügen
+	//Datei hinzufÃ¼gen
 	if(appendFile(data, targetRelativePath, mtime, overwrite) == false){
 		return false;
 	}
@@ -92,10 +92,10 @@ bool PJobFileFormat::appendFile(const QByteArray &source, QString targetRelative
     while(targetRelativePath.startsWith("/") || targetRelativePath.startsWith("\\"))
         targetRelativePath.remove(0,1);
 
-	// Wenn kein Änderungsdatum übergeben wurde, setze mtime auf momentanen Zeitpunkt
+	// Wenn kein Ã„nderungsdatum Ã¼bergeben wurde, setze mtime auf momentanen Zeitpunkt
 	if(mtime == 0) mtime = QDateTime::currentDateTime().toTime_t();
 
-	//Überprüfen, ob Zieldatei nicht schon exisitiert
+	//ÃœberprÃ¼fen, ob Zieldatei nicht schon exisitiert
 	if(this->contains(targetRelativePath))
 	{
 		if(overwrite)
@@ -107,11 +107,11 @@ bool PJobFileFormat::appendFile(const QByteArray &source, QString targetRelative
 		}
 	}
 
-	//Auf Kollisionen mit Windows-Dateisystem prüfen
+	//Auf Kollisionen mit Windows-Dateisystem prÃ¼fen
     if(!this->proofUnique(targetRelativePath))
 		throw FileSystemError("Tried to add \"" + targetRelativePath + "\" to .pjob-file, but a filesystem collision was detected. Please choose another name for the file. Aborting...");
 
-    //Komprimieren und 4 Bytes am Anfang des resultierenden Arrays "wegschmeißen" (Kompatibilität zu zlib)
+    //Komprimieren und 4 Bytes am Anfang des resultierenden Arrays "wegschmeiÃŸen" (KompatibilitÃ¤t zu zlib)
     QByteArray compressed = qCompress(source,9).remove(0,4);
 
     //Map aktualisieren
@@ -121,19 +121,19 @@ bool PJobFileFormat::appendFile(const QByteArray &source, QString targetRelative
     //Dateiname ('\n'-terminierter String)
     m_data.append(targetRelativePath+'\n');
 
-    //Änderungsdatum schreiben in Sekunden seit 01.01.1970 (8-Byte-Integer)
+    //Ã„nderungsdatum schreiben in Sekunden seit 01.01.1970 (8-Byte-Integer)
     writeInt64(mtime,m_data,m_data.size());
 
-    //Dateigröße schreiben in Byte (4-Byte-Integer)
+    //DateigrÃ¶ÃŸe schreiben in Byte (4-Byte-Integer)
     writeInt32(source.size(),m_data,m_data.size());
 
-    //Gepackte Dateigröße schreiben in Byte (4-Byte-Integer)
+    //Gepackte DateigrÃ¶ÃŸe schreiben in Byte (4-Byte-Integer)
     writeInt32(compressed.size(),m_data,m_data.size());
 
     //Datei schreiben
     m_data.append(compressed);
 
-	//Information über hinzugefügte Datei versenden
+	//Information Ã¼ber hinzugefÃ¼gte Datei versenden
     QList<QVariant> fileProperties;
     fileProperties << QVariant(targetRelativePath) << QVariant(mtime) << QVariant(source.size()) << QVariant(compressed.size());
     emit fileAdded(fileProperties);
@@ -147,20 +147,20 @@ bool PJobFileFormat::appendRaw(const QByteArray &source)
 	int size = m_data.size();
 	QString filename = source.left(source.indexOf('\n'));
 
-	//Überprüfen, ob Zieldatei nicht schon exisitiert
+	//ÃœberprÃ¼fen, ob Zieldatei nicht schon exisitiert
 	if(this->contains(filename))
 		return false;
 
-	//Auf Kollisionen mit Windows-Dateisystem prüfen
+	//Auf Kollisionen mit Windows-Dateisystem prÃ¼fen
 	if(!this->proofUnique(filename))
 		return false;
 
-	//Datei 'testweise' hinzufügen und überprüfen ob .pjob-Datei noch valid ist
+	//Datei 'testweise' hinzufÃ¼gen und Ã¼berprÃ¼fen ob .pjob-Datei noch valid ist
 	m_data.append(source);
 
 	if(!this->isValid())
 	{
-		//Änderungen wieder verwerfen und Abbruch
+		//Ã„nderungen wieder verwerfen und Abbruch
 		m_data.truncate(size);
 		throw RawDataError("Appending raw data failed because the data was not valid.");
 	}
@@ -182,30 +182,30 @@ bool PJobFileFormat::appendFolder(QString sourceAbsolutePath, QString targetRela
     QDir current = sourceAbsolutePath;
     QFileInfo entry(sourceAbsolutePath);
 
-    //AppendFolder soll auch funktionieren, falls man nur eine einzelne Datei auswählt (z.B. via Kommandozeile)
+    //AppendFolder soll auch funktionieren, falls man nur eine einzelne Datei auswÃ¤hlt (z.B. via Kommandozeile)
     if(entry.isFile()&&(!(entry.isDir())))
     {
         if(!(this->appendFile(entry.absoluteFilePath(), targetRelativePath, overwrite )))
             return false;
-        //Anschließend ist keine Rekursion mehr erforderlich
+        //AnschlieÃŸend ist keine Rekursion mehr erforderlich
         return true;
     }
 
-    // "/" an relativen Pfad anhängen falls benötigt
+    // "/" an relativen Pfad anhÃ¤ngen falls benÃ¶tigt
     if(!targetRelativePath.endsWith("/") && targetRelativePath.size() > 0) targetRelativePath.append("/");
 
-    //Über alle Dateien iterieren und Hinzufügen
+    //Ãœber alle Dateien iterieren und HinzufÃ¼gen
     foreach(entry, current.entryInfoList(QDir::Files))
     {
         this->appendFile(entry.absoluteFilePath(), targetRelativePath + entry.fileName() , overwrite );
     }
 
-    //Über alle Ordner iterieren und rekursiv hinzufügen
+    //Ãœber alle Ordner iterieren und rekursiv hinzufÃ¼gen
     foreach(QString s, current.entryList(QDir::Dirs))
     {
 		QMapIterator<QString, intPair> iterator(m_map);
 
-		//Sobald eine Datei gefunden wird, welche identisch ist mit dem Beginn des hinzuzufügenden Ordners, darf dieser nicht hinzugefügt werden
+		//Sobald eine Datei gefunden wird, welche identisch ist mit dem Beginn des hinzuzufÃ¼genden Ordners, darf dieser nicht hinzugefÃ¼gt werden
 		while (iterator.hasNext())
 		{
 			iterator.next();
@@ -216,7 +216,7 @@ bool PJobFileFormat::appendFolder(QString sourceAbsolutePath, QString targetRela
 			}
 		}
 
-        //Alle Oberverzeichnisse werden nicht hinzugefügt
+        //Alle Oberverzeichnisse werden nicht hinzugefÃ¼gt
         if(! (sourceAbsolutePath.endsWith("/") || sourceAbsolutePath.endsWith("\\")))
             sourceAbsolutePath.append("/");
         if(! (targetRelativePath.endsWith("/") || targetRelativePath.endsWith("\\")))
@@ -229,7 +229,7 @@ bool PJobFileFormat::appendFolder(QString sourceAbsolutePath, QString targetRela
 }
 
 bool PJobFileFormat::rename(QString oldPath, QString newPath){
-	// Überprüfe ob eine Datei übergeben wurde
+	// ÃœberprÃ¼fe ob eine Datei Ã¼bergeben wurde
 	if(!oldPath.endsWith("/")){
 		if(this->contains(oldPath)){
 			m_data.replace(m_map[oldPath].position, oldPath.length(), QByteArray().append(newPath));
@@ -244,13 +244,13 @@ bool PJobFileFormat::rename(QString oldPath, QString newPath){
 	if(!newPath.endsWith("/")) newPath = newPath + "/";
 	QMapIterator<QString, intPair> iterator(m_map);
 
-	// Durch die Änderung von Dateinamen entstehen Abweichungen von den in der Map
+	// Durch die Ã„nderung von Dateinamen entstehen Abweichungen von den in der Map
 	// angegebenen Datei Positionen. Diese werden durch die posError Map ausgeglichen,
 	// deren Keys der Position einer Datei in der PJob Datei entsprechen. Das value
 	// entspricht der Abweichung, die ab einer Position/ einem Key wirkt.
 	// Beispiel:
 	// (--posError.lowerBound(700)) gibt das vor dem Key 700 gelegene Key/Value
-	// Paar zurück, dessen Value der Abweichung zur Ursprünglichen Position 700 entspricht.
+	// Paar zurÃ¼ck, dessen Value der Abweichung zur UrsprÃ¼nglichen Position 700 entspricht.
 	int oldPathLength = oldPath.length();
 	int pathDiff = newPath.length() - oldPathLength;
 	QMap<int, int> posError;
@@ -269,7 +269,7 @@ bool PJobFileFormat::rename(QString oldPath, QString newPath){
 			entriesChanged = true;
 		}
 	}
-	// Wenn keine Dateien umbenannt wurden, gib false zurück
+	// Wenn keine Dateien umbenannt wurden, gib false zurÃ¼ck
 	if(entriesChanged == false) return false;
 
 	// Und jetzt die Map aktualisieren
@@ -281,7 +281,7 @@ bool PJobFileFormat::rename(QString oldPath, QString newPath){
 
 bool PJobFileFormat::contains(QString relativePath)
 {
-    //Map durchsuchen und entsprechenden Wert zurückgeben
+    //Map durchsuchen und entsprechenden Wert zurÃ¼ckgeben
     return m_map.contains(relativePath);
 }
 
@@ -289,8 +289,8 @@ bool PJobFileFormat::containsDirectory(QString relativePath)
 {
     QMapIterator<QString, intPair> iterator(m_map);
 
-    //Sobald ein Verzeichnis gefunden wird, welches mit relativePath beginnt, wird true zurückgegeben
-	//Es wird nicht sichergestellt, dass es sich auch tatsächlich um ein Verzeichnis handelt
+    //Sobald ein Verzeichnis gefunden wird, welches mit relativePath beginnt, wird true zurÃ¼ckgegeben
+	//Es wird nicht sichergestellt, dass es sich auch tatsÃ¤chlich um ein Verzeichnis handelt
     while (iterator.hasNext())
     {
         iterator.next();
@@ -302,11 +302,11 @@ bool PJobFileFormat::containsDirectory(QString relativePath)
 
 QByteArray PJobFileFormat::readFile(QString relativePath)
 {
-    //Leeres QByteArray zurückgeben, falls Datei nicht existiert ~~throw something?
+    //Leeres QByteArray zurÃ¼ckgeben, falls Datei nicht existiert ~~throw something?
     if(!this->contains(relativePath))
         return NULL;
 
-    //Position und Größe der Datei holen
+    //Position und GrÃ¶ÃŸe der Datei holen
     intPair info = m_map.find(relativePath).value();
 	QString path = m_map.find(relativePath).key();
 
@@ -314,7 +314,7 @@ QByteArray PJobFileFormat::readFile(QString relativePath)
     QByteArray toRead = m_data.mid(info.position + path.size() + c_fileHeaderSize,info.size);
 	int len = info.size;
 
-    //4 Byte vorne anhängen und Dekomprimieren
+    //4 Byte vorne anhÃ¤ngen und Dekomprimieren
     for(int i=0;i<4;i++)
     {
         toRead.prepend(len);
@@ -325,25 +325,25 @@ QByteArray PJobFileFormat::readFile(QString relativePath)
 
 QByteArray PJobFileFormat::readRaw(QString relativePath)
 {
-	//Wenn die Datei nicht existiert wird nichts zurückgegeben
+	//Wenn die Datei nicht existiert wird nichts zurÃ¼ckgegeben
 	if(!this->contains(relativePath))
 		return NULL;
 
-	//Position und Größe der Datei holen
+	//Position und GrÃ¶ÃŸe der Datei holen
 	intPair info = m_map.find(relativePath).value();
 	QString path = m_map.find(relativePath).key();
 
-	//entsprechendes QByteArray zurückgeben
+	//entsprechendes QByteArray zurÃ¼ckgeben
 	return m_data.mid(info.position, path.size()+info.size+c_fileHeaderSize);
 }
 
 bool PJobFileFormat::removeFile(QString relativePath)
 {
-    //Wenn keine Datei zu löschen ist wird false zurückgeben
+    //Wenn keine Datei zu lÃ¶schen ist wird false zurÃ¼ckgeben
     if(!this->contains(relativePath))
         return false;
 
-    //Position und Größe der Datei holen
+    //Position und GrÃ¶ÃŸe der Datei holen
     intPair info = m_map.find(relativePath).value();
     QString path = m_map.find(relativePath).key();
 
@@ -358,7 +358,7 @@ bool PJobFileFormat::removeFile(QString relativePath)
 }
 
 bool PJobFileFormat::remove(QString relativePath){
-	// Überprüfe ob eine Datei übergeben wurde
+	// ÃœberprÃ¼fe ob eine Datei Ã¼bergeben wurde
 	if(!relativePath.endsWith("/")){
 		if(removeFile(relativePath) == true) return true;
 	}
@@ -367,18 +367,18 @@ bool PJobFileFormat::remove(QString relativePath){
 	if(!relativePath.endsWith("/")) relativePath = relativePath + "/";
 	QMapIterator<QString, intPair> iterator(m_map);
 
-	// Durch das Löschen von Dateien entstehen Abweichungen von den in der Map
+	// Durch das LÃ¶schen von Dateien entstehen Abweichungen von den in der Map
 	// angegebenen Datei Positionen. Diese werden durch die posError Map ausgeglichen,
 	// deren Keys der Position einer Datei in der PJob Datei entsprechen. Das value
 	// entspricht der Abweichung, die ab einer Position/ einem Key wirkt.
 	// Beispiel:
 	// (--posError.lowerBound(700)) gibt das vor dem Key 700 gelegene Key/Value
-	// Paar zurück, dessen Value der Abweichung zur Ursprünglichen Position 700 entspricht.
+	// Paar zurÃ¼ck, dessen Value der Abweichung zur UrsprÃ¼nglichen Position 700 entspricht.
 	QMap<int, int> posError;
 	posError.insert(0,0);
 	bool entriesChanged = false;
 
-	// Alle Dateien im Pfad löschen
+	// Alle Dateien im Pfad lÃ¶schen
 	int filePosition, fileEntrySize, localPosError;
 	while(iterator.hasNext()){
 		iterator.next();
@@ -391,7 +391,7 @@ bool PJobFileFormat::remove(QString relativePath){
 			entriesChanged = true;
 		}
 	}
-	// Wenn keine Dateien gelöscht wurden, gib false zurück
+	// Wenn keine Dateien gelÃ¶scht wurden, gib false zurÃ¼ck
 	if(entriesChanged == false) return false;
 
 	// Und jetzt die Map aktualisieren
@@ -415,7 +415,7 @@ void PJobFileFormat::extract(QString targetAbsolutePath, QString sourceRelativeP
 	if(!targetAbsolutePath.endsWith('/'))
 		targetAbsolutePath += '/';
 
-    //Wenn relativer Pfad angegeben wurde, zunächst in absoluten Pfad umrechnen
+    //Wenn relativer Pfad angegeben wurde, zunÃ¤chst in absoluten Pfad umrechnen
     if(QDir::isRelativePath(targetAbsolutePath))
         targetAbsolutePath = m_path.section('/',0,-2) + '/' + targetAbsolutePath;
 
@@ -434,7 +434,7 @@ void PJobFileFormat::extract(QString targetAbsolutePath, QString sourceRelativeP
 			 *indem sourceRelativePath (ohne den letzten Ordner) vom Beginn weggeschnitten wird*/
 			
 			/*
-			Dieser auskommentierte Code führt stattdessen dazu, dass die innere Ordnerstruktur erhalten bleibt (vielleicht wird das doch nochmal gebraucht)
+			Dieser auskommentierte Code fÃ¼hrt stattdessen dazu, dass die innere Ordnerstruktur erhalten bleibt (vielleicht wird das doch nochmal gebraucht)
 			currentAbsolutePath =  targetAbsolutePath + iterator.key().section('/',0,-2) +'/';
 			*/
 
@@ -456,8 +456,8 @@ void PJobFileFormat::extract(QString targetAbsolutePath, QString sourceRelativeP
                 targetDirectory.mkpath(currentAbsolutePath);
 
           //Datei schreiben
-            //Datei wird in das targetAbsolutePath-Verzeichnis (+ relativer Pfad) (über)schrieben
-            //Dateipfad lesen und öffnen
+            //Datei wird in das targetAbsolutePath-Verzeichnis (+ relativer Pfad) (Ã¼ber)schrieben
+            //Dateipfad lesen und Ã¶ffnen
             QFile file(targetAbsolutePath + currentFilePath);
             if((!file.exists())||overwrite)
             {
@@ -469,7 +469,7 @@ void PJobFileFormat::extract(QString targetAbsolutePath, QString sourceRelativeP
                 int len = iterator.value().size;
                 QByteArray toWrite(m_data.mid(pos, len));
 
-                //~~ 4 Byte als BigEndian vorne anhängen und Dekomprimieren
+                //~~ 4 Byte als BigEndian vorne anhÃ¤ngen und Dekomprimieren
                 for(int i=0;i<4;i++)
                 {
                     toWrite.prepend(len);
@@ -480,7 +480,7 @@ void PJobFileFormat::extract(QString targetAbsolutePath, QString sourceRelativeP
                 //Datei schreiben
                 file.write(toWrite);
                 file.resize(toWrite.size());
-                //TODO: Datei Änderungsdatum zurückschreiben(boost::filesystem::last_write_time( )?)
+                //TODO: Datei Ã„nderungsdatum zurÃ¼ckschreiben(boost::filesystem::last_write_time( )?)
                 file.flush();
                 file.close();
 			    emit output(targetAbsolutePath + iterator.key());
@@ -527,10 +527,10 @@ QList<QList<QVariant> > PJobFileFormat::detailedContents(QString folder)
 		// Schreibe Datum in die Liste
 		list << QVariant( readInt64(m_data, iterator.value().position + iterator.key().length() + 1) );
 
-		// Schreibe Dateigröße in die Liste
+		// Schreibe DateigrÃ¶ÃŸe in die Liste
 		list << QVariant( readInt32(m_data, iterator.value().position + iterator.key().length() + 1 + 8));
 
-		// Schreibe gepackte Dateigröße in die Liste
+		// Schreibe gepackte DateigrÃ¶ÃŸe in die Liste
 		list << QVariant(iterator.value().size);
 
 		contents << list;
@@ -549,14 +549,14 @@ bool PJobFileFormat::isValid()
 {
 	int n = m_data.size();
 
-    //Header überprüfen
+    //Header Ã¼berprÃ¼fen
 	if((n!=0)&&(n<21))
 		return false;
 
 	if(!m_data.startsWith("PJobFile\n"))
         return false;
 	
-	//nicht unterstützte Version
+	//nicht unterstÃ¼tzte Version
 	if(!(readInt32(m_data,9)<=m_version))
 		return false;
 
@@ -564,20 +564,20 @@ bool PJobFileFormat::isValid()
 	int pos = 21;
 	while(pos != n)
 	{
-		//Dateinamen überspringen
+		//Dateinamen Ã¼berspringen
 		int pos2 = m_data.indexOf('\n',pos);
 
 		//Fehler im Dateiheader
 		if((pos2 == -1)||(pos2+c_fileHeaderSize > n)||(pos2==pos))
 			return false;
 		
-		//Dateigröße parsen
+		//DateigrÃ¶ÃŸe parsen
 		int size = readInt32(m_data,pos2+c_fileHeaderSize-4);
 
 		//ans Ende der aktuellen Datei springen
 		pos = pos2 + c_fileHeaderSize + size;
 
-		//überprüfen ob pos noch innerhalb der Arraygrenzen liegt
+		//Ã¼berprÃ¼fen ob pos noch innerhalb der Arraygrenzen liegt
 		if(pos > n)
 			return false;
 	}
@@ -588,7 +588,7 @@ void PJobFileFormat::createNewFile()
 {
     m_modified=true;
 
-	//alten Inhalt löschen
+	//alten Inhalt lÃ¶schen
 	m_data.truncate(0);
 
 	//Header schreiben
@@ -601,7 +601,7 @@ void PJobFileFormat::writeHeaderInformation(bool overwriteOldHeader)
     if(overwriteOldHeader)
         length=21;
 
-    //temporäres Array mit Headerinhalt schreiben
+    //temporÃ¤res Array mit Headerinhalt schreiben
     QByteArray temp("PJobFile\n");
     writeInt32(m_version,temp,9);
 	writeInt64(QDateTime::currentDateTime().toTime_t(),temp,13);
@@ -612,7 +612,7 @@ void PJobFileFormat::writeHeaderInformation(bool overwriteOldHeader)
 
 void PJobFileFormat::map()
 {
-	//Map zurücksetzen
+	//Map zurÃ¼cksetzen
 	QMap<QString,intPair> map;
 	m_map = map;
 
@@ -625,10 +625,10 @@ void PJobFileFormat::map()
     while(pos < m_data.size())
     {
       //Variablen setzen
-        //Headergröße auslesen
+        //HeadergrÃ¶ÃŸe auslesen
         headerSize=m_data.indexOf('\n',pos)-pos+c_fileHeaderSize;
 
-        //Dateigröße auslesen
+        //DateigrÃ¶ÃŸe auslesen
         dataSize=readInt32(m_data,pos+headerSize-4);
 
         //Dateinamen auslesen
@@ -639,7 +639,7 @@ void PJobFileFormat::map()
         info.size = dataSize;
         m_map.insert(filePath,info);
 
-        //Position ändern
+        //Position Ã¤ndern
         pos += headerSize + dataSize;
     }
 }
@@ -648,11 +648,11 @@ void PJobFileFormat::addToMap(QString relativePath, int position, int size)
 {
     intPair info;
 
-    //Werte für Integerpaar setzen
+    //Werte fÃ¼r Integerpaar setzen
     info.position=position;
     info.size=size;
 
-    //Wert der Map hinzufügen
+    //Wert der Map hinzufÃ¼gen
     m_map.insert(relativePath,info);
 }
 
@@ -667,14 +667,14 @@ QString PJobFileFormat::adjustPath(QString path)
 
 bool PJobFileFormat::proofUnique(QString relativePath)
 {
-	//Wenn die .pjob-Datei bereits einen Ordner mit gleichem Namen enthält...
+	//Wenn die .pjob-Datei bereits einen Ordner mit gleichem Namen enthÃ¤lt...
 	if(this->containsDirectory(relativePath))
 	{
 		emit output("Detected a filesystem collision. Aborting...");
 		return false;
 	}
 
-	//... oder eine Datei mit einem Teilpfad der hinzuzufügenden Datei beginnt
+	//... oder eine Datei mit einem Teilpfad der hinzuzufÃ¼genden Datei beginnt
 	QMapIterator<QString, intPair> iterator(m_map);
 	while (iterator.hasNext())
 	{
@@ -693,7 +693,7 @@ void PJobFileFormat::writeInt32(quint32 input, QByteArray &array, int pos)
 {
   //Byteweises Auslesen von Input als char*
     char* a = (char*)&input;
-//~~Maschinenabhängig! I.d.R. LittleEndian, für BigEndian: for(int i=3;i>=0;i--) ggf. mit Qt-Klasse abfangen?
+//~~MaschinenabhÃ¤ngig! I.d.R. LittleEndian, fÃ¼r BigEndian: for(int i=3;i>=0;i--) ggf. mit Qt-Klasse abfangen?
     for(int i=0;i<4;i++)
         array.insert(pos++,a[i]);
 }
@@ -702,14 +702,14 @@ void PJobFileFormat::writeInt64(quint64 input, QByteArray &array, int pos)
 {
   //Byteweises Auslesen von Input als char*
     char* a = (char*)&input;
-//~~Maschinenabhängig! I.d.R. LittleEndian, für BigEndian: for(int i=7;i>=0;i--) ggf. mit Qt-Klasse abfangen?
+//~~MaschinenabhÃ¤ngig! I.d.R. LittleEndian, fÃ¼r BigEndian: for(int i=7;i>=0;i--) ggf. mit Qt-Klasse abfangen?
     for(int i=0;i<8;i++)
         array.insert(pos++,a[i]);
 }
 
 quint32 PJobFileFormat::readInt32(const QByteArray &array, int pos)
 {
-//~~Byteweises Auslesen der nächsten 4 Bytes beginnend ab pos als 32-Bit-Integer ~~ falls BigEndian: Probleme
+//~~Byteweises Auslesen der nÃ¤chsten 4 Bytes beginnend ab pos als 32-Bit-Integer ~~ falls BigEndian: Probleme
     quint32 j=0;
     for(int i=0;i<4;i++)
         j+=static_cast<unsigned char>(array.at(pos++))*power(256,i);
@@ -718,7 +718,7 @@ quint32 PJobFileFormat::readInt32(const QByteArray &array, int pos)
 
 quint64 PJobFileFormat::readInt64(const QByteArray &array, int pos)
 {
-//~~Byteweisen Auslesen der nächsten 8 Bytes beginnend ab pos als 64-Bit-Integer ~~ falls BigEndian: Probleme
+//~~Byteweisen Auslesen der nÃ¤chsten 8 Bytes beginnend ab pos als 64-Bit-Integer ~~ falls BigEndian: Probleme
     quint64 j=0;
     for(int i=0;i<8;i++)
         j+=static_cast<unsigned char>(array.at(pos++))*power(256,i);
@@ -727,7 +727,7 @@ quint64 PJobFileFormat::readInt64(const QByteArray &array, int pos)
 
 void PJobFileFormat::flush()
 {
-    //Wenn File unverändert muss nichts gespeichert werden
+    //Wenn File unverÃ¤ndert muss nichts gespeichert werden
     if(!m_modified)
         return;
     m_modified=false;
