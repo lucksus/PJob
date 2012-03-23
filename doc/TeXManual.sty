@@ -1,0 +1,128 @@
+% Für das Nummerieren von Abbildungen nach Abschnitten:
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{TexManual}[2010/08/09]
+\usepackage{tikz}
+
+\usepackage{listings}	% Code-Listings nutzen können
+% Einfärben der Lineale, sowie Header
+\definecolor{phocolor}{RGB}{0,128,128}
+
+
+\renewcommand{\thefigure}{\arabic{section}.\arabic{subsection}.\arabic{figure}}
+% In jeder Subsektion die Figures neu zählen!
+\@addtoreset{figure}{subsection}
+
+% Für die Definition von Tiefergestelltem Text:
+\DeclareRobustCommand*\textsubscript[1]{%
+  \@textsubscript{\selectfont#1}}
+\def\@textsubscript#1{%
+  {\m@th\ensuremath{_{\mbox{\fontsize\sf@size\z@#1}}}}}
+
+  % Für das "entspricht"-Zeichen im Textmodus:
+  \newcommand{\entspricht}{$\buildrel \wedge \over = \,$}
+  % Dito, aber im Mathe-Modus:
+  \newcommand{\entsprichtMathe}{\buildrel \wedge \over =}
+  
+  % Abkürzungen für die Super- und Sub-Skripte
+  \newcommand{\tSs}{\textsuperscript}
+  \newcommand{\tss}{\textsubscript}
+  
+
+% Einfaches Definieren der Seitenabstände, Textbreiten, etc:
+\usepackage{geometry}
+\geometry{a4paper, top=25mm, left=25mm, right=25mm, bottom=25mm,
+headsep=7mm, footskip=12mm}
+
+
+% Stil der Seiten (Lineal, etc):
+\pagestyle{fancy}
+\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\headrule}{{\color{phocolor}%
+\hrule width\headwidth height\headrulewidth \vskip-\headrulewidth}}
+\renewcommand{\footrule}{{\color{phocolor}%
+\vskip-\footruleskip\vskip-\footrulewidth
+\hrule width\headwidth height\footrulewidth\vskip\footruleskip}}
+
+% Bestimmen, an welcher Stelle Seitenzahlen und Indexterme erscheinen sollen:
+\fancyhead[LE, RO]{ \textcolor{phocolor}{\slshape \rightmark}}
+\fancyhead[LO, RE]{ \textcolor{phocolor}{\slshape \leftmark}}
+\fancyfoot[LE,RO]{ \textcolor{phocolor}{\thepage}}
+\fancyfoot[LO,RE]{ \textcolor{phocolor}{\emph{PHOTOSS User Manual}}}
+\cfoot{}
+
+% Einfärben der Abschnittsnummern:
+\definecolor{sectioncolor}{RGB}{0,128,128}
+\addtokomafont{section}{\normalfont\Huge\bfseries\sffamily\color{sectioncolor}}
+\addtokomafont{subsection}{\normalfont\huge\sffamily\bfseries\color{sectioncolor}}
+\addtokomafont{subsubsection}{\normalfont\Large\sffamily\bfseries\color{sectioncolor}}
+\addtokomafont{paragraph}{\normalfont\Large\sffamily\bfseries\color{sectioncolor}}
+  
+  
+% Wir möchten nicht, dass auch paragraphs and subparagraphs nummeriert werden:
+\setcounter{secnumdepth}{3}	
+% Außerdem sollen sie im Index ebenfalls nicht auftauchen:
+\setcounter{tocdepth}{3}
+  
+  
+  
+  
+  %Wir definieren uns die Sprache JavaScript für unsere listings:
+\lstdefinelanguage{Textstile} { sensitive=false,
+    morecomment=[l]{//}, 
+    morecomment=[s]{/*}{*/},
+    morestring=[b]",
+    morestring=[d]'
+}
+%Default-Language ohne Highlightings:
+\lstdefinelanguage{Default} {classoffset=0,
+    sensitive=false,
+    morecomment=[l]{//}, 
+    morecomment=[s]{/*}{*/},
+    morestring=[b]",
+    morestring=[d]'
+}
+\lstset{ %
+language=Textstile,                % choose the language of the code
+basicstyle=\small,       % the size of the fonts that are used for the code
+%numbers=left,                   % where to put the line-numbers
+numberstyle=\small,      % the size of the fonts that are used for the line-numbers
+stepnumber=1,                   % the step between two line-numbers. If it's 1 each line will be numbered
+numbersep=5pt,                  % how far the line-numbers are from the code
+backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+%frame=single,	                % adds a frame around the code
+tabsize=2,	                % sets default tabsize to 2 spaces
+captionpos=b,                   % sets the caption-position to bottom
+breaklines=true,                % sets automatic line breaking
+breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+ % frame=tb,
+%    framesep=5pt,
+    basicstyle=\small\ttfamily,
+    showstringspaces=false,
+    identifierstyle=\ttfamily,
+    stringstyle=\ttfamily\color{JungleGreen},
+    commentstyle=\color{OliveGreen},
+title=\lstname,                 % show the filename of files included with \lstinputlisting; also try caption instead of title
+escapeinside={\%*}{*)}          % if you want to add a comment within your code
+}
+
+
+% Definition für Tabellen-Umgebung für Komponenten-Parameter:
+\newenvironment{paramTable}{\par\footnotesize\tabularx}{\endtabularx} 
+
+% Dafür sorgen, dass die Gleichungen in jeder Subsubsektion neu gezählt und angezeigt werden:
+\numberwithin{equation}{subsubsection}
+\renewcommand{\theequation}{\arabic{equation}}
+
+% Abbilungen Abschnittsweise nummerieren:
+% usepackage[chngcntr]
+%\numberwithin{figure}{section}
+%\renewcommand{\theequation}{\thesubsubsection.\arabic{equation}}
+
+% Abstand zwischen Tabellen von Komponentenparametern einheitlich definieren:
+\newcommand{\abstandKomponentenParameter}{\vspace{0.25 cm}}
+
+
+
