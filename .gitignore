@@ -8,3 +8,10 @@ src/PJobFile/debug/*
 moc_*.cpp
 *.app
 qrc_*.cpp
+*.aux
+*.log
+*.out
+*.pdf
+*.toc
+*.idx
+*.dylib
