@@ -22,6 +22,8 @@ build_pass:CONFIG(debug, debug|release) {
     POST_TARGETDEPS += ../../lib/libPJobFile.a ../../lib/libPQueueModel.a ../../lib/libCondorC++Adapter.a 
 }
 
+unix:LIBS += -llapack -lblas
+
 win32{
     QMAKE_POST_LINK='copy findRegion.js  $$DESTDIR & copy parametervariation.js $$DESTDIR'
 }else{
