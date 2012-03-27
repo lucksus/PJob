@@ -19,7 +19,7 @@ signals:
 private slots:
 	void mainScriptChanged();
 
-	// Rechtsklick Menü für das Resources Tree View.
+	// Rechtsklick MenÃ¼ fÃ¼r das Resources Tree View.
 	void showResourcesContextMenu(const QPoint& pos);
 	void onResourcesActionExtract();
 	void onResourcesActionRename();

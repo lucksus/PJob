@@ -4,7 +4,7 @@
 
 PhotossJobFile::PhotossJobFile(QString pjobFile):PJobFile(pjobFile)
 {
-	//Temporäres Verzeichnis erstellen und Dateien dorthin entpacken
+	//TemporÃ¤res Verzeichnis erstellen und Dateien dorthin entpacken
 	QFileInfo fileInfo(pjobFile);
 	m_temporaryDirectory = fileInfo.baseName() + "_temp_" + QDateTime::currentDateTime().toString("yyyyMMdd_hhmm_ss");
 	this->open();
@@ -84,14 +84,14 @@ void PhotossJobFile::tempDirToPJobFile()
 	QString runDir = fileInfo.absolutePath() + '/' + m_temporaryDirectory;
 	QDir dir(runDir);
 
-	//Es muss nur das Runs-Verzeichnis gespeichert werden (am Rest ändert sich nichts)
+	//Es muss nur das Runs-Verzeichnis gespeichert werden (am Rest Ã¤ndert sich nichts)
 	dir.cd("Runs");
 	foreach(QString s, dir.entryList(QDir::Dirs))
 	{
 		QDir current(s);
 		foreach(QFileInfo entry, current.entryInfoList(QDir::Files))
 		{
-			//Wenn die Datei nicht im Resources Verzeichnis existiert einfach hinzufügen
+			//Wenn die Datei nicht im Resources Verzeichnis existiert einfach hinzufÃ¼gen
 			if(!(m_data->contains("Resources/" + entry.fileName())))
 			{
 				try

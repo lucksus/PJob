@@ -380,7 +380,7 @@ QHash< QHash<QString,double>, QHash<QString,double> > PJobFile::getResultsForRun
 		//nur ein einziger Result pro Resultfile (neuer Code)
 		if(resultFile.type() == PJobResultFile::SINGLE_VALUE)
 		{
-			//Wert auslesen (stets nur 1 vorhanden) der entsprechenden Parametercombination und hinzufügen
+			//Wert auslesen (stets nur 1 vorhanden) der entsprechenden Parametercombination und hinzufÃ¼gen
 			QByteArray parsed = m_data->readFile(run + '/' + resultFile.filename()).simplified();
 			QString name = resultFile.results().first().name();
 			if(resultFile.results().first().unit() != "")
@@ -401,9 +401,9 @@ QHash< QHash<QString,double>, QHash<QString,double> > PJobFile::getResultsForRun
 				results[name]=d;
 				//ACHTUNG!!
 				//TODO:
-				//Nico: Falls die Datei mehrere Resultwerte enthält, wird hier immer der ERSTE genommen!
-				//Das habe ich so gemacht, damit die Beispiel-Sim, die wir übermorgen (16.11.2011) in München zeigen wollen, funktioniert.
-				//Sinnvoller wäre eigentlich, den letzen Wert zu nehmen, oder sich einen Mechanismus zu überlegen, mehrere Werte einlesen zu können...
+				//Nico: Falls die Datei mehrere Resultwerte enthÃ¤lt, wird hier immer der ERSTE genommen!
+				//Das habe ich so gemacht, damit die Beispiel-Sim, die wir Ã¼bermorgen (16.11.2011) in MÃ¼nchen zeigen wollen, funktioniert.
+				//Sinnvoller wÃ¤re eigentlich, den letzen Wert zu nehmen, oder sich einen Mechanismus zu Ã¼berlegen, mehrere Werte einlesen zu kÃ¶nnen...
 			}
 		}
 	
@@ -451,16 +451,16 @@ QList< QHash< QString, double > > PJobFile::readResultFilePHOTOSS_CSV(QString re
 
 void PJobFile::copyWithoutRuns(QString path)
 {
-	//Es wird zunächst eine leere .pjob-Datei im Zielverzeichnis erzeugt
+	//Es wird zunÃ¤chst eine leere .pjob-Datei im Zielverzeichnis erzeugt
 	PJobFileFormat copy(path);
 
-	//Anschließend werden alle Einträge bis auf die Runs kopiert
+	//AnschlieÃŸend werden alle EintrÃ¤ge bis auf die Runs kopiert
 	foreach(QString s, m_data->content())
 	{
 		if(!s.startsWith("Runs/"))
 			copy.appendRaw(m_data->readRaw(s));
 	}
-	//Änderungen übernehmen
+	//Ã„nderungen Ã¼bernehmen
 	copy.flush();
 }
 
@@ -472,7 +472,7 @@ void PJobFile::mergeRunsFrom(const PJobFile& otherPJob)
 
 		bool fine = false;
 
-		//Wenn der Run noch nicht existiert wird er hinzugefügt (Standardfall)
+		//Wenn der Run noch nicht existiert wird er hinzugefÃ¼gt (Standardfall)
 		try
 		{
 			fine = m_data->appendRaw(neuer_run);
@@ -482,11 +482,11 @@ void PJobFile::mergeRunsFrom(const PJobFile& otherPJob)
 			//do something
 		}
 		
-		//Ansonsten muss geguckt werden, ob die Runs binär unterschiedlich sind und der neue Run ggf. umbenannt werden
-		//(Äußerst seltener, eher theoretischer, Fall!!)
+		//Ansonsten muss geguckt werden, ob die Runs binÃ¤r unterschiedlich sind und der neue Run ggf. umbenannt werden
+		//(Ã„uÃŸerst seltener, eher theoretischer, Fall!!)
 			if((!fine) && (neuer_run != m_data->readRaw(run)))
 			{
-				//Es wird solange der letzte char des Datei-Strings geändert, bis sich die Dateinamen unterscheiden (ggf. wird angehängt)
+				//Es wird solange der letzte char des Datei-Strings geÃ¤ndert, bis sich die Dateinamen unterscheiden (ggf. wird angehÃ¤ngt)
 				int len = neuer_run.indexOf('\n') - 1;
 				int n = 0, slen = 1;
 				QString neuer_string = QString(neuer_run.left(len+1));
@@ -500,7 +500,7 @@ void PJobFile::mergeRunsFrom(const PJobFile& otherPJob)
 					slen = s.length();
 				}while(m_data->contains(neuer_string));
 
-				//Hinzufügen
+				//HinzufÃ¼gen
 				QByteArray b;
 				b.append(neuer_string);
 				neuer_run.replace(0,len+slen,b);

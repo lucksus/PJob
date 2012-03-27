@@ -28,7 +28,7 @@ PJobFileWidget::PJobFileWidget(PJobFile* jobFile, QWidget* parent )
 	ui.resourcesTreeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 	connect(m_pjobDirModel, SIGNAL(changed()), this, SLOT(resourcesChanged()));
 
-	// Resources Rechtsklick/ Context Menü initialisieren
+	// Resources Rechtsklick/ Context MenÃ¼ initialisieren
 	QAction* actionAddResources = new QAction("Add resources...", this);
 	QAction* actionMakeDir = new QAction("Make directory", this);
 	QAction* actionExtract = new QAction("Extract to...", this);
