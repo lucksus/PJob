@@ -2,12 +2,27 @@
 #define PJOBFILEBINARY_H
 #include <QtCore/QString>
 
-class PJobFileBinary
+
+
+class PJobFileApplication
 {
 public:
     enum Platform{
         Win32, Win64, MacOSX, Linux
     };
+
+    PJobFileApplication()
+    {
+        platform = Linux;
+#ifdef Q_WS_WIN
+        platform = Win32;
+#endif
+#ifdef Q_WS_MACX
+        platform = MacOSX;
+#endif
+    }
+
+
     QString name;
     QString program_name;
     QString program_version;

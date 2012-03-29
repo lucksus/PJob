@@ -9,7 +9,7 @@
 #include "SyntaxHighlighter.h"
 
 PJobFileWidget::PJobFileWidget(PJobFile* jobFile, QWidget* parent )
-: QWidget(parent), m_pjobFile(jobFile)
+    : QWidget(parent), m_pjobFile(jobFile), m_applicationFilesModel(0), m_applicationPageIsConstructing(false)
 {
 	ui.setupUi(this);
 
@@ -58,7 +58,7 @@ PJobFileWidget::PJobFileWidget(PJobFile* jobFile, QWidget* parent )
 	ui.runsTreeView->setDropIndicatorShown(false);
 	ui.runsTreeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-        SyntaxHighlighter* syntaxHighlighter = new SyntaxHighlighter(ui.scriptTextEdit->document());
+        new SyntaxHighlighter(ui.scriptTextEdit->document());
 	ui.scriptTextEdit->setText(m_pjobFile->mainPscript());
 	connect(ui.scriptTextEdit, SIGNAL(textChanged()), this, SLOT(mainScriptChanged()));
 
@@ -80,13 +80,12 @@ PJobFileWidget::PJobFileWidget(PJobFile* jobFile, QWidget* parent )
         ui.resultsTreeView->setColumnWidth(1,150);
 	connect(&m_resultsModel, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(resultsChanged()));
 
+        syncApplicationsFileToModel();
+
     QFont font("Bitstream Vera Sans Mono",10);
     ui.scriptTextEdit->setFont(font);
 
-    QList<PJobFileBinary> binaries = m_pjobFile->binaries();
-    foreach(PJobFileBinary b, binaries){
-            ui.binariesComboBox->addItem(b.name);
-    }
+
 }
 
 void PJobFileWidget::refresh(){
@@ -339,10 +338,129 @@ void PJobFileWidget::syncResultsFileToModel(){
 }
 
 
-void PJobFileWidget::on_binariesComboBox_currentIndexChanged(int index){
+void PJobFileWidget::on_listOfApps_currentItemChanged(QListWidgetItem * current, QListWidgetItem *){
+    ui.applicationSplitter->setEnabled(false);
+    ui.applicationInfoBox->setEnabled(false);
+    ui.applicationFilesBox->setEnabled(false);
+    ui.applicationFiles->setEnabled(false);
+    ui.removeApp->setEnabled(false);
+    if(m_applicationFilesModel) delete m_applicationFilesModel;
+    m_applicationFilesModel = 0;
+    if(current == 0) return;
+    const QString app_name = current->text();
+    PJobFileApplication app;
+    foreach(app, m_pjobFile->applications())
+        if(app.name == app_name) break;
+    Q_ASSERT(app.name == app_name);
 
+
+    m_applicationFilesModel = new PJobDirModel(m_pjobFile->getPJobFile(), QString("Binaries/%1").arg(app.name), this);
+    ui.applicationFiles->setModel(m_applicationFilesModel);
+    ui.applicationName->setText(app.program_name);
+    ui.applicationVersion->setText(app.program_version);
+    ui.applicationExecutable->setText(app.executable);
+    ui.applicationPlatform->setCurrentIndex(app.platform);
+    ui.applicationParametersPattern->setText(app.parameter_pattern);
+    ui.applicationSplitter->setEnabled(true);
+    ui.applicationInfoBox->setEnabled(true);
+    ui.applicationFilesBox->setEnabled(true);
+    ui.applicationFiles->setEnabled(true);
+    ui.removeApp->setEnabled(true);
 }
 
+void PJobFileWidget::on_listOfApps_itemChanged(QListWidgetItem* item){
+    if(m_applicationPageIsConstructing) return;
+    QString new_app_name = item->text();
+    QString old_app_name = item->data(Qt::UserRole).toString();
+    m_pjobFile->renameApplication(old_app_name, new_app_name);
+    syncApplicationsFileToModel();
+}
+
+void PJobFileWidget::on_addApp_clicked(){
+    QString new_name = "New Application";
+    QList<PJobFileApplication> apps = m_pjobFile->applications();
+    bool first_app = (apps.size() == 0);
+    QStringList names;
+    foreach(PJobFileApplication app, apps){
+        names.append(app.name);
+    }
+
+    while(names.count(new_name)) new_name.append("*");
+
+    PJobFileApplication app;
+    app.name = new_name;
+    m_pjobFile->addApplication(app);
+    if(first_app) m_pjobFile->setDefaultApplication(app.name);
+    syncApplicationsFileToModel();
+}
+
+void PJobFileWidget::on_removeApp_clicked(){
+    QListWidgetItem* item_to_remove = ui.listOfApps->selectedItems().first();
+    m_pjobFile->removeApplication(item_to_remove->text());
+    syncApplicationsFileToModel();
+}
+
+void PJobFileWidget::on_defaultApp_currentIndexChanged(QString app_name){
+    m_pjobFile->setDefaultApplication(app_name);
+}
+
+void PJobFileWidget::on_applicationName_textChanged(const QString&){
+    syncCurrentApplicationModelToFile();
+}
+
+void PJobFileWidget::on_applicationVersion_textChanged(const QString&){
+    syncCurrentApplicationModelToFile();
+}
+
+void PJobFileWidget::on_applicationExecutable_textChanged(const QString&){
+    syncCurrentApplicationModelToFile();
+}
+
+void PJobFileWidget::on_applicationParametersPattern_textChanged(const QString&){
+    syncCurrentApplicationModelToFile();
+}
+
+void PJobFileWidget::on_applicationPlatform_currentIndexChanged(int){
+    syncCurrentApplicationModelToFile();
+}
+
+void PJobFileWidget::syncApplicationsFileToModel(){
+    m_applicationPageIsConstructing = true;
+    QList<PJobFileApplication> binaries = m_pjobFile->applications();
+    ui.listOfApps->clear();
+    ui.defaultApp->clear();
+    foreach(PJobFileApplication b, binaries){
+        QListWidgetItem* item = new QListWidgetItem(ui.listOfApps);
+        item->setFlags(item->flags() | Qt::ItemIsEditable);
+        item->setText(b.name);
+        item->setData(Qt::UserRole, b.name);
+        ui.listOfApps->addItem(item);
+        ui.defaultApp->addItem(b.name);
+    }
+    QString default_app = m_pjobFile->defaultApplication();
+    for(int i=0;i<ui.defaultApp->count();i++){
+        if(ui.defaultApp->itemText(i) == default_app){
+            ui.defaultApp->setCurrentIndex(i);
+            break;
+        }
+    }
+    m_applicationPageIsConstructing = false;
+}
+
+void PJobFileWidget::syncCurrentApplicationModelToFile(){
+    QString app_name = ui.listOfApps->currentItem()->text();
+    QList<PJobFileApplication> apps = m_pjobFile->applications();
+    for(int i=0; i<apps.size(); i++){
+        PJobFileApplication& app = apps[i];
+        if(app.name != app_name) continue;
+        app.program_name = ui.applicationName->text();
+        app.program_version = ui.applicationVersion->text();
+        app.executable = ui.applicationExecutable->text();
+        app.parameter_pattern = ui.applicationParametersPattern->text();
+        app.platform = static_cast<PJobFileApplication::Platform>(ui.applicationPlatform->currentIndex());
+    }
+    m_pjobFile->writeApplications(apps);
+}
 
 
 

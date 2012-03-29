@@ -103,7 +103,7 @@ PJobFileFormat* PJobFile::getPJobFile(){
 void PJobFile::create(){
 	writeResultDefinitions(QList<PJobResultFile>());
 	writeParameterDefinitions(QList<PJobFileParameterDefinition>());
-    writeBinaries(QList<PJobFileBinary>());
+    writeApplications(QList<PJobFileApplication>());
 	try
 	{
 		m_data->appendFile(QByteArray(), "Resources/main.pscript");
@@ -201,13 +201,74 @@ void PJobFile::writeResultDefinitions(QList<PJobResultFile> resultFiles){
 	emit changed();
 }
 
-QList<PJobFileBinary> PJobFile::binaries() const{
+QList<PJobFileApplication> PJobFile::applications() const{
     return PJobFileXMLFunctions::readBinaries(m_data->readFile("binaries.xml"));
 }
 
-void PJobFile::writeBinaries(const QList<PJobFileBinary>& binaries){
+PJobFileApplication PJobFile::applicationByName(QString name) const{
+    QList<PJobFileApplication> apps = applications();
+    PJobFileApplication app;
+    foreach(app, apps){
+        if(app.name == name) break;
+    }
+    if(app.name != name) throw QString("PJobFile: application %1 not found!").arg(name);
+    return app;
+}
+
+void PJobFile::addApplication(const PJobFileApplication& app){
+    QList<PJobFileApplication> apps = applications();
+    apps.append(app);
+    writeApplications(apps);
+}
+
+void PJobFile::removeApplication(const QString& name){
+    QList<PJobFileApplication> apps = applications();
+    int i=0;
+    foreach(const PJobFileApplication& app, apps){
+        if(app.name == name) break;
+        i++;
+    }
+    if(i<apps.size()){
+        apps.removeAt(i);
+        writeApplications(apps);
+    }
+
+    foreach(const QString& file_name, m_data->content()){
+        if(file_name.startsWith(QString("Binaries/%1/").arg(name)))
+            m_data->removeFile(file_name);
+    }
+}
+
+void PJobFile::renameApplication(const QString& old_name, const QString& new_name){
+    QList<PJobFileApplication> apps = applications();
+    for(int i=0;i<apps.size();i++){
+        if(apps[i].name == old_name) apps[i].name = new_name;
+    }
+    writeApplications(apps);
+
+    foreach(const QString& file_name, m_data->content()){
+        if(file_name.startsWith(QString("Binaries/%1/").arg(old_name))){
+            QString new_file_name = file_name;
+            new_file_name.remove(QString("Binaries/%1/").arg(old_name));
+            m_data->rename(file_name, QString("Binaries/%1/%2").arg(new_name).arg(new_file_name));
+        }
+    }
+
+    if(defaultApplication() == old_name) setDefaultApplication(new_name);
+}
+
+void PJobFile::writeApplications(const QList<PJobFileApplication>& binaries){
     m_data->appendFile(PJobFileXMLFunctions::writeBinaries(binaries), "binaries.xml");
     if(m_saveAutomatically) save();
+    emit changed();
+}
+
+QString PJobFile::defaultApplication(){
+    return m_data->readFile("default_binary");
+}
+
+void PJobFile::setDefaultApplication(const QString& name){
+    m_data->appendFile(name.toAscii(), "default_binary");
     emit changed();
 }
 
@@ -517,7 +578,7 @@ void PJobFile::mergeRunsFrom(const PJobFile& otherPJob)
 				neuer_run.replace(0,len+slen,b);
 				try
 				{
-					bool fine = m_data->appendRaw(neuer_run);
+                                        m_data->appendRaw(neuer_run);
 				}
 				catch(RawDataError e)
 				{

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>622</width>
-    <height>536</height>
+    <height>557</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -46,19 +46,71 @@
       <attribute name="title">
        <string>Included Applications</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_9">
+      <layout class="QVBoxLayout" name="verticalLayout_8">
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_8">
+        <layout class="QVBoxLayout" name="verticalLayout_10">
          <item>
-          <widget class="QLabel" name="label_2">
+          <widget class="QLabel" name="label_8">
            <property name="text">
-            <string>Name of binary file set:</string>
+            <string>List of apps:</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="binariesComboBox"/>
+          <layout class="QHBoxLayout" name="horizontalLayout_8">
+           <item>
+            <widget class="QListWidget" name="listOfApps">
+             <property name="editTriggers">
+              <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+             </property>
+             <property name="showDropIndicator" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="selectionBehavior">
+              <enum>QAbstractItemView::SelectRows</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_9">
+             <item>
+              <widget class="QPushButton" name="addApp">
+               <property name="text">
+                <string>+</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="removeApp">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="text">
+                <string>-</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacer_4">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+          </layout>
          </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_9">
          <item>
           <spacer name="horizontalSpacer">
            <property name="orientation">
@@ -73,51 +125,53 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton">
+          <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>+</string>
+            <string>Default app:</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_2">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>-</string>
+          <widget class="QComboBox" name="defaultApp">
+           <property name="minimumSize">
+            <size>
+             <width>200</width>
+             <height>0</height>
+            </size>
            </property>
           </widget>
          </item>
         </layout>
        </item>
        <item>
-        <widget class="QSplitter" name="splitter">
+        <widget class="QSplitter" name="applicationSplitter">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <widget class="QWidget" name="">
-          <layout class="QVBoxLayout" name="verticalLayout_8">
+         <widget class="QGroupBox" name="applicationFilesBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="title">
+           <string>Files</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_10">
            <item>
-            <widget class="QLabel" name="label">
+            <widget class="QTreeView" name="applicationFiles">
              <property name="enabled">
               <bool>false</bool>
              </property>
-             <property name="text">
-              <string>Binary files:</string>
+             <property name="dragDropMode">
+              <enum>QAbstractItemView::DragDrop</enum>
              </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QTreeView" name="binariesTreeView">
-             <property name="enabled">
-              <bool>false</bool>
+             <property name="defaultDropAction">
+              <enum>Qt::CopyAction</enum>
              </property>
             </widget>
            </item>
           </layout>
          </widget>
-         <widget class="QGroupBox" name="groupBox">
+         <widget class="QGroupBox" name="applicationInfoBox">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -135,7 +189,7 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_3">
              <item>
-              <widget class="QLineEdit" name="binariesApplicationName"/>
+              <widget class="QLineEdit" name="applicationName"/>
              </item>
              <item>
               <widget class="QPushButton" name="binariesNameAutoButton">
@@ -156,7 +210,7 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_4">
              <item>
-              <widget class="QLineEdit" name="binariesApplicationVersion"/>
+              <widget class="QLineEdit" name="applicationVersion"/>
              </item>
              <item>
               <widget class="QPushButton" name="binariesVersionAutoButton">
@@ -177,7 +231,7 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_5">
              <item>
-              <widget class="QLineEdit" name="binariesExecutable"/>
+              <widget class="QLineEdit" name="applicationExecutable"/>
              </item>
              <item>
               <widget class="QPushButton" name="binariesExecutableAutoButton">
@@ -198,7 +252,7 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_6">
              <item>
-              <widget class="QComboBox" name="binariesPlatformComboBox">
+              <widget class="QComboBox" name="applicationPlatform">
                <item>
                 <property name="text">
                  <string>Win32</string>
@@ -240,7 +294,7 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_7">
              <item>
-              <widget class="QLineEdit" name="binariesParametersPattern"/>
+              <widget class="QLineEdit" name="applicationParametersPattern"/>
              </item>
              <item>
               <widget class="QPushButton" name="binariesParametersPatternAutoButton">
@@ -264,14 +318,7 @@
           <zorder>label_5</zorder>
           <zorder>label_6</zorder>
           <zorder>label_7</zorder>
-          <zorder>binariesApplicationName</zorder>
           <zorder>binariesAutoDetectAllButton</zorder>
-          <zorder>binariesNameAutoButton</zorder>
-          <zorder>layoutWidget</zorder>
-          <zorder>binariesApplicationVersion</zorder>
-          <zorder>layoutWidget_2</zorder>
-          <zorder>layoutWidget_3</zorder>
-          <zorder>layoutWidget_4</zorder>
          </widget>
         </widget>
        </item>

@@ -7,7 +7,7 @@
 #include "PJobResultFile.h"
 #include "hash.h"
 #include "PJobFileFormat.h"
-#include "PJobFileBinary.h"
+#include "PJobFileApplication.h"
 #include <iostream>
 #include <QtCore/QSet>
 using namespace std;
@@ -19,7 +19,7 @@ public:
 	~PJobFile();
 	void addResource(QString path);
 	void addResource(const QByteArray& content, const QString& internal_file_name);
-    QStringList runDirectoryEntries() const;
+        QStringList runDirectoryEntries() const;
 	QString latestRunDirectory() const;
 	QString pjobFile() const;
 	QString mainPscript() const;
@@ -37,8 +37,14 @@ public:
 	QList<PJobResultFile> readResultDefinitions();
 	void writeResultDefinitions(QList<PJobResultFile>);
 
-    QList<PJobFileBinary> binaries() const;
-    void writeBinaries(const QList<PJobFileBinary>&);
+        QList<PJobFileApplication> applications() const;
+        PJobFileApplication applicationByName(QString name) const;
+        void addApplication(const PJobFileApplication&);
+        void removeApplication(const QString& name);
+        void writeApplications(const QList<PJobFileApplication>&);
+        void renameApplication(const QString& old_name, const QString& new_name);
+        QString defaultApplication();
+        void setDefaultApplication(const QString& name);
 
 	void save();
 	void setSaveAutomatically(bool);
