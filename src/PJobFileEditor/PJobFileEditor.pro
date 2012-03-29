@@ -1,6 +1,7 @@
 QT += xml
 TEMPLATE = app
 CONFIG += debug_and_release
+CONFIG += exceptions
 DEPENDPATH += . ../PJobFile
 INCLUDEPATH += . ../PJobFile
 ICON = Resources/MacOSXIcon.icns

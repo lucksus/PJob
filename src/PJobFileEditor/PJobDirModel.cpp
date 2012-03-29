@@ -6,7 +6,9 @@
 #include <QtCore/QDateTime>
 #include <QtCore/QMimeData>
 #include <QtCore/QUrl>
+#include <QtGui/QMessageBox>
 #include <limits>
+#include "PJobFileError.h"
 
 PJobDirModel::PJobDirModel(PJobFileFormat* pjobFile, QString rootDir, QObject* parent) :
 	QAbstractItemModel(parent), m_pjobFile(pjobFile), m_tempDir(QDir::tempPath() + QString("/PJobEditor/%1").arg(QDateTime::currentDateTime().toTime_t()))
@@ -19,19 +21,19 @@ PJobDirModel::PJobDirModel(PJobFileFormat* pjobFile, QString rootDir, QObject* p
 	connect(m_pjobFile, SIGNAL(fileAdded(QList<QVariant>)), this, SLOT(fileAdded(QList<QVariant>)));
 
 	// Verhindert das drag/drop vom Model/ins Model indem drags auf move, und
-	// drops auf copy Operationen beschränkt werden. Siehe auch supportedDropActions().
+	// drops auf copy Operationen beschrÃ¤nkt werden. Siehe auch supportedDropActions().
 	this->setSupportedDragActions(Qt::MoveAction);
 }
 
 PJobDirModel::~PJobDirModel(){
-	// Temporäres Verzeichnis löschen. Prüft nicht ob erfolgreich gelöscht wurde.
+	// TemporÃ¤res Verzeichnis lÃ¶schen. PrÃ¼ft nicht ob erfolgreich gelÃ¶scht wurde.
 	QDir tempDir(m_tempDir);
 	if(tempDir.exists()){		
-		// Alle Dateien löschen
+		// Alle Dateien lÃ¶schen
 		QDirIterator files(m_tempDir, (QDir::Files | QDir::NoDotAndDotDot), QDirIterator::Subdirectories);
 		while(files.hasNext()) QFile::remove(files.next());
 
-		// Ordner löschen. Mit 2 Schleifen und einem Stack, da Qt keine Verzeichnis
+		// Ordner lÃ¶schen. Mit 2 Schleifen und einem Stack, da Qt keine Verzeichnis
 		// Auflistung mit Unterverzeichnissen in invertierter Reihenfolge erlaubt.
 		QDirIterator eachDir(m_tempDir, (QDir::Dirs | QDir::NoDotAndDotDot), QDirIterator::Subdirectories);
 		QStack<QString> folders;
@@ -103,7 +105,7 @@ bool PJobDirModel::setData(const QModelIndex& index, const QVariant& value, int 
 	PJobDirTree* item = static_cast<PJobDirTree*>(index.internalPointer());
 	QString oldPath = item->data(0).toString();
 	QString newPath = item->parent()->data(0).toString() + "/" + valueString;
-	// Prüfe ob der neue Pfad bereits existiert.
+	// PrÃ¼fe ob der neue Pfad bereits existiert.
 	if(item->parent()->findItem(newPath)) return false;
 
 	if(item->isDirectory()){
@@ -152,13 +154,25 @@ bool PJobDirModel::dropMimeData(const QMimeData* mimeData, Qt::DropAction action
 	QUrl url;
 	foreach(url, mimeData->urls()){
 		QString sourcePath(url.toString());
-		if(sourcePath.startsWith("file:///")) sourcePath.remove(0,8);
+                if(sourcePath.startsWith("file:///")){
+#ifdef Q_WS_WIN
+                    sourcePath.remove(0,8);     //Win: "file:///C:\foo.bar" -> "C:\foo.bar"
+#endif
+#ifndef Q_WS_WIN
+                    sourcePath.remove(0,7);     //Unices: "file:///home/foo/bar" -> "/home/foo/bar"
+#endif
+                }
 		if(sourcePath.endsWith("/")) sourcePath.remove(-1,1);
 		QFileInfo file(sourcePath);
-		if(file.isDir())
-			m_pjobFile->appendFolder(sourcePath, parentItem->data(0).toString() + "/" + file.fileName(), true);
-		else
-			m_pjobFile->appendFile(sourcePath, parentItem->data(0).toString() + "/" + file.fileName(), true);
+                try{
+                    if(file.isDir())
+                            m_pjobFile->appendFolder(sourcePath, parentItem->data(0).toString() + "/" + file.fileName(), true);
+                    else
+                            m_pjobFile->appendFile(sourcePath, parentItem->data(0).toString() + "/" + file.fileName(), true);
+                }catch(PJobFileError& e){
+                    QMessageBox::critical(0, "Problem reading file(s)", e.msg(), QMessageBox::Ok);
+                }
+
 	}
 	emit changed();
 	return true;
@@ -183,8 +197,8 @@ void PJobDirModel::removeEntries(const QModelIndexList& indexes){
 	foreach(index, indexes){
 		if(index.column() != 0) continue;
 		item = static_cast<PJobDirTree*>(index.internalPointer());
-		// Speichert die Indexe gelöschter Items in einer Map(sortiert) mit der Tiefe des Pfads
-		// als Schlüssel, damit die Items in der richtigen Reihenfolge gelöscht werden.
+		// Speichert die Indexe gelÃ¶schter Items in einer Map(sortiert) mit der Tiefe des Pfads
+		// als SchlÃ¼ssel, damit die Items in der richtigen Reihenfolge gelÃ¶scht werden.
 		removedIndexes.insert(item->data(0).toString().split("/").size(), index);
 	}
 	QMapIterator<int, QModelIndex> iterator(removedIndexes);
