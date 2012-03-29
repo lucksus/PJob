@@ -167,7 +167,7 @@ QScriptValue isExistingFile(QScriptContext *context, QScriptEngine *engine){
 	return QScriptValue(engine, QFileInfo(phoFile).exists() && QFileInfo(phoFile).isFile());
 }
 
-QScriptValue exportResults(QScriptContext *context, QScriptEngine *engine){
+QScriptValue exportResults(QScriptContext *context, QScriptEngine *){
 	QString outputfile = context->argument(0).toString();
 	QString jobFile = context->argument(1).toString();
 	QStringList pjobFiles(jobFile);

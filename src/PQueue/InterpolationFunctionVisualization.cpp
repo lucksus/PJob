@@ -12,7 +12,7 @@ InterpolationFunctionVisualization::~InterpolationFunctionVisualization(void)
 }
 
 
-void InterpolationFunctionVisualization::drawImplementation(QSet< QHash<QString,double> > combinationsInPlane, double minx, double maxx, double miny, double maxy){
+void InterpolationFunctionVisualization::drawImplementation(QSet< QHash<QString,double> > , double minx, double maxx, double miny, double maxy){
 	if(maxx==minx){maxx+=1;minx-=1;}
 	if(maxy==miny){maxy+=1;miny-=1;}
 	double diffX = (maxx-minx)/20;

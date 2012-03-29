@@ -351,7 +351,7 @@ void MainWindow::newValue(){
 		on_navigatorResultsTreeWidget_itemClicked(ui.navigatorResultsTreeWidget->selectedItems().first());
 }
 
-void MainWindow::newValue(QString phoFile, QString result, QHash<QString,double> parameters, double value){
+void MainWindow::newValue(QString phoFile, QString result, QHash<QString,double>, double){
 	QTreeWidgetItem* fileItemNavigator;
 	if(m_phoFileItemsNavigator.count(phoFile))
 		fileItemNavigator = m_phoFileItemsNavigator[phoFile];
@@ -508,7 +508,7 @@ void MainWindow::fillParametersBox(QString phoFile){
 			++i;
 		}	
 	}else{
-		//Bevor die Buttons aktiviert werden können muss (indirekt) überprüft werden, ob überhaupt welche erzeugt wurden!
+		//Bevor die Buttons aktiviert werden kÃ¶nnen muss (indirekt) Ã¼berprÃ¼ft werden, ob Ã¼berhaupt welche erzeugt wurden!
 		if(parameters.size() == 1)
 		{
 			m_x_axis_button_group.button(0)->setChecked(true);
@@ -566,7 +566,7 @@ void MainWindow::showVisualization(QString pjob_file, QString result)
 		xachsis = parameters.front();
 		yachsis = parameters.back();
 	}else{
-		//Überprüfen, ob überhaupt ein Button angewählt wurde (sonst Absturz!)
+		//ÃœberprÃ¼fen, ob Ã¼berhaupt ein Button angewÃ¤hlt wurde (sonst Absturz!)
 		int id = m_x_axis_button_group.checkedId();
 		if(id != -1)
 			xachsis = parameters.at(id);
@@ -656,7 +656,7 @@ void MainWindow::scriptFinished(QString engineName, QString output){
 }
 
 
-void MainWindow::setScriptProgress(QString engineName, unsigned int progress){
+void MainWindow::setScriptProgress(QString, unsigned int progress){
 	ui.scriptProgressBar->setMinimum(0);
 	ui.scriptProgressBar->setMaximum(100);
 	ui.scriptProgressBar->setValue(progress);
@@ -720,7 +720,7 @@ void MainWindow::on_actionMruAction3_triggered(){
 
 void MainWindow::on_loadPreviousRunsButton_clicked()
 {
-	//redundante Funktion bereits implementiert im Result-Menü
+	//redundante Funktion bereits implementiert im Result-MenÃ¼
 	on_actionImport_From_PJob_triggered();
 }
 

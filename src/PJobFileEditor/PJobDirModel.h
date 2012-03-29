@@ -6,7 +6,7 @@
 //! Model Klasse, die eine PJob Dateistruktur in einem QTreeView darstellt.
 /*!
  *  Implementiert Funktionen aus der Abstrakten Oberklasse QAbstractItemModel.
- *  Für weitere Informationen bitte den Qt Model/View Programming Guide lesen.
+ *  FÃ¼r weitere Informationen bitte den Qt Model/View Programming Guide lesen.
  *
  *  Als unterliegende Datenstruktur dient die Klasse PJobDirTree.
  */
@@ -44,5 +44,5 @@ signals:
 private:
 	PJobFileFormat* m_pjobFile;
 	PJobDirTree* m_rootItem;
-	const QString m_tempDir; // Pfad zu einem einzigartigen temporären Verzeichnis für jede Model Instanz
+	const QString m_tempDir; // Pfad zu einem einzigartigen temporÃ¤ren Verzeichnis fÃ¼r jede Model Instanz
 };

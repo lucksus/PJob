@@ -320,18 +320,18 @@ QByteArray PJobFileXMLFunctions::writeResultDefinitions(QList<PJobResultFile> re
 	return doc.toString().toLocal8Bit();
 }
 
-QList<PJobFileBinary> PJobFileXMLFunctions::readBinaries(QByteArray xmlFile){
+QList<PJobFileApplication> PJobFileXMLFunctions::readBinaries(QByteArray xmlFile){
     QDomDocument doc("binaries");
     doc.setContent(xmlFile);
 
-    QList<PJobFileBinary> result;
+    QList<PJobFileApplication> result;
     QDomElement binaries = doc.documentElement();
     QDomNode binary_node = binaries.firstChild();
     while(!binary_node.isNull()) {
         QDomElement binary_element = binary_node.toElement(); // try to convert the node to an element.
         if(binary_element.isNull() || binary_element.tagName() != "binary") throw(QString("binaries.xml is not valid!"));
         QDomNode node = binary_element.firstChild();
-        PJobFileBinary binary;
+        PJobFileApplication binary;
         while(!node.isNull()){
         QDomElement elem = node.toElement();
             if(elem.isNull() || (elem.tagName()!="name" && elem.tagName()!="program_name" && elem.tagName()!="program_version" && elem.tagName()!="platform" && elem.tagName()!="executable" && elem.tagName()!="parameter_pattern"))
@@ -341,14 +341,14 @@ QList<PJobFileBinary> PJobFileXMLFunctions::readBinaries(QByteArray xmlFile){
             if(elem.tagName()=="program_version") binary.program_version = elem.text().trimmed();
             if(elem.tagName()=="platform"){
                 QString platform_string = elem.text().trimmed();
-                if(platform_string=="Win32") binary.platform = PJobFileBinary::Win32;
-                if(platform_string=="Win64") binary.platform = PJobFileBinary::Win64;
-                if(platform_string=="MacOSX") binary.platform = PJobFileBinary::MacOSX;
-                if(platform_string=="Linux") binary.platform = PJobFileBinary::Linux;
+                if(platform_string=="Win32") binary.platform = PJobFileApplication::Win32;
+                if(platform_string=="Win64") binary.platform = PJobFileApplication::Win64;
+                if(platform_string=="MacOSX") binary.platform = PJobFileApplication::MacOSX;
+                if(platform_string=="Linux") binary.platform = PJobFileApplication::Linux;
             }
             if(elem.tagName()=="executable") binary.executable = elem.text().trimmed();
             if(elem.tagName()=="parameter_pattern") binary.parameter_pattern = elem.text().trimmed();
-
+            node = node.nextSibling();
         }
         binary_node = binary_node.nextSibling();
         result.append(binary);
@@ -356,12 +356,12 @@ QList<PJobFileBinary> PJobFileXMLFunctions::readBinaries(QByteArray xmlFile){
     return result;
 }
 
-QByteArray PJobFileXMLFunctions::writeBinaries(QList<PJobFileBinary> binaries){
+QByteArray PJobFileXMLFunctions::writeBinaries(QList<PJobFileApplication> binaries){
     QDomDocument doc("binaries");
     QDomElement root = doc.createElement("binaries");
     doc.appendChild(root);
 
-    PJobFileBinary binary;
+    PJobFileApplication binary;
     foreach(binary, binaries){
         QDomElement tag = doc.createElement("binary");
         root.appendChild(tag);
@@ -380,16 +380,16 @@ QByteArray PJobFileXMLFunctions::writeBinaries(QList<PJobFileBinary> binaries){
 
         QDomElement platform = doc.createElement("platform");
                 switch(binary.platform){
-                case PJobFileBinary::Win32:
+                case PJobFileApplication::Win32:
                     platform.appendChild(doc.createTextNode("Win32"));
                     break;
-                case PJobFileBinary::Win64:
+                case PJobFileApplication::Win64:
                     platform.appendChild(doc.createTextNode("Win64"));
                     break;
-                case PJobFileBinary::MacOSX:
+                case PJobFileApplication::MacOSX:
                     platform.appendChild(doc.createTextNode("MacOSX"));
                     break;
-                case PJobFileBinary::Linux:
+                case PJobFileApplication::Linux:
                     platform.appendChild(doc.createTextNode("Linux"));
                     break;
                 default:
