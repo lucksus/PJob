@@ -49,8 +49,8 @@ QByteArray PJobFileXMLFunctions::removeParameterDefinition(QString parameterName
 		QString name,min,max;
 		while(!node.isNull()){
 			QDomElement elem = node.toElement();
-			if(elem.isNull() || elem.tagName()!="name" && elem.tagName()!="defaultValue"
-				&& elem.tagName()!="min" && elem.tagName()!="max") throw(QString("parameterdefinitions.xml is not valid!"));
+                        if(elem.isNull() || (elem.tagName()!="name" && elem.tagName()!="defaultValue" && elem.tagName()!="min" && elem.tagName()!="max"))
+                            throw(QString("parameterdefinitions.xml is not valid!"));
 			if(elem.tagName()=="name") name = elem.text();
 			node = node.nextSibling();
 		}
@@ -79,8 +79,8 @@ QList<PJobFileParameterDefinition> PJobFileXMLFunctions::readParameterDefinition
 		double defaultValue;
 		while(!node.isNull()){
 			QDomElement elem = node.toElement();
-			if(elem.isNull() || elem.tagName()!="name" && elem.tagName()!="defaultValue"
-				&& elem.tagName()!="min" && elem.tagName()!="max" && elem.tagName()!="unit") throw(QString("parameterdefinitions.xml is not valid!"));
+                        if(elem.isNull() || (elem.tagName()!="name" && elem.tagName()!="defaultValue" && elem.tagName()!="min" && elem.tagName()!="max" && elem.tagName()!="unit"))
+                            throw(QString("parameterdefinitions.xml is not valid!"));
 			if(elem.tagName()=="name") name = elem.text().trimmed();
 			if(elem.tagName()=="defaultValue") defaultValue = elem.text().toDouble();
 			if(elem.tagName()=="min") min = elem.text().trimmed();
@@ -153,14 +153,14 @@ QList<PJobFileParameter> PJobFileXMLFunctions::readParameterCombination(QByteArr
 		QString name,value,min,max,step;
 		while(!node.isNull()){
 			QDomElement elem = node.toElement();
-			if(elem.isNull() || elem.tagName()!="name" && elem.tagName()!="value" && elem.tagName()!="variation") throw(QString("parametercombination.xml is not valid!"));
+                        if(elem.isNull() || (elem.tagName()!="name" && elem.tagName()!="value" && elem.tagName()!="variation")) throw(QString("parametercombination.xml is not valid!"));
 			if(elem.tagName()=="name") name = elem.text();
 			if(elem.tagName()=="value") value = elem.text();
 			if(elem.tagName()=="variation"){
 				QDomNode node2 = elem.firstChild();
 				while(!node2.isNull()){
 					QDomElement elem2 = node2.toElement();
-					if(elem2.isNull() || elem2.tagName()!="min" && elem2.tagName()!="max" && elem2.tagName()!="step") throw(QString("parametercombination.xml is not valid!"));
+                                        if(elem2.isNull() || (elem2.tagName()!="min" && elem2.tagName()!="max" && elem2.tagName()!="step")) throw(QString("parametercombination.xml is not valid!"));
 					if(elem2.tagName()=="min") min = elem2.text();
 					if(elem2.tagName()=="max") max = elem2.text();
 					if(elem2.tagName()=="step") step = elem2.text();
@@ -237,8 +237,8 @@ QList<PJobResultFile> PJobFileXMLFunctions::readResultDefinitions(QByteArray xml
 		PJobResultFile resultFile;
 		while(!node.isNull()){
 			QDomElement elem = node.toElement();
-			if(elem.isNull() || elem.tagName()!="filename" && elem.tagName()!="format" && elem.tagName()!="result") 
-				throw(QString("resultdefinitions.xml is not valid!"));
+                        if(elem.isNull() || (elem.tagName()!="filename" && elem.tagName()!="format" && elem.tagName()!="result"))
+                                throw(QString("resultdefinitions.xml is not valid!"));
 			if(elem.tagName()=="filename") 
 				resultFile.setFilename(elem.text().trimmed());
 			if(elem.tagName()=="format")
@@ -248,7 +248,7 @@ QList<PJobResultFile> PJobFileXMLFunctions::readResultDefinitions(QByteArray xml
 				QDomNode node2 = elem.firstChild();
 				while(!node2.isNull()){
 					QDomElement elem2 = node2.toElement();
-					if(elem2.isNull() || elem2.tagName()!="name" && elem2.tagName()!="unit") throw(QString("resultdefinitions.xml is not valid!"));
+                                        if(elem2.isNull() || (elem2.tagName()!="name" && elem2.tagName()!="unit")) throw(QString("resultdefinitions.xml is not valid!"));
 					if(elem2.tagName()=="name") r.setName(elem2.text().trimmed());
 					if(elem2.tagName()=="unit") r.setUnit(elem2.text().trimmed());
 					node2 = node2.nextSibling();
@@ -334,7 +334,7 @@ QList<PJobFileBinary> PJobFileXMLFunctions::readBinaries(QByteArray xmlFile){
         PJobFileBinary binary;
         while(!node.isNull()){
         QDomElement elem = node.toElement();
-            if(elem.isNull() || elem.tagName()!="name" && elem.tagName()!="program_name" && elem.tagName()!="program_version" && elem.tagName()!="platform" && elem.tagName()!="executable" && elem.tagName()!="parameter_pattern")
+            if(elem.isNull() || (elem.tagName()!="name" && elem.tagName()!="program_name" && elem.tagName()!="program_version" && elem.tagName()!="platform" && elem.tagName()!="executable" && elem.tagName()!="parameter_pattern"))
                 throw(QString("binaries.xml is not valid!"));
             if(elem.tagName()=="name") binary.name = elem.text().trimmed();
             if(elem.tagName()=="program_name") binary.program_name = elem.text().trimmed();
