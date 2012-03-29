@@ -1,88 +1,324 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>PJobWidget</class>
- <widget class="QWidget" name="PJobWidget" >
-  <property name="geometry" >
+ <widget class="QWidget" name="PJobWidget">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>458</width>
-    <height>500</height>
+    <width>622</width>
+    <height>536</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2" >
-   <property name="margin" >
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <property name="margin">
     <number>0</number>
    </property>
    <item>
-    <widget class="QTabWidget" name="tabWidget" >
-     <property name="currentIndex" >
-      <number>0</number>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>2</number>
      </property>
-     <widget class="QWidget" name="tab" >
-      <attribute name="title" >
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
        <string>Resources</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout" >
+      <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QTreeView" name="resourcesTreeView" />
+        <widget class="QTreeView" name="resourcesTreeView"/>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_2" >
-      <attribute name="title" >
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
        <string>main.pscript</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_6" >
+      <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>
-        <widget class="QTextEdit" name="scriptTextEdit" />
+        <widget class="QTextEdit" name="scriptTextEdit"/>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="Seite_4" >
-      <attribute name="title" >
-       <string>Parameters</string>
+     <widget class="QWidget" name="tab_3">
+      <attribute name="title">
+       <string>Included Applications</string>
       </attribute>
-      <layout class="QHBoxLayout" name="horizontalLayout" >
+      <layout class="QVBoxLayout" name="verticalLayout_9">
        <item>
-        <widget class="QTableView" name="parametersTableView" />
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout_3" >
+        <layout class="QHBoxLayout" name="horizontalLayout_8">
          <item>
-          <widget class="QPushButton" name="parametersAddButton" >
-           <property name="maximumSize" >
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Name of binary file set:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="binariesComboBox"/>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
             <size>
-             <width>30</width>
-             <height>16777215</height>
+             <width>17</width>
+             <height>20</height>
             </size>
            </property>
-           <property name="text" >
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton">
+           <property name="text">
             <string>+</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="parametersRemoveButton" >
-           <property name="maximumSize" >
+          <widget class="QPushButton" name="pushButton_2">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>-</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QSplitter" name="splitter">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <widget class="QWidget" name="">
+          <layout class="QVBoxLayout" name="verticalLayout_8">
+           <item>
+            <widget class="QLabel" name="label">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Binary files:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QTreeView" name="binariesTreeView">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QGroupBox" name="groupBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="title">
+           <string>Info</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <item>
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Application name:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <item>
+              <widget class="QLineEdit" name="binariesApplicationName"/>
+             </item>
+             <item>
+              <widget class="QPushButton" name="binariesNameAutoButton">
+               <property name="text">
+                <string>Auto</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Application Version:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <item>
+              <widget class="QLineEdit" name="binariesApplicationVersion"/>
+             </item>
+             <item>
+              <widget class="QPushButton" name="binariesVersionAutoButton">
+               <property name="text">
+                <string>Auto</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>Executable:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_5">
+             <item>
+              <widget class="QLineEdit" name="binariesExecutable"/>
+             </item>
+             <item>
+              <widget class="QPushButton" name="binariesExecutableAutoButton">
+               <property name="text">
+                <string>Auto</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>Platform:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <item>
+              <widget class="QComboBox" name="binariesPlatformComboBox">
+               <item>
+                <property name="text">
+                 <string>Win32</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Win64</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>MacOSX</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Linux/Unix</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="binariesPlatformAutoButton">
+               <property name="text">
+                <string>Auto</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>Parameters pattern:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_7">
+             <item>
+              <widget class="QLineEdit" name="binariesParametersPattern"/>
+             </item>
+             <item>
+              <widget class="QPushButton" name="binariesParametersPatternAutoButton">
+               <property name="text">
+                <string>Auto</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QPushButton" name="binariesAutoDetectAllButton">
+             <property name="text">
+              <string>Auto detect all</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+          <zorder>label_3</zorder>
+          <zorder>label_4</zorder>
+          <zorder>label_5</zorder>
+          <zorder>label_6</zorder>
+          <zorder>label_7</zorder>
+          <zorder>binariesApplicationName</zorder>
+          <zorder>binariesAutoDetectAllButton</zorder>
+          <zorder>binariesNameAutoButton</zorder>
+          <zorder>layoutWidget</zorder>
+          <zorder>binariesApplicationVersion</zorder>
+          <zorder>layoutWidget_2</zorder>
+          <zorder>layoutWidget_3</zorder>
+          <zorder>layoutWidget_4</zorder>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="Seite_4">
+      <attribute name="title">
+       <string>Parameters</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QTableView" name="parametersTableView"/>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QPushButton" name="parametersAddButton">
+           <property name="maximumSize">
             <size>
              <width>30</width>
              <height>16777215</height>
             </size>
            </property>
-           <property name="text" >
+           <property name="text">
+            <string>+</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="parametersRemoveButton">
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
             <string>-</string>
            </property>
           </widget>
          </item>
          <item>
-          <spacer name="verticalSpacer" >
-           <property name="orientation" >
+          <spacer name="verticalSpacer">
+           <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
-           <property name="sizeHint" stdset="0" >
+           <property name="sizeHint" stdset="0">
             <size>
              <width>20</width>
              <height>40</height>
@@ -94,36 +330,36 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="Seite_5" >
-      <attribute name="title" >
+     <widget class="QWidget" name="Seite_5">
+      <attribute name="title">
        <string>Results</string>
       </attribute>
-      <layout class="QHBoxLayout" name="horizontalLayout_2" >
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="QTreeView" name="resultsTreeView" />
+        <widget class="QTreeView" name="resultsTreeView"/>
        </item>
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout_4" >
+        <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
-          <widget class="QPushButton" name="addResultFileButton" >
-           <property name="text" >
+          <widget class="QPushButton" name="addResultFileButton">
+           <property name="text">
             <string>+ result file</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="removeResultFileButton" >
-           <property name="text" >
+          <widget class="QPushButton" name="removeResultFileButton">
+           <property name="text">
             <string>- result file</string>
            </property>
           </widget>
          </item>
          <item>
-          <spacer name="verticalSpacer_3" >
-           <property name="orientation" >
+          <spacer name="verticalSpacer_3">
+           <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
-           <property name="sizeHint" stdset="0" >
+           <property name="sizeHint" stdset="0">
             <size>
              <width>20</width>
              <height>40</height>
@@ -132,25 +368,25 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="addResultButton" >
-           <property name="text" >
+          <widget class="QPushButton" name="addResultButton">
+           <property name="text">
             <string>+ result</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="removeResultButton" >
-           <property name="text" >
+          <widget class="QPushButton" name="removeResultButton">
+           <property name="text">
             <string>- result</string>
            </property>
           </widget>
          </item>
          <item>
-          <spacer name="verticalSpacer_2" >
-           <property name="orientation" >
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
-           <property name="sizeHint" stdset="0" >
+           <property name="sizeHint" stdset="0">
             <size>
              <width>20</width>
              <height>40</height>
@@ -162,13 +398,13 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="Seite_6" >
-      <attribute name="title" >
+     <widget class="QWidget" name="Seite_6">
+      <attribute name="title">
        <string>Runs</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_7" >
+      <layout class="QVBoxLayout" name="verticalLayout_7">
        <item>
-        <widget class="QTreeView" name="runsTreeView" />
+        <widget class="QTreeView" name="runsTreeView"/>
        </item>
       </layout>
      </widget>

@@ -80,10 +80,13 @@ PJobFileWidget::PJobFileWidget(PJobFile* jobFile, QWidget* parent )
         ui.resultsTreeView->setColumnWidth(1,150);
 	connect(&m_resultsModel, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(resultsChanged()));
 
+    QFont font("Bitstream Vera Sans Mono",10);
+    ui.scriptTextEdit->setFont(font);
 
-
-        QFont font("Bitstream Vera Sans Mono",10);
-        ui.scriptTextEdit->setFont(font);
+    QList<PJobFileBinary> binaries = m_pjobFile->binaries();
+    foreach(PJobFileBinary b, binaries){
+            ui.binariesComboBox->addItem(b.name);
+    }
 }
 
 void PJobFileWidget::refresh(){
@@ -336,7 +339,9 @@ void PJobFileWidget::syncResultsFileToModel(){
 }
 
 
+void PJobFileWidget::on_binariesComboBox_currentIndexChanged(int index){
 
+}
 
 
 
@@ -394,3 +399,5 @@ void ResultsTypeDelegate::setModelData(QWidget *editor, QAbstractItemModel *mode
 
     model->setData(index, value, Qt::EditRole);
 }
+
+

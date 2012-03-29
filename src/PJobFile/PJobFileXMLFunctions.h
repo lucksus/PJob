@@ -5,6 +5,7 @@
 #include "PJobFileParameter.h"
 #include "PJobFileParameterDefinition.h"
 #include "PJobResultFile.h"
+#include "PJobFileBinary.h"
 
 namespace PJobFileXMLFunctions
 {
@@ -18,4 +19,7 @@ namespace PJobFileXMLFunctions
 	
 	QList<PJobResultFile> readResultDefinitions(QByteArray xmlFile);
 	QByteArray writeResultDefinitions(QList<PJobResultFile>);
+
+    QList<PJobFileBinary> readBinaries(QByteArray);
+    QByteArray writeBinaries(QList<PJobFileBinary>);
 };

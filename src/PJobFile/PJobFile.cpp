@@ -103,6 +103,7 @@ PJobFileFormat* PJobFile::getPJobFile(){
 void PJobFile::create(){
 	writeResultDefinitions(QList<PJobResultFile>());
 	writeParameterDefinitions(QList<PJobFileParameterDefinition>());
+    writeBinaries(QList<PJobFileBinary>());
 	try
 	{
 		m_data->appendFile(QByteArray(), "Resources/main.pscript");
@@ -198,6 +199,16 @@ void PJobFile::writeResultDefinitions(QList<PJobResultFile> resultFiles){
 	if(m_saveAutomatically) 
 		this->save();
 	emit changed();
+}
+
+QList<PJobFileBinary> PJobFile::binaries() const{
+    return PJobFileXMLFunctions::readBinaries(m_data->readFile("binaries.xml"));
+}
+
+void PJobFile::writeBinaries(const QList<PJobFileBinary>& binaries){
+    m_data->appendFile(PJobFileXMLFunctions::writeBinaries(binaries), "binaries.xml");
+    if(m_saveAutomatically) save();
+    emit changed();
 }
 
 void PJobFile::save(){

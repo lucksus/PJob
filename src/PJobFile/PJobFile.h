@@ -7,6 +7,7 @@
 #include "PJobResultFile.h"
 #include "hash.h"
 #include "PJobFileFormat.h"
+#include "PJobFileBinary.h"
 #include <iostream>
 #include <QtCore/QSet>
 using namespace std;
@@ -18,13 +19,12 @@ public:
 	~PJobFile();
 	void addResource(QString path);
 	void addResource(const QByteArray& content, const QString& internal_file_name);
-	QStringList runDirectoryEntries() const;
+    QStringList runDirectoryEntries() const;
 	QString latestRunDirectory() const;
 	QString pjobFile() const;
 	QString mainPscript() const;
 	void setMainPscript(QString script);
 	PJobFileFormat* getPJobFile();
-
 
 	QList<PJobFileParameterDefinition> parameterDefinitions() const;
 	void addParameterDefinition(const PJobFileParameterDefinition&);
@@ -36,6 +36,9 @@ public:
 
 	QList<PJobResultFile> readResultDefinitions();
 	void writeResultDefinitions(QList<PJobResultFile>);
+
+    QList<PJobFileBinary> binaries() const;
+    void writeBinaries(const QList<PJobFileBinary>&);
 
 	void save();
 	void setSaveAutomatically(bool);

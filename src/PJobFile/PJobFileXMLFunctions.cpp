@@ -319,3 +319,93 @@ QByteArray PJobFileXMLFunctions::writeResultDefinitions(QList<PJobResultFile> re
 
 	return doc.toString().toLocal8Bit();
 }
+
+QList<PJobFileBinary> PJobFileXMLFunctions::readBinaries(QByteArray xmlFile){
+    QDomDocument doc("binaries");
+    doc.setContent(xmlFile);
+
+    QList<PJobFileBinary> result;
+    QDomElement binaries = doc.documentElement();
+    QDomNode binary_node = binaries.firstChild();
+    while(!binary_node.isNull()) {
+        QDomElement binary_element = binary_node.toElement(); // try to convert the node to an element.
+        if(binary_element.isNull() || binary_element.tagName() != "binary") throw(QString("binaries.xml is not valid!"));
+        QDomNode node = binary_element.firstChild();
+        PJobFileBinary binary;
+        while(!node.isNull()){
+        QDomElement elem = node.toElement();
+            if(elem.isNull() || elem.tagName()!="name" && elem.tagName()!="program_name" && elem.tagName()!="program_version" && elem.tagName()!="platform" && elem.tagName()!="executable" && elem.tagName()!="parameter_pattern")
+                throw(QString("binaries.xml is not valid!"));
+            if(elem.tagName()=="name") binary.name = elem.text().trimmed();
+            if(elem.tagName()=="program_name") binary.program_name = elem.text().trimmed();
+            if(elem.tagName()=="program_version") binary.program_version = elem.text().trimmed();
+            if(elem.tagName()=="platform"){
+                QString platform_string = elem.text().trimmed();
+                if(platform_string=="Win32") binary.platform = PJobFileBinary::Win32;
+                if(platform_string=="Win64") binary.platform = PJobFileBinary::Win64;
+                if(platform_string=="MacOSX") binary.platform = PJobFileBinary::MacOSX;
+                if(platform_string=="Linux") binary.platform = PJobFileBinary::Linux;
+            }
+            if(elem.tagName()=="executable") binary.executable = elem.text().trimmed();
+            if(elem.tagName()=="parameter_pattern") binary.parameter_pattern = elem.text().trimmed();
+
+        }
+        binary_node = binary_node.nextSibling();
+        result.append(binary);
+    }
+    return result;
+}
+
+QByteArray PJobFileXMLFunctions::writeBinaries(QList<PJobFileBinary> binaries){
+    QDomDocument doc("binaries");
+    QDomElement root = doc.createElement("binaries");
+    doc.appendChild(root);
+
+    PJobFileBinary binary;
+    foreach(binary, binaries){
+        QDomElement tag = doc.createElement("binary");
+        root.appendChild(tag);
+
+        QDomElement name = doc.createElement("name");
+        name.appendChild(doc.createTextNode(binary.name));
+        tag.appendChild(name);
+
+        QDomElement program_name = doc.createElement("program_name");
+        program_name.appendChild(doc.createTextNode(binary.program_name));
+        tag.appendChild(program_name);
+
+        QDomElement program_version = doc.createElement("program_version");
+        program_version.appendChild(doc.createTextNode(binary.program_version));
+        tag.appendChild(program_version);
+
+        QDomElement platform = doc.createElement("platform");
+                switch(binary.platform){
+                case PJobFileBinary::Win32:
+                    platform.appendChild(doc.createTextNode("Win32"));
+                    break;
+                case PJobFileBinary::Win64:
+                    platform.appendChild(doc.createTextNode("Win64"));
+                    break;
+                case PJobFileBinary::MacOSX:
+                    platform.appendChild(doc.createTextNode("MacOSX"));
+                    break;
+                case PJobFileBinary::Linux:
+                    platform.appendChild(doc.createTextNode("Linux"));
+                    break;
+                default:
+                    Q_ASSERT(false);
+                }
+        tag.appendChild(platform);
+
+        QDomElement executable = doc.createElement("executable");
+        executable.appendChild(doc.createTextNode(binary.executable));
+        tag.appendChild(executable);
+
+        QDomElement parameter_pattern = doc.createElement("parameter_pattern");
+        parameter_pattern.appendChild(doc.createTextNode(binary.parameter_pattern));
+        tag.appendChild(parameter_pattern);
+
+    }
+
+    return doc.toString().toLocal8Bit();
+}
