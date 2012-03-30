@@ -1,6 +1,7 @@
 #include "controller.h"
+#include <iostream>
 
-Controller::Controller()
+Controller::Controller() : m_pjob_file(0), m_script_engine(0), m_wants_shutdown(false)
 {
 }
 
@@ -8,6 +9,15 @@ Controller::Controller()
 Controller& Controller::instance(){
     static Controller c;
     return c;
+}
+
+ScriptEngine& Controller::script_engine(){
+    if(m_script_engine == 0) m_script_engine = new ScriptEngine();
+    return *m_script_engine;
+}
+
+bool Controller::wants_shutdown(){
+    return m_wants_shutdown;
 }
 
 void Controller::open_local_pjob_file(QString filename){
@@ -35,6 +45,14 @@ void Controller::run_job(){
 
 }
 
+void Controller::exit(){
+    m_wants_shutdown = true;
+}
+
 QStringList Controller::run_directories(){
     return m_pjob_file->runDirectoryEntries();
+}
+
+void Controller::output(const QString& msg){
+    std::cout << msg.toStdString() << std::endl;
 }
