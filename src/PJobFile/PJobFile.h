@@ -57,6 +57,10 @@ public:
 
     void remove_all_runs();
 
+    void export_application(QString application_name, QString path);
+    void export_resources(QString path);
+    void import_run_directory(QString path);
+
 public slots:
     void abort_progress(const QString &);
 

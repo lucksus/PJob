@@ -613,3 +613,42 @@ void PJobFile::remove_all_runs(){
 void PJobFile::abort_progress(const QString &p){
 	m_progresses_to_abort.insert(p);
 }
+
+
+
+void PJobFile::export_application(QString application_name, QString path){
+    m_data->extract(path, QString("Binaries/%1/").arg(application_name));
+}
+
+void PJobFile::export_resources(QString path){
+    m_data->extract(path, QString("Resources"));
+}
+
+void PJobFile::import_run_directory(QString path){
+    QDir dir(path);
+    foreach(QString s, dir.entryList(QDir::Dirs))
+    {
+        QDir current(s);
+        foreach(QFileInfo entry, current.entryInfoList(QDir::Files))
+        {
+            //Wenn die Datei nicht im Resources Verzeichnis existiert einfach hinzufügen
+            if(!(m_data->contains("Resources/" + entry.fileName())))
+            {
+                m_data->appendFile(entry.absoluteFilePath(),current.absolutePath().section('/',-2) + '/' + entry.fileName() );
+            }
+            else
+            {
+                //Sonst Vergleich ob die Dateien identisch sind
+                QFile file(entry.absoluteFilePath());
+                if(!(file.open(QFile::ReadOnly)))
+                    throw PJobFileError(QString("Couldn't read file from %1!").arg(entry.absolutePath()));
+
+                //Wenn Dateien unterschiedlich sind wird kopiert, sonst passiert gar nichts
+                if(file.readAll() != m_data->readFile("Resources/" + entry.fileName()))
+                    m_data->appendFile(entry.absoluteFilePath(),current.absolutePath().section('/',-2) + '/' + entry.fileName() );
+
+                file.close();
+            }
+        }
+    }
+}
