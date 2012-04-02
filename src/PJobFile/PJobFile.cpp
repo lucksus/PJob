@@ -10,6 +10,7 @@
 #include <sstream>
 #include <limits>
 #include <fstream>
+#include <QtCore/QDirIterator>
 
 PJobFile::PJobFile(QString pjobFile)
 : m_saveAutomatically(false)
@@ -625,30 +626,26 @@ void PJobFile::export_resources(QString path){
 }
 
 void PJobFile::import_run_directory(QString path){
-    QDir dir(path);
-    foreach(QString s, dir.entryList(QDir::Dirs))
-    {
-        QDir current(s);
-        foreach(QFileInfo entry, current.entryInfoList(QDir::Files))
-        {
-            //Wenn die Datei nicht im Resources Verzeichnis existiert einfach hinzufügen
-            if(!(m_data->contains("Resources/" + entry.fileName())))
-            {
-                m_data->appendFile(entry.absoluteFilePath(),current.absolutePath().section('/',-2) + '/' + entry.fileName() );
-            }
-            else
-            {
-                //Sonst Vergleich ob die Dateien identisch sind
-                QFile file(entry.absoluteFilePath());
-                if(!(file.open(QFile::ReadOnly)))
-                    throw PJobFileError(QString("Couldn't read file from %1!").arg(entry.absolutePath()));
+    QString run_directory = "run_" + QDateTime::currentDateTime().toString("yyyyMMdd_hhmm_ss_zzz");
 
-                //Wenn Dateien unterschiedlich sind wird kopiert, sonst passiert gar nichts
-                if(file.readAll() != m_data->readFile("Resources/" + entry.fileName()))
-                    m_data->appendFile(entry.absoluteFilePath(),current.absolutePath().section('/',-2) + '/' + entry.fileName() );
-
-                file.close();
-            }
+    QDirIterator it("path", QDirIterator::Subdirectories);
+    while (it.hasNext()) {
+        QString file_relative_path = it.next();
+        QString file_absolute_path = path+"/"+file_relative_path;
+        QFile file(file_absolute_path);
+        QByteArray file_content;
+        if(m_data->contains("Resources/" + file_relative_path)){
+            if(!(file.open(QFile::ReadOnly)))
+                throw ReadFileError(QString("Couldn't read file %1!").arg(file_absolute_path));
+            file_content = file.readAll();
+            //Wenn die Datei schon so im Resources Ordner vorhanden ist, brauchen wir sie nicht mit zu importieren.
+            if(file_content == m_data->readFile("Resources/" + file_relative_path)) continue;
         }
+        if(!file.isOpen()){
+            if(!(file.open(QFile::ReadOnly)))
+                throw ReadFileError(QString("Couldn't read file %1!").arg(file_absolute_path));
+            file_content = file.readAll();
+        }
+        m_data->appendFile(file_absolute_path, "Runs/"+run_directory+"/"+file_relative_path);
     }
 }
