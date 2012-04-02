@@ -34,6 +34,8 @@ private:
     QMap<QString,double> m_parameters;
     QString m_application;
     bool m_wants_shutdown;
+
+    QStringList create_commandline_arguments_for_app(const PJobFileApplication&);
 };
 
 #endif // CONTROLLER_H
