@@ -31,8 +31,10 @@ build_pass:CONFIG(debug, debug|release) {
 
 SOURCES += main.cpp \
     scriptengine.cpp \
-    controller.cpp
+    tcpserver.cpp \
+    session.cpp
 
 HEADERS += \
     scriptengine.h \
-    controller.h
+    tcpserver.h \
+    session.h

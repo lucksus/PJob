@@ -4,11 +4,12 @@
 #include "PJobFile.h"
 #include "scriptengine.h"
 
-class Controller : public QObject
+class Session : public QObject
 {
 Q_OBJECT
 public:
-    static Controller& instance();
+    Session();
+    static Session& instance();
     ScriptEngine& script_engine();
     bool wants_shutdown();
 
@@ -27,7 +28,6 @@ public slots:
     void output(const QString& msg);
 
 private:
-    Controller();
     PJobFile *m_pjob_file;
     ScriptEngine *m_script_engine;
     QString m_temp_dir;

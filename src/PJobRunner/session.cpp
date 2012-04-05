@@ -1,28 +1,28 @@
-#include "controller.h"
+#include "session.h"
 #include <iostream>
 #include <QtCore/QProcess>
 #include <QtCore/QFile>
 
-Controller::Controller() : m_pjob_file(0), m_script_engine(0), m_wants_shutdown(false)
+Session::Session() : m_pjob_file(0), m_script_engine(0), m_wants_shutdown(false)
 {
 }
 
 
-Controller& Controller::instance(){
-    static Controller c;
+Session& Session::instance(){
+    static Session c;
     return c;
 }
 
-ScriptEngine& Controller::script_engine(){
+ScriptEngine& Session::script_engine(){
     if(m_script_engine == 0) m_script_engine = new ScriptEngine();
     return *m_script_engine;
 }
 
-bool Controller::wants_shutdown(){
+bool Session::wants_shutdown(){
     return m_wants_shutdown;
 }
 
-void Controller::open_local_pjob_file(QString filename){
+void Session::open_local_pjob_file(QString filename){
     if(m_pjob_file) delete m_pjob_file;
     m_pjob_file = new PJobFile(filename);
     output(QString("File %1 opened!").arg(filename));
@@ -32,19 +32,19 @@ void Controller::open_local_pjob_file(QString filename){
     }
 }
 
-void Controller::receive_pjob_file(QString base64string){
+void Session::receive_pjob_file(QString base64string){
 
 }
 
-void Controller::set_temp_dir(QString path){
+void Session::set_temp_dir(QString path){
     m_temp_dir = path;
 }
 
-void Controller::set_parameter(QString name, double value){
+void Session::set_parameter(QString name, double value){
     m_parameters[name] = value;
 }
 
-void Controller::set_application(QString app_name){
+void Session::set_application(QString app_name){
     m_application = app_name;
 }
 
@@ -72,7 +72,7 @@ bool removeDir(const QString &dirName)
     return result;
 }
 
-void Controller::run_job(){
+void Session::run_job(){
     PJobFileApplication app = m_pjob_file->applicationByName(m_application);
 #ifdef Q_WS_WIN
     if(app.platform != PJobFileApplication::Win32  && app.platform != PJobFileApplication::Win64){
@@ -146,7 +146,7 @@ void Controller::run_job(){
     m_pjob_file->save();
 }
 
-QStringList Controller::create_commandline_arguments_for_app(const PJobFileApplication& app){
+QStringList Session::create_commandline_arguments_for_app(const PJobFileApplication& app){
     QStringList params;
     QMapIterator<QString, double> it(m_parameters);
     while(it.hasNext()){
@@ -166,14 +166,14 @@ QStringList Controller::create_commandline_arguments_for_app(const PJobFileAppli
 
 
 
-void Controller::exit(){
+void Session::exit(){
     m_wants_shutdown = true;
 }
 
-QStringList Controller::run_directories(){
+QStringList Session::run_directories(){
     return m_pjob_file->runDirectoryEntries();
 }
 
-void Controller::output(const QString& msg){
+void Session::output(const QString& msg){
     std::cout << msg.toStdString() << std::endl;
 }
