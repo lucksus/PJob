@@ -628,10 +628,12 @@ void PJobFile::export_resources(QString path){
 void PJobFile::import_run_directory(QString path){
     QString run_directory = "run_" + QDateTime::currentDateTime().toString("yyyyMMdd_hhmm_ss_zzz");
 
-    QDirIterator it("path", QDirIterator::Subdirectories);
+    QDirIterator it(path, QDirIterator::Subdirectories);
     while (it.hasNext()) {
-        QString file_relative_path = it.next();
-        QString file_absolute_path = path+"/"+file_relative_path;
+        QString file_relative_path = it.fileName();
+        QString file_absolute_path = it.filePath();
+        it.next();
+        if(file_relative_path == "" || file_relative_path == "." || file_relative_path == "..") continue;
         QFile file(file_absolute_path);
         QByteArray file_content;
         if(m_data->contains("Resources/" + file_relative_path)){
@@ -642,10 +644,9 @@ void PJobFile::import_run_directory(QString path){
             if(file_content == m_data->readFile("Resources/" + file_relative_path)) continue;
         }
         if(!file.isOpen()){
-            if(!(file.open(QFile::ReadOnly)))
-                throw ReadFileError(QString("Couldn't read file %1!").arg(file_absolute_path));
+            if(!(file.open(QFile::ReadOnly)))continue;
             file_content = file.readAll();
         }
-        m_data->appendFile(file_absolute_path, "Runs/"+run_directory+"/"+file_relative_path);
+        m_data->appendFile(file_content, "Runs/"+run_directory+"/"+file_relative_path);
     }
 }

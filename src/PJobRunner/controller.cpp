@@ -143,6 +143,7 @@ void Controller::run_job(){
         output("---------------------");
         output(process.readAllStandardError());
     }
+    m_pjob_file->save();
 }
 
 QStringList Controller::create_commandline_arguments_for_app(const PJobFileApplication& app){
