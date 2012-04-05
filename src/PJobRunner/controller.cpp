@@ -113,6 +113,9 @@ void Controller::run_job(){
 
     process.start(executable, create_commandline_arguments_for_app(app));
     process.waitForFinished(-1);
+    output("-------------------");
+    output("Process std output:");
+    output("-------------------");
     output(process.readAllStandardOutput());
     switch(process.exitStatus()){
     case QProcess::NormalExit:
@@ -132,19 +135,28 @@ void Controller::run_job(){
         default:
             break;
         }
+        output("---------------------");
+        output("Process error output:");
+        output("---------------------");
+        output(process.readAllStandardError());
     }
 }
 
 QStringList Controller::create_commandline_arguments_for_app(const PJobFileApplication& app){
-    QStringList result;
+    QStringList params;
     QMapIterator<QString, double> it(m_parameters);
     while(it.hasNext()){
         it.next();
         QString arguments = app.parameter_pattern;
         arguments.replace(QString("<param>"), it.key());
         arguments.replace(QString("<value>"), QString::number(it.value()));
-        result.append(arguments);
+        params.append(arguments);
     }
+    QStringList result = app.arguments.split(" ");
+    int params_index = result.indexOf("<parameters>");
+    result.removeAt(params_index);
+    while(!params.empty())
+        result.insert(params_index, params.takeLast());
     return result;
 }
 

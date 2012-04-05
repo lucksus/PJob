@@ -203,7 +203,7 @@ void PJobFile::writeResultDefinitions(QList<PJobResultFile> resultFiles){
 }
 
 QList<PJobFileApplication> PJobFile::applications() const{
-    return PJobFileXMLFunctions::readBinaries(m_data->readFile("binaries.xml"));
+    return PJobFileXMLFunctions::readApplications(m_data->readFile("binaries.xml"));
 }
 
 PJobFileApplication PJobFile::applicationByName(QString name) const{
@@ -259,7 +259,7 @@ void PJobFile::renameApplication(const QString& old_name, const QString& new_nam
 }
 
 void PJobFile::writeApplications(const QList<PJobFileApplication>& binaries){
-    m_data->appendFile(PJobFileXMLFunctions::writeBinaries(binaries), "binaries.xml");
+    m_data->appendFile(PJobFileXMLFunctions::writeApplications(binaries), "binaries.xml");
     if(m_saveAutomatically) save();
     emit changed();
 }

@@ -20,6 +20,6 @@ namespace PJobFileXMLFunctions
 	QList<PJobResultFile> readResultDefinitions(QByteArray xmlFile);
 	QByteArray writeResultDefinitions(QList<PJobResultFile>);
 
-    QList<PJobFileApplication> readBinaries(QByteArray);
-    QByteArray writeBinaries(QList<PJobFileApplication>);
+        QList<PJobFileApplication> readApplications(QByteArray);
+        QByteArray writeApplications(QList<PJobFileApplication>);
 };

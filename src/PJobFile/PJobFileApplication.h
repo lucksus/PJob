@@ -28,6 +28,7 @@ public:
     QString program_version;
     Platform platform;
     QString executable;
+    QString arguments;
     QString parameter_pattern;
 
 

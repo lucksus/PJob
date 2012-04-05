@@ -47,6 +47,7 @@ private slots:
         void on_applicationName_textChanged(const QString& text);
         void on_applicationVersion_textChanged(const QString& text);
         void on_applicationExecutable_textChanged(const QString& text);
+        void on_applicationArguments_textChanged(const QString& text);
         void on_applicationParametersPattern_textChanged(const QString& text);
         void on_applicationPlatform_currentIndexChanged(int);
 

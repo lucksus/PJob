@@ -1,5 +1,6 @@
 #include "PJobFileXMLFunctions.h"
 #include <iostream>
+#include <assert.h>
 
 QByteArray PJobFileXMLFunctions::addParameterDefinition(const PJobFileParameterDefinition& def, QByteArray xmlFile){
 	QDomDocument doc("parameterdefinitions");
@@ -320,7 +321,7 @@ QByteArray PJobFileXMLFunctions::writeResultDefinitions(QList<PJobResultFile> re
 	return doc.toString().toLocal8Bit();
 }
 
-QList<PJobFileApplication> PJobFileXMLFunctions::readBinaries(QByteArray xmlFile){
+QList<PJobFileApplication> PJobFileXMLFunctions::readApplications(QByteArray xmlFile){
     QDomDocument doc("binaries");
     doc.setContent(xmlFile);
 
@@ -334,8 +335,6 @@ QList<PJobFileApplication> PJobFileXMLFunctions::readBinaries(QByteArray xmlFile
         PJobFileApplication binary;
         while(!node.isNull()){
         QDomElement elem = node.toElement();
-            if(elem.isNull() || (elem.tagName()!="name" && elem.tagName()!="program_name" && elem.tagName()!="program_version" && elem.tagName()!="platform" && elem.tagName()!="executable" && elem.tagName()!="parameter_pattern"))
-                throw(QString("binaries.xml is not valid!"));
             if(elem.tagName()=="name") binary.name = elem.text().trimmed();
             if(elem.tagName()=="program_name") binary.program_name = elem.text().trimmed();
             if(elem.tagName()=="program_version") binary.program_version = elem.text().trimmed();
@@ -347,6 +346,7 @@ QList<PJobFileApplication> PJobFileXMLFunctions::readBinaries(QByteArray xmlFile
                 if(platform_string=="Linux") binary.platform = PJobFileApplication::Linux;
             }
             if(elem.tagName()=="executable") binary.executable = elem.text().trimmed();
+            if(elem.tagName()=="arguments") binary.arguments = elem.text().trimmed();
             if(elem.tagName()=="parameter_pattern") binary.parameter_pattern = elem.text().trimmed();
             node = node.nextSibling();
         }
@@ -356,7 +356,7 @@ QList<PJobFileApplication> PJobFileXMLFunctions::readBinaries(QByteArray xmlFile
     return result;
 }
 
-QByteArray PJobFileXMLFunctions::writeBinaries(QList<PJobFileApplication> binaries){
+QByteArray PJobFileXMLFunctions::writeApplications(QList<PJobFileApplication> binaries){
     QDomDocument doc("binaries");
     QDomElement root = doc.createElement("binaries");
     doc.appendChild(root);
@@ -400,6 +400,10 @@ QByteArray PJobFileXMLFunctions::writeBinaries(QList<PJobFileApplication> binari
         QDomElement executable = doc.createElement("executable");
         executable.appendChild(doc.createTextNode(binary.executable));
         tag.appendChild(executable);
+
+        QDomElement arguments = doc.createElement("arguments");
+        arguments.appendChild(doc.createTextNode(binary.arguments));
+        tag.appendChild(arguments);
 
         QDomElement parameter_pattern = doc.createElement("parameter_pattern");
         parameter_pattern.appendChild(doc.createTextNode(binary.parameter_pattern));

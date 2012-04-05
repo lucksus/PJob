@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>622</width>
-    <height>557</height>
+    <width>700</width>
+    <height>637</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -285,6 +285,27 @@
             </layout>
            </item>
            <item>
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Arguments:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_11">
+             <item>
+              <widget class="QLineEdit" name="applicationArguments"/>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton">
+               <property name="text">
+                <string>Auto</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
             <widget class="QLabel" name="label_7">
              <property name="text">
               <string>Parameters pattern:</string>
@@ -319,6 +340,7 @@
           <zorder>label_6</zorder>
           <zorder>label_7</zorder>
           <zorder>binariesAutoDetectAllButton</zorder>
+          <zorder>label</zorder>
          </widget>
         </widget>
        </item>

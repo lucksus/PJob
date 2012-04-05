@@ -360,6 +360,7 @@ void PJobFileWidget::on_listOfApps_currentItemChanged(QListWidgetItem * current,
     ui.applicationVersion->setText(app.program_version);
     ui.applicationExecutable->setText(app.executable);
     ui.applicationPlatform->setCurrentIndex(app.platform);
+    ui.applicationArguments->setText(app.arguments);
     ui.applicationParametersPattern->setText(app.parameter_pattern);
     ui.applicationSplitter->setEnabled(true);
     ui.applicationInfoBox->setEnabled(true);
@@ -416,6 +417,10 @@ void PJobFileWidget::on_applicationExecutable_textChanged(const QString&){
     syncCurrentApplicationModelToFile();
 }
 
+void PJobFileWidget::on_applicationArguments_textChanged(const QString& text){
+    syncCurrentApplicationModelToFile();
+}
+
 void PJobFileWidget::on_applicationParametersPattern_textChanged(const QString&){
     syncCurrentApplicationModelToFile();
 }
@@ -426,16 +431,16 @@ void PJobFileWidget::on_applicationPlatform_currentIndexChanged(int){
 
 void PJobFileWidget::syncApplicationsFileToModel(){
     m_applicationPageIsConstructing = true;
-    QList<PJobFileApplication> binaries = m_pjobFile->applications();
+    QList<PJobFileApplication> applications = m_pjobFile->applications();
     ui.listOfApps->clear();
     ui.defaultApp->clear();
-    foreach(PJobFileApplication b, binaries){
+    foreach(PJobFileApplication a, applications){
         QListWidgetItem* item = new QListWidgetItem(ui.listOfApps);
         item->setFlags(item->flags() | Qt::ItemIsEditable);
-        item->setText(b.name);
-        item->setData(Qt::UserRole, b.name);
+        item->setText(a.name);
+        item->setData(Qt::UserRole, a.name);
         ui.listOfApps->addItem(item);
-        ui.defaultApp->addItem(b.name);
+        ui.defaultApp->addItem(a.name);
     }
     QString default_app = m_pjobFile->defaultApplication();
     for(int i=0;i<ui.defaultApp->count();i++){
@@ -456,6 +461,7 @@ void PJobFileWidget::syncCurrentApplicationModelToFile(){
         app.program_name = ui.applicationName->text();
         app.program_version = ui.applicationVersion->text();
         app.executable = ui.applicationExecutable->text();
+        app.arguments = ui.applicationArguments->text();
         app.parameter_pattern = ui.applicationParametersPattern->text();
         app.platform = static_cast<PJobFileApplication::Platform>(ui.applicationPlatform->currentIndex());
     }
