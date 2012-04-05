@@ -8,7 +8,7 @@ Session::Session() : m_pjob_file(0), m_script_engine(0), m_wants_shutdown(false)
 }
 
 
-Session& Session::instance(){
+Session& Session::global_instance(){
     static Session c;
     return c;
 }

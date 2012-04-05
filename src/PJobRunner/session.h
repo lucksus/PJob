@@ -9,7 +9,7 @@ class Session : public QObject
 Q_OBJECT
 public:
     Session();
-    static Session& instance();
+    static Session& global_instance();
     ScriptEngine& script_engine();
     bool wants_shutdown();
 
