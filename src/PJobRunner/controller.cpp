@@ -112,11 +112,14 @@ void Controller::run_job(){
     }
 
     process.start(executable, create_commandline_arguments_for_app(app));
-    process.waitForFinished(-1);
+    process.waitForStarted(-1);
     output("-------------------");
     output("Process std output:");
     output("-------------------");
-    output(process.readAllStandardOutput());
+    do{
+        output(process.readAllStandardOutput());
+    }while(!process.waitForFinished(100));
+
     switch(process.exitStatus()){
     case QProcess::NormalExit:
         output("Process exited normally.");
