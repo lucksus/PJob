@@ -1,15 +1,16 @@
 #include "scriptengine.h"
 #include "session.h"
 
-ScriptEngine::ScriptEngine()
+ScriptEngine::ScriptEngine(Session* session)
+    : m_session(session)
 {
-    m_engine.setGlobalObject(m_engine.newQObject(&Session::global_instance()));
+    m_engine.setGlobalObject(m_engine.newQObject(m_session));
 }
 
 void ScriptEngine::evaluate(const QString& code){
     try{
-        Session::global_instance().output(m_engine.evaluate(code).toString());
+        m_session->output(m_engine.evaluate(code).toString());
     }catch(PJobFileError& e){
-        Session::global_instance().output(e.msg());
+        m_session->output(e.msg());
     }
 }

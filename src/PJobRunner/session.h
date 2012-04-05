@@ -4,11 +4,12 @@
 #include "PJobFile.h"
 #include "scriptengine.h"
 
+class QTcpSocket;
 class Session : public QObject
 {
 Q_OBJECT
 public:
-    Session();
+    Session(QTcpSocket* socket = 0);
     static Session& global_instance();
     ScriptEngine& script_engine();
     bool wants_shutdown();
@@ -34,6 +35,7 @@ private:
     QMap<QString,double> m_parameters;
     QString m_application;
     bool m_wants_shutdown;
+    QTcpSocket* m_socket;
 
     QStringList create_commandline_arguments_for_app(const PJobFileApplication&);
 };

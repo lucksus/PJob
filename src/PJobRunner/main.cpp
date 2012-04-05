@@ -2,6 +2,7 @@
 #include "session.h"
 #include <QtCore/QFileInfo>
 #include <QtCore/QFile>
+#include "tcpserver.h"
 
 int main(int argc, char *argv[])
 {
@@ -9,6 +10,10 @@ int main(int argc, char *argv[])
     Session::global_instance().set_temp_dir(QFileInfo(argv[0]).absolutePath() + "/PJobRunner_temp");
 
     if(argc == 2){
+        if(QString(argv[1]) == "server"){
+            TcpServer::instance().startup();
+            return 0;
+        }
         QFileInfo file_info(argv[1]);
         if(file_info.exists() && file_info.isFile()){
             std::cout << QString("Interpreting file %1...").arg(file_info.absolutePath()).toStdString() << std::endl;

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core xml script
+QT       += core xml script network
 QT       -= gui
 CONFIG += debug_and_release
 TARGET = PJobRunner
@@ -32,9 +32,11 @@ build_pass:CONFIG(debug, debug|release) {
 SOURCES += main.cpp \
     scriptengine.cpp \
     tcpserver.cpp \
-    session.cpp
+    session.cpp \
+    sessionthread.cpp
 
 HEADERS += \
     scriptengine.h \
     tcpserver.h \
-    session.h
+    session.h \
+    sessionthread.h

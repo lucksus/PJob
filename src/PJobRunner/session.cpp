@@ -2,8 +2,9 @@
 #include <iostream>
 #include <QtCore/QProcess>
 #include <QtCore/QFile>
+#include <QTcpSocket>
 
-Session::Session() : m_pjob_file(0), m_script_engine(0), m_wants_shutdown(false)
+Session::Session(QTcpSocket* socket) : m_pjob_file(0), m_script_engine(0), m_wants_shutdown(false), m_socket(socket)
 {
 }
 
@@ -14,7 +15,7 @@ Session& Session::global_instance(){
 }
 
 ScriptEngine& Session::script_engine(){
-    if(m_script_engine == 0) m_script_engine = new ScriptEngine();
+    if(m_script_engine == 0) m_script_engine = new ScriptEngine(this);
     return *m_script_engine;
 }
 
@@ -175,5 +176,6 @@ QStringList Session::run_directories(){
 }
 
 void Session::output(const QString& msg){
-    std::cout << msg.toStdString() << std::endl;
+    if(m_socket) m_socket->write((msg + "\n").toAscii());
+    else std::cout << msg.toStdString() << std::endl;
 }
