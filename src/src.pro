@@ -14,3 +14,6 @@ PJobCmdLine.depends = PJobFile
 
 PJobFileEditor.subdir = PJobFileEditor
 PJobFileEditor.depends = PJobFile
+
+PJobRunner.subdir = PJobRunner
+PJobRunner.depends = PJobFile
