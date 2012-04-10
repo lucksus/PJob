@@ -190,6 +190,11 @@ Qt::DropActions PJobDirModel::supportedDragActions() const{
 	return Qt::CopyAction;
 }
 
+Qt::DropActions PJobDirModel::supportedDropActions() const{
+    return Qt::ActionMask;
+}
+
+
 void PJobDirModel::removeEntries(const QModelIndexList& indexes){
 	QModelIndex index;
 	QMap<int,QModelIndex> removedIndexes;

@@ -31,6 +31,7 @@ public:
 	bool dropMimeData(const QMimeData* mimeData, Qt::DropAction action, int row, int column, const QModelIndex& parent);
 	Qt::ItemFlags flags(const QModelIndex& index) const;
 	Qt::DropActions supportedDragActions() const;
+    Qt::DropActions supportedDropActions() const;
 
 	void removeEntries(const QModelIndexList& indexes);
 	QModelIndex makeDir(const QModelIndex& parent);
