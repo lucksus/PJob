@@ -28,7 +28,7 @@ PJobFileFormat::PJobFileFormat(QString path):QFile(path)
 
     //Datei öffnen
     if(!QFile::open(QIODevice::ReadWrite))
-		throw ReadFileError("Could not open .pjob-file. Is the file write-protected?");
+        throw ReadFileError(QString("Could not open file %1!").arg(path));
 
 	//Inhalt der Datei zur Bearbeitung in m_data kopieren
 	this->seek(0);
