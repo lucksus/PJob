@@ -3,6 +3,7 @@
 #include <QtCore/QProcess>
 #include <QtCore/QFile>
 #include <QTcpSocket>
+#include "PJobFileError.h"
 
 Session::Session(QTcpSocket* socket) : m_pjob_file(0), m_script_engine(0), m_wants_shutdown(false), m_socket(socket)
 {
@@ -25,7 +26,13 @@ bool Session::wants_shutdown(){
 
 void Session::open_local_pjob_file(QString filename){
     if(m_pjob_file) delete m_pjob_file;
-    m_pjob_file = new PJobFile(filename);
+    try{
+        m_pjob_file = new PJobFile(filename);
+    }catch(PJobFileError &e){
+        m_pjob_file = 0;
+        output(e.msg());
+        return;
+    }
     output(QString("File %1 opened!").arg(filename));
     m_application = m_pjob_file->defaultApplication();
     foreach(PJobFileParameterDefinition d, m_pjob_file->parameterDefinitions()){
@@ -74,6 +81,10 @@ bool removeDir(const QString &dirName)
 }
 
 void Session::run_job(){
+    if(m_pjob_file == 0){
+        output("Can't run job! No pjob file opened!");
+        return;
+    }
     PJobFileApplication app = m_pjob_file->applicationByName(m_application);
 #ifdef Q_WS_WIN
     if(app.platform != PJobFileApplication::Win32  && app.platform != PJobFileApplication::Win64){
