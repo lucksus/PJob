@@ -29,6 +29,12 @@ PJobFile::PJobFile(QString pjobFile)
         }
 }
 
+PJobFile::PJobFile(const QByteArray& data)
+: m_saveAutomatically(false)
+{
+    m_data = new PJobFileFormat(data);
+}
+
 PJobFile::~PJobFile(){
 	if(m_saveAutomatically) 
 		this->save();

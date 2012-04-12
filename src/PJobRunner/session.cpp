@@ -4,11 +4,24 @@
 #include <QtCore/QFile>
 #include <QTcpSocket>
 #include "PJobFileError.h"
+#include "dataconnectionthread.h"
+#include <QtCore/QDateTime>
 
-Session::Session(QTcpSocket* socket) : m_pjob_file(0), m_script_engine(0), m_wants_shutdown(false), m_socket(socket)
+Session::Session(QTcpSocket* socket) : m_pjob_file(0), m_script_engine(0), m_wants_shutdown(false), m_socket(socket), m_data_thread(0)
 {
+    QDir temp = QDir::temp();
+    QString random = QDateTime::currentDateTime().toString("yyyyMMdd_hhmm_ss_zzz");;
+    while(temp.exists(random)) random.append("_");
+    temp.mkdir(random);
+    temp.cd(random);
+    m_temp_dir = temp.absolutePath();
 }
 
+Session::~Session(){
+    delete m_script_engine;
+    delete m_pjob_file;
+    delete m_data_thread;
+}
 
 Session& Session::global_instance(){
     static Session c;
@@ -40,8 +53,31 @@ void Session::open_local_pjob_file(QString filename){
     }
 }
 
-void Session::receive_pjob_file(QString base64string){
+quint32 Session::open_data_connection(){
+    if(m_data_thread) delete m_data_thread;
+    m_received_data.clear();
+    m_data_thread = new DataConnectionThread(m_received_data,this);
+    quint32 port = m_data_thread->open_data_port();
+    m_data_thread->start();
+    return port;
+}
 
+void Session::open_pjob_from_received_data(){
+    if(!m_data_thread || !m_data_thread->data_received()){
+        output("No data received! Can't open pjob file!");
+        return;
+    }
+    try{
+        m_pjob_file = new PJobFile(m_received_data);
+    }catch(PJobFileError &e){
+        m_pjob_file = 0;
+        output(e.msg());
+    }
+    m_application = m_pjob_file->defaultApplication();
+    foreach(PJobFileParameterDefinition d, m_pjob_file->parameterDefinitions()){
+        m_parameters[d.name()] = d.defaultValue();
+    }
+    output("pjob file opened from received data.");
 }
 
 void Session::set_temp_dir(QString path){
@@ -189,4 +225,18 @@ QStringList Session::run_directories(){
 void Session::output(const QString& msg){
     if(m_socket) m_socket->write((msg + "\n").toAscii());
     else std::cout << msg.toStdString() << std::endl;
+}
+
+const QByteArray& Session::received_data(){
+    return m_received_data;
+}
+
+void Session::write_received_data_to_file(QString path){
+    QFile file(path);
+    if(!file.open(QIODevice::WriteOnly)){
+        output(QString("Could not open %1 for writing!"));
+        return;
+    }
+    file.write(m_received_data);
+    file.close();
 }

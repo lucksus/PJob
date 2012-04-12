@@ -3,6 +3,7 @@
 #include <QThread>
 #include "session.h"
 #include <QTcpSocket>
+#include <QHostAddress>
 
 class SessionThread : public QThread
 {
@@ -15,6 +16,7 @@ protected:
 
 private:
     QTcpSocket* m_connection;
+    QHostAddress m_peer_adress;
 };
 
 #endif // SESSIONTHREAD_H

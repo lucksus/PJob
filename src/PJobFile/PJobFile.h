@@ -16,6 +16,7 @@ class PJobFile : public QObject{
 Q_OBJECT
 public:
     PJobFile(QString pjobFile);
+    PJobFile(const QByteArray& data);
     ~PJobFile();
     void addResource(QString path);
     void addResource(const QByteArray& content, const QString& internal_file_name);

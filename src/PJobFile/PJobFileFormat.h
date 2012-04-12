@@ -39,6 +39,12 @@ public:
          */
         PJobFileFormat(QString path);
 
+        //! Erstellt ein Objekt mit den bereits in das übergebene QByteArray geladenen Daten.
+        /*!
+          * @param data Inhalt einer PJob-Datei
+          */
+        PJobFileFormat(const QByteArray& data);
+
         //! Destruktor verwirft alle veränderten Daten, wenn nicht voher flush() aufgerufen wurde.
         ~PJobFileFormat();
 

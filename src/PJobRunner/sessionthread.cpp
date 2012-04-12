@@ -5,6 +5,7 @@
 SessionThread::SessionThread(QTcpSocket* connection, QObject *parent) :
     QThread(parent), m_connection(connection)
 {
+    m_peer_adress = m_connection->peerAddress();
 }
 
 void SessionThread::run(){
@@ -16,7 +17,7 @@ void SessionThread::run(){
         if(session->wants_shutdown()) m_connection->disconnectFromHost();
     }
     delete session;
-    std::cout << "Connection to " << m_connection->peerAddress().toString().toStdString() << std::endl;
+    std::cout << "Connection to " << m_peer_adress.toString().toStdString() << std::endl;
     delete m_connection;
     m_connection = 0;
 }

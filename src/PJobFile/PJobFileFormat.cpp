@@ -45,6 +45,14 @@ PJobFileFormat::PJobFileFormat(QString path):QFile(path)
         this->map();
 }
 
+PJobFileFormat::PJobFileFormat(const QByteArray& data):QFile(){
+    m_path="";
+    m_modified=false;
+    m_version = c_version;
+    m_data = data;
+    map();
+}
+
 PJobFileFormat::~PJobFileFormat()
 {
     this->close();

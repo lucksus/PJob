@@ -33,10 +33,12 @@ SOURCES += main.cpp \
     scriptengine.cpp \
     tcpserver.cpp \
     session.cpp \
-    sessionthread.cpp
+    sessionthread.cpp \
+    dataconnectionthread.cpp
 
 HEADERS += \
     scriptengine.h \
     tcpserver.h \
     session.h \
-    sessionthread.h
+    sessionthread.h \
+    dataconnectionthread.h

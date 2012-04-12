@@ -5,23 +5,28 @@
 #include "scriptengine.h"
 
 class QTcpSocket;
+class DataConnectionThread;
 class Session : public QObject
 {
 Q_OBJECT
 public:
     Session(QTcpSocket* socket = 0);
+    ~Session();
     static Session& global_instance();
     ScriptEngine& script_engine();
     bool wants_shutdown();
 
 public slots:
     void open_local_pjob_file(QString filename);
-    void receive_pjob_file(QString base64string);
+    quint32 open_data_connection();
+    void open_pjob_from_received_data();
     void set_temp_dir(QString path);
     void set_parameter(QString name, double value);
     void set_application(QString app_name);
     void run_job();
     void exit();
+    const QByteArray& received_data();
+    void write_received_data_to_file(QString);
 
     QStringList run_directories();
 
@@ -36,6 +41,8 @@ private:
     QString m_application;
     bool m_wants_shutdown;
     QTcpSocket* m_socket;
+    QByteArray m_received_data;
+    DataConnectionThread* m_data_thread;
 
     QStringList create_commandline_arguments_for_app(const PJobFileApplication&);
 };
