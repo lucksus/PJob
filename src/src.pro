@@ -1,7 +1,8 @@
 TEMPLATE = subdirs
 CONFIG += debug_and_release
 SUBDIRS = CondorC++Adapter PQueueModel PQueue PJobFile PJobCmdLine PJobFileEditor \
-    PJobRunner
+    PJobRunner \
+    PJobClient
 
 PQueueModel.subdir = PQueueModel
 PQueueModel.depends = PJobFile CondorC++Adapter
