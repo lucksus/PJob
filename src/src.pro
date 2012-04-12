@@ -18,3 +18,6 @@ PJobFileEditor.depends = PJobFile
 
 PJobRunner.subdir = PJobRunner
 PJobRunner.depends = PJobFile
+
+PJobClient.subdir = PJobClient
+PJobClient.depends = PJobFile

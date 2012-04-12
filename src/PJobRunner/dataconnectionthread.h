@@ -3,24 +3,37 @@
 
 #include <QThread>
 class QTcpServer;
-class DataConnectionThread : public QThread
+class DataConnection : public QThread
 {
-    Q_OBJECT
 public:
-    explicit DataConnectionThread(QByteArray& data_destination, QObject *parent = 0);
-    ~DataConnectionThread();
+    explicit DataConnection(QByteArray& data_destination, QObject *parent = 0);
+    ~DataConnection();
     quint32 open_data_port();
-    bool data_received();
+protected:
+    QByteArray& m_data;
+    QTcpServer* m_server;
+    bool m_want_exit;
+    static quint32 s_port;
+};
 
+
+class DataReceiveConnection : public DataConnection
+{
+public:
+    explicit DataReceiveConnection(QByteArray& data_destination, QObject *parent = 0);
+    bool data_received();
 protected:
     void run();
 
-
 private:
-    QByteArray& m_data_destination;
-    QTcpServer* m_server;
     bool m_data_received;
-    bool m_want_exit;
+};
+
+class DataPushConnection : public DataConnection{
+public:
+    explicit DataPushConnection(QByteArray& data_destination, QObject *parent = 0);
+protected:
+    void run();
 };
 
 #endif // DATACONNECTIONTHREAD_H

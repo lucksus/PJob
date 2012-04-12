@@ -7,7 +7,7 @@
 #include "dataconnectionthread.h"
 #include <QtCore/QDateTime>
 
-Session::Session(QTcpSocket* socket) : m_pjob_file(0), m_script_engine(0), m_wants_shutdown(false), m_socket(socket), m_data_thread(0)
+Session::Session(QTcpSocket* socket) : m_pjob_file(0), m_script_engine(0), m_wants_shutdown(false), m_socket(socket), m_data_to_send(0), m_data_receive_connection(0), m_data_push_connection(0)
 {
     QDir temp = QDir::temp();
     QString random = QDateTime::currentDateTime().toString("yyyyMMdd_hhmm_ss_zzz");;
@@ -20,7 +20,7 @@ Session::Session(QTcpSocket* socket) : m_pjob_file(0), m_script_engine(0), m_wan
 Session::~Session(){
     delete m_script_engine;
     delete m_pjob_file;
-    delete m_data_thread;
+    delete m_data_receive_connection;
 }
 
 Session& Session::global_instance(){
@@ -53,17 +53,31 @@ void Session::open_local_pjob_file(QString filename){
     }
 }
 
-quint32 Session::open_data_connection(){
-    if(m_data_thread) delete m_data_thread;
+quint32 Session::prepare_push_connection(){
+    if(m_data_receive_connection) delete m_data_receive_connection;
     m_received_data.clear();
-    m_data_thread = new DataConnectionThread(m_received_data,this);
-    quint32 port = m_data_thread->open_data_port();
-    m_data_thread->start();
+    m_data_receive_connection = new DataReceiveConnection(m_received_data,this);
+    quint32 port = m_data_receive_connection->open_data_port();
+    m_data_receive_connection->start();
+    return port;
+}
+
+quint32 Session::prepare_pull_connection_for_results(){
+    if(!m_pjob_file){
+        output("Can't prepare pull connection! No PJob file openend!");
+        return 0;
+    }
+    if(m_data_push_connection) delete m_data_push_connection;
+    if(m_data_to_send) delete m_data_to_send;
+    m_data_to_send = m_pjob_file->get_result_files_raw();
+    m_data_push_connection = new DataPushConnection(*m_data_to_send,this);
+    quint32 port = m_data_push_connection->open_data_port();
+    m_data_push_connection->start();
     return port;
 }
 
 void Session::open_pjob_from_received_data(){
-    if(!m_data_thread || !m_data_thread->data_received()){
+    if(!m_data_receive_connection || !m_data_receive_connection->data_received()){
         output("No data received! Can't open pjob file!");
         return;
     }

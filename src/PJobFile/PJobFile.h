@@ -16,7 +16,7 @@ class PJobFile : public QObject{
 Q_OBJECT
 public:
     PJobFile(QString pjobFile);
-    PJobFile(const QByteArray& data);
+    explicit PJobFile(const QByteArray& data);
     ~PJobFile();
     void addResource(QString path);
     void addResource(const QByteArray& content, const QString& internal_file_name);
@@ -61,6 +61,11 @@ public:
     void export_application(QString application_name, QString path);
     void export_resources(QString path);
     void import_run_directory(QString path);
+
+    //! Reads all result files (all files in all run directories) with header from underlying file format and concatenates them into one QByteArray
+    QByteArray* get_result_files_raw();
+
+    void add_raw_files(const QByteArray&);
 
 public slots:
     void abort_progress(const QString &);

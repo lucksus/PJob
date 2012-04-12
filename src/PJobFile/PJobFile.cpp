@@ -656,3 +656,16 @@ void PJobFile::import_run_directory(QString path){
         m_data->appendFile(file_content, "Runs/"+run_directory+"/"+file_relative_path);
     }
 }
+
+QByteArray* PJobFile::get_result_files_raw(){
+    QByteArray* arr = new QByteArray;
+    foreach(QString file, m_data->content()){
+        if(file.startsWith("Runs"))
+            arr->append( m_data->readRaw(file) );
+    }
+    return arr;
+}
+
+void PJobFile::add_raw_files(const QByteArray& data){
+    m_data->appendRaw(data);
+}
