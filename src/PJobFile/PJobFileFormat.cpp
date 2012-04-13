@@ -149,35 +149,44 @@ bool PJobFileFormat::appendFile(const QByteArray &source, QString targetRelative
     return true;
 }
 
-bool PJobFileFormat::appendRaw(const QByteArray &source)
+void PJobFileFormat::appendRaw(const QByteArray &source)
 {
-	//Daten auslesen
-	int size = m_data.size();
-	QString filename = source.left(source.indexOf('\n'));
+    QMap<QString,intPair> m = map(source,false);
+    foreach(intPair pos_struct, m.values()){
+        if(pos_struct.position + pos_struct.size + c_fileHeaderSize > source.size()    ||    source.indexOf('\n',pos_struct.position) == -1)
+                throw RawDataError("Appending raw data failed because the data was not valid.");
 
-	//Überprüfen, ob Zieldatei nicht schon exisitiert
-	if(this->contains(filename))
-		return false;
+        quint32 headerSize=source.indexOf('\n',pos_struct.position)-pos_struct.position+c_fileHeaderSize;
 
-	//Auf Kollisionen mit Windows-Dateisystem prüfen
-	if(!this->proofUnique(filename))
-		return false;
+        if(pos_struct.position + pos_struct.size + headerSize > source.size())
+            throw RawDataError("Appending raw data failed because the data was not valid.");
 
-	//Datei 'testweise' hinzufügen und überprüfen ob .pjob-Datei noch valid ist
-	m_data.append(source);
+        QByteArray file = source.mid(pos_struct.position, pos_struct.size + headerSize);
 
-	if(!this->isValid())
-	{
-		//Änderungen wieder verwerfen und Abbruch
-		m_data.truncate(size);
-		throw RawDataError("Appending raw data failed because the data was not valid.");
-	}
+        //Daten auslesen
+        int size = m_data.size();
+        QString filename = file.left(file.indexOf('\n'));
 
-	//Map aktualisieren
-	this->addToMap( filename , size , source.size() );
-	m_modified = true;
+        //Überprüfen, ob Zieldatei nicht schon exisitiert
+        if(this->contains(filename)) continue;
 
-	return true;
+        //Auf Kollisionen mit Windows-Dateisystem prüfen
+        if(!this->proofUnique(filename)) continue;
+
+        //Datei 'testweise' hinzufügen und überprüfen ob .pjob-Datei noch valid ist
+        m_data.append(file);
+
+        if(!this->isValid())
+        {
+                //Änderungen wieder verwerfen und Abbruch
+                m_data.truncate(size);
+                throw RawDataError("Appending raw data failed because the data was not valid.");
+        }
+
+        //Map aktualisieren
+        this->addToMap( filename , size , file.size() );
+    }
+    m_modified = true;
 }
 
 bool PJobFileFormat::appendFolder(QString sourceAbsolutePath, QString targetRelativePath, bool overwrite)
@@ -618,38 +627,40 @@ void PJobFileFormat::writeHeaderInformation(bool overwriteOldHeader)
     m_data.replace(0,length,temp);
 }
 
-void PJobFileFormat::map()
-{
-	//Map zurücksetzen
-	QMap<QString,intPair> map;
-	m_map = map;
+void PJobFileFormat::map(){
+    m_map = map(m_data);
+}
 
+QMap<QString,PJobFileFormat::intPair> PJobFileFormat::map(const QByteArray& data, bool skip_header)
+{
+    QMap<QString,intPair> map;
     QString filePath;
     quint32 headerSize, dataSize;
-    int pos=21;
+    int pos = skip_header ? 21 : 0;
     intPair info;
 
     //Solange noch nicht alle Dateien in die Map aufgenommen wurden
-    while(pos < m_data.size())
+    while(pos < data.size())
     {
       //Variablen setzen
         //Headergröße auslesen
-        headerSize=m_data.indexOf('\n',pos)-pos+c_fileHeaderSize;
+        headerSize=data.indexOf('\n',pos)-pos+c_fileHeaderSize;
 
         //Dateigröße auslesen
-        dataSize=readInt32(m_data,pos+headerSize-4);
+        dataSize=readInt32(data,pos+headerSize-4);
 
         //Dateinamen auslesen
-        filePath = m_data.mid(pos,headerSize-c_fileHeaderSize);
+        filePath = data.mid(pos,headerSize-c_fileHeaderSize);
 
         //Datei in die Map aufnehmen
         info.position = pos;
         info.size = dataSize;
-        m_map.insert(filePath,info);
+        map.insert(filePath,info);
 
         //Position ändern
         pos += headerSize + dataSize;
     }
+    return map;
 }
 
 void PJobFileFormat::addToMap(QString relativePath, int position, int size)

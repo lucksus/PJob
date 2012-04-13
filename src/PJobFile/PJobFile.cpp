@@ -548,50 +548,7 @@ void PJobFile::mergeRunsFrom(const PJobFile& otherPJob)
 	foreach(QString run,otherPJob.runDirectoryEntries())
 	{
 		QByteArray neuer_run = otherPJob.m_data->readRaw(run);
-
-		bool fine = false;
-
-		//Wenn der Run noch nicht existiert wird er hinzugefügt (Standardfall)
-		try
-		{
-			fine = m_data->appendRaw(neuer_run);
-		}
-		catch(RawDataError e)
-		{
-			//do something
-		}
-		
-		//Ansonsten muss geguckt werden, ob die Runs binär unterschiedlich sind und der neue Run ggf. umbenannt werden
-		//(Äußerst seltener, eher theoretischer, Fall!!)
-			if((!fine) && (neuer_run != m_data->readRaw(run)))
-			{
-				//Es wird solange der letzte char des Datei-Strings geändert, bis sich die Dateinamen unterscheiden (ggf. wird angehängt)
-				int len = neuer_run.indexOf('\n') - 1;
-				int n = 0, slen = 1;
-				QString neuer_string = QString(neuer_run.left(len+1));
-				QString s = "";
-				
-				//Umbennen bis Dateinamen unterschiedlich
-				do
-				{
-					s = (QString(n++));
-					neuer_string.replace(len,slen,s);
-					slen = s.length();
-				}while(m_data->contains(neuer_string));
-
-				//Hinzufügen
-				QByteArray b;
-				b.append(neuer_string);
-				neuer_run.replace(0,len+slen,b);
-				try
-				{
-                                        m_data->appendRaw(neuer_run);
-				}
-				catch(RawDataError e)
-				{
-					//do something
-				}
-			}
+                m_data->appendRaw(neuer_run);
 	}
 }
 

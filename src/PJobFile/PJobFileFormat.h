@@ -60,7 +60,7 @@ public:
         bool appendFile(const QByteArray &source, QString targetRelativePath, quint64 mtime = 0, bool overwrite = true);
 		
         //! Fügt ein QByteArray an die Datei an und erstellt die Map neu (muss einen gültigen Header enthalten)
-        bool appendRaw(const QByteArray &source);
+        void appendRaw(const QByteArray &source);
 
         //! Siehe appendFile(). Es werden nur einzelne Dateien überschrieben, nicht der gesamte Ordner.
         bool appendFolder(QString sourceAbsolutePath, QString targetRelativePath = QString(), bool overwrite = true);
@@ -135,6 +135,7 @@ private:
         void createNewFile();
         void writeHeaderInformation(bool overwriteOldHeader);
         void map();
+        QMap<QString,intPair> map(const QByteArray&, bool skip_header = true);
 
         //Hilfsfunktion für einfacheren Zugriff auf m_map
         void addToMap(QString relativePath, int position, int size);
