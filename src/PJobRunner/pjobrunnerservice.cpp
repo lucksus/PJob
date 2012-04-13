@@ -6,7 +6,7 @@ PJobRunnerService::PJobRunnerService(int argc, char** argv) :
 {
     setServiceDescription("PCloud's worker deamon.");
     setStartupType(QtServiceController::AutoStartup);
-    setServiceFlags(QtService::CanBeSuspended);
+    setServiceFlags(QtService<QCoreApplication>::CanBeSuspended);
     application()->setApplicationName("PJobRunner");
     application()->setOrganizationName("lucksus");
     application()->setOrganizationDomain("lucksus.eu");
