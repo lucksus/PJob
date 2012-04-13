@@ -71,12 +71,22 @@ int main(int argc, char *argv[])
     if(!connection.waitForReadyRead(10000))exit(0);
     connection.write("run_job()\n");
     bool ok=false;
-    while(!ok){
+    bool want_exit=false;
+    while(!want_exit){
         if(!connection.waitForReadyRead(10)) continue;
         QString line = connection.readAll();
-        if(line.contains("undefined")) ok = true;
+        if(line.contains("Process exited normally.")){ ok = true; want_exit = true; }
+        if(line.contains("Process crashed!")) want_exit = true;
         std::cout << line.toStdString() << std::endl;
     }
+
+    if(!ok){
+        std::cout << "Job application crashed!" << std::endl << "Not pulling results..." << std::endl;
+        exit(0);
+    }
+
+    while(connection.waitForReadyRead(1000)) std::cout << QString(connection.readAll()).toStdString();
+    std::cout << std::endl;
 
     std::cout << "Pulling results...";
     connection.write("prepare_pull_connection_for_results()\n");

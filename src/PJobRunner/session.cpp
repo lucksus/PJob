@@ -237,7 +237,10 @@ QStringList Session::run_directories(){
 }
 
 void Session::output(const QString& msg){
-    if(m_socket) m_socket->write((msg + "\n").toAscii());
+    if(m_socket){
+        m_socket->write((msg + "\n").toAscii());
+        m_socket->flush();
+    }
     else std::cout << msg.toStdString() << std::endl;
 }
 
