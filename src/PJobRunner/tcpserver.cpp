@@ -1,6 +1,7 @@
 #include "tcpserver.h"
 #include <QHostAddress>
 #include "sessionthread.h"
+#include <QtServiceBase>
 
 TcpServer::TcpServer()
 {
@@ -19,15 +20,20 @@ void TcpServer::clean_threads(){
         delete m_threads.takeAt(index);
 }
 
-void TcpServer::startup(){
+void TcpServer::run(){
     m_server.listen(QHostAddress::Any, 23023);
-    while(true){
+    while(m_active){
         m_server.waitForNewConnection(1000);
         clean_threads();
         if(m_server.hasPendingConnections() == false) continue;
         QTcpSocket* connection = m_server.nextPendingConnection();
-        std::cout << "Accepted connection from " << connection->peerAddress().toString().toStdString() << std::endl;
+        QtServiceBase::instance()->logMessage(QString("Accepted connection from %1.").arg(connection->peerAddress().toString()));
         m_threads.append(new SessionThread(connection,&m_server));
         m_threads.last()->start();
     }
+}
+
+
+void TcpServer::set_active(bool active){
+    m_active = active;
 }

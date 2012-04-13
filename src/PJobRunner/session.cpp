@@ -6,6 +6,8 @@
 #include "PJobFileError.h"
 #include "dataconnectionthread.h"
 #include <QtCore/QDateTime>
+#include <QtServiceBase>
+#include <QHostAddress>
 
 Session::Session(QTcpSocket* socket) : m_pjob_file(0), m_script_engine(0), m_wants_shutdown(false), m_socket(socket), m_data_to_send(0), m_data_receive_connection(0), m_data_push_connection(0)
 {
@@ -15,6 +17,7 @@ Session::Session(QTcpSocket* socket) : m_pjob_file(0), m_script_engine(0), m_wan
     temp.mkdir(random);
     temp.cd(random);
     m_temp_dir = temp.absolutePath();
+    if(m_socket) QtServiceBase::instance()->logMessage(QString("Opening new session for peer %1 over port %2 with temporary directory %3.").arg(socket->peerAddress().toString()).arg(socket->localPort()).arg(m_temp_dir));
 }
 
 Session::~Session(){
@@ -47,6 +50,7 @@ void Session::open_local_pjob_file(QString filename){
         return;
     }
     output(QString("File %1 opened!").arg(filename));
+    QtServiceBase::instance()->logMessage(QString("Opened local pjob file %1 for peer %2.").arg(filename).arg(m_socket->peerAddress().toString()), QtServiceBase::Information);
     m_application = m_pjob_file->defaultApplication();
     foreach(PJobFileParameterDefinition d, m_pjob_file->parameterDefinitions()){
         m_parameters[d.name()] = d.defaultValue();
@@ -59,6 +63,7 @@ quint32 Session::prepare_push_connection(){
     m_data_receive_connection = new DataReceiveConnection(m_received_data,this);
     quint32 port = m_data_receive_connection->open_data_port();
     m_data_receive_connection->start();
+    QtServiceBase::instance()->logMessage(QString("Prepared push connection on port %1 for peer %2.").arg(port).arg(m_socket->peerAddress().toString()), QtServiceBase::Information);
     return port;
 }
 
@@ -73,6 +78,7 @@ quint32 Session::prepare_pull_connection_for_results(){
     m_data_push_connection = new DataPushConnection(*m_data_to_send,this);
     quint32 port = m_data_push_connection->open_data_port();
     m_data_push_connection->start();
+    QtServiceBase::instance()->logMessage(QString("Prepared pull connection on port %1 for peer %2.").arg(port).arg(m_socket->peerAddress().toString()), QtServiceBase::Information);
     return port;
 }
 
@@ -92,6 +98,7 @@ void Session::open_pjob_from_received_data(){
         m_parameters[d.name()] = d.defaultValue();
     }
     output("pjob file opened from received data.");
+    QtServiceBase::instance()->logMessage(QString("Opened received pjob for peer %1.").arg(m_socket->peerAddress().toString()));
 }
 
 void Session::set_temp_dir(QString path){
@@ -154,6 +161,8 @@ void Session::run_job(){
         return;
     }
 #endif
+
+    QtServiceBase::instance()->logMessage(QString("Running job for peer %1 in temp dir %2.").arg(m_socket->peerAddress().toString()).arg(m_temp_dir));
 
     QString temp_dir = QFileInfo(m_temp_dir).absoluteFilePath();
 
@@ -256,4 +265,5 @@ void Session::write_received_data_to_file(QString path){
     }
     file.write(m_received_data);
     file.close();
+    QtServiceBase::instance()->logMessage(QString("Wrote received data to file %1 for peer %2.").arg(path).arg(m_socket->peerAddress().toString()), QtServiceBase::Information);
 }

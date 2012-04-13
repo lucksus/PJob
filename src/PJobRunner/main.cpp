@@ -3,12 +3,17 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QFile>
 #include "tcpserver.h"
+#include <QtCore/QDir>
+#include "pjobrunnerservice.h"
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication a(argc, argv);
-    Session::global_instance().set_temp_dir(QFileInfo(argv[0]).absolutePath() + "/PJobRunner_temp");
+    PJobRunnerService service(argc,argv);
+    Session::global_instance().set_temp_dir(QDir::temp().absolutePath() + "/PJobRunner_temp");
+    return service.exec();
 
+
+/*
     if(argc == 2){
         if(QString(argv[1]) == "server"){
             TcpServer::instance().startup();
@@ -42,4 +47,5 @@ int main(int argc, char *argv[])
     std::cout << "Exiting..." << std::endl;
 
     return 0;
+    */
 }

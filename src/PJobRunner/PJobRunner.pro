@@ -34,13 +34,15 @@ SOURCES += main.cpp \
     tcpserver.cpp \
     session.cpp \
     sessionthread.cpp \
-    dataconnectionthread.cpp
+    dataconnectionthread.cpp \
+    pjobrunnerservice.cpp
 
 HEADERS += \
     scriptengine.h \
     tcpserver.h \
     session.h \
     sessionthread.h \
-    dataconnectionthread.h
+    dataconnectionthread.h \
+    pjobrunnerservice.h
 
 include(qtservice/src/qtservice.pri)

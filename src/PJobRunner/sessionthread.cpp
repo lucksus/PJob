@@ -1,6 +1,7 @@
 #include "sessionthread.h"
 #include "session.h"
 #include <QHostAddress>
+#include <QtServiceBase>
 
 SessionThread::SessionThread(QTcpSocket* connection, QObject *parent) :
     QThread(parent), m_connection(connection)
@@ -17,7 +18,7 @@ void SessionThread::run(){
         if(session->wants_shutdown()) m_connection->disconnectFromHost();
     }
     delete session;
-    std::cout << "Connection to " << m_peer_adress.toString().toStdString() << std::endl;
+    QtServiceBase::instance()->logMessage(QString("Connection to %1 closed.").arg(m_peer_adress.toString()));
     delete m_connection;
     m_connection = 0;
 }
