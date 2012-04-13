@@ -42,3 +42,5 @@ HEADERS += \
     session.h \
     sessionthread.h \
     dataconnectionthread.h
+
+include(qtservice/src/qtservice.pri)

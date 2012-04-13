@@ -16,3 +16,4 @@ qrc_*.cpp
 *.idx
 *.dylib
 /src/PJobRunner/PJobRunner
+*.moc
