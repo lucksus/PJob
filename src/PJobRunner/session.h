@@ -16,12 +16,13 @@ public:
     static Session& global_instance();
     ScriptEngine& script_engine();
     bool wants_shutdown();
+    void set_temp_dir(QString path);
+    QString hello();
 
 public slots:
     void open_local_pjob_file(QString filename);
     quint32 prepare_push_connection();
     void open_pjob_from_received_data();
-    void set_temp_dir(QString path);
     void set_parameter(QString name, double value);
     void set_application(QString app_name);
     void run_job();

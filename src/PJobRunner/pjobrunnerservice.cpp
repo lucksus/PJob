@@ -10,6 +10,7 @@ PJobRunnerService::PJobRunnerService(int argc, char** argv) :
     application()->setApplicationName("PJobRunner");
     application()->setOrganizationName("lucksus");
     application()->setOrganizationDomain("lucksus.eu");
+    application()->setApplicationVersion("0.1");
 }
 
 void PJobRunnerService::start(){

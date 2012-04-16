@@ -5,6 +5,7 @@ ScriptEngine::ScriptEngine(Session* session)
     : m_session(session)
 {
     m_engine.setGlobalObject(m_engine.newQObject(m_session));
+    m_engine.globalObject().setProperty("hello", session->hello());
 }
 
 void ScriptEngine::evaluate(const QString& code){

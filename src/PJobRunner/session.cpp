@@ -8,6 +8,8 @@
 #include <QtCore/QDateTime>
 #include <QtServiceBase>
 #include <QHostAddress>
+#include "pjobrunnerservice.h"
+#include <QtNetwork/QHostInfo>
 
 Session::Session(QTcpSocket* socket) : m_pjob_file(0), m_script_engine(0), m_wants_shutdown(false), m_socket(socket), m_data_to_send(0), m_data_receive_connection(0), m_data_push_connection(0)
 {
@@ -38,6 +40,10 @@ ScriptEngine& Session::script_engine(){
 
 bool Session::wants_shutdown(){
     return m_wants_shutdown;
+}
+
+QString Session::hello(){
+    return QString("This is %1 (%3) version %2 running on %4.\nNice to meet you.").arg(QCoreApplication::applicationName()).arg(QCoreApplication::applicationVersion()).arg(PJobRunnerService::instance()->serviceDescription()).arg(QHostInfo::localHostName());
 }
 
 void Session::open_local_pjob_file(QString filename){
