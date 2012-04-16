@@ -43,7 +43,19 @@ bool Session::wants_shutdown(){
 }
 
 QString Session::hello(){
-    return QString("This is %1 (%3) version %2 running on %4.\nNice to meet you.").arg(QCoreApplication::applicationName()).arg(QCoreApplication::applicationVersion()).arg(PJobRunnerService::instance()->serviceDescription()).arg(QHostInfo::localHostName());
+    return QString("This is %1 (%3) version %2 running on %4 (%5).\nNice to meet you.").arg(QCoreApplication::applicationName()).arg(QCoreApplication::applicationVersion()).arg(PJobRunnerService::instance()->serviceDescription()).arg(QHostInfo::localHostName()).arg(platform());
+}
+
+QString Session::platform(){
+#ifdef Q_OS_WIN32
+    return "Windows";
+#endif
+#ifdef Q_OS_MAC
+    return "MacOSX";
+#endif
+#ifdef Q_OS_UNIX
+    return "Unix";
+#endif
 }
 
 void Session::open_local_pjob_file(QString filename){

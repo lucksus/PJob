@@ -20,6 +20,7 @@ public:
     QString hello();
 
 public slots:
+    QString platform();
     void open_local_pjob_file(QString filename);
     quint32 prepare_push_connection();
     void open_pjob_from_received_data();
