@@ -30,4 +30,10 @@ build_pass:CONFIG(debug, debug|release) {
     LIBS +=  -lPJobFile
     POST_TARGETDEPS += ../../lib/libPJobFile.a
 }
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    pjobrunnersessionwrapper.cpp \
+    pjobrunnernetworkscanner.cpp
+
+HEADERS += \
+    pjobrunnersessionwrapper.h \
+    pjobrunnernetworkscanner.h

@@ -4,6 +4,8 @@
 #include <QTcpSocket>
 #include <algorithm>
 #include "PJobFile.h"
+#include "pjobrunnersessionwrapper.h"
+#include <QtNetwork/QHostAddress>
 
 void usage(){
     std::cout << "Usage: PJobClient <host> <pjob file>" << std::endl;
@@ -23,105 +25,34 @@ int main(int argc, char *argv[])
         usage();
     }
 
-    QTcpSocket connection;
-    connection.connectToHost(argv[1], 23023);
-    if(!connection.waitForConnected(5000)){
+    QHostAddress host(argv[1]);
+    PJobRunnerSessionWrapper session(host);
+    if(!session.is_valid()){
         std::cout << "Could not connect to PJobRunner on host " << argv[1] << "!" << std::endl;
         usage();
     }
 
     std::cout << "Connection established!" << std::endl;
 
-    connection.write("prepare_push_connection()\n");
-    while(!connection.waitForReadyRead()) ;
-    QString line = connection.readLine();
-    quint32 port = line.toInt();
-
-    std::cout << "Opening data connection to port " << port << "... ";
-    QTcpSocket push_connection;
-    push_connection.connectToHost(argv[1], port);
-    if(!push_connection.waitForConnected(10000))
-        exit(0);
-    std::cout << " done!" << std::endl;
-
-    QByteArray content = file.readAll();
-    file.close();
-    qint64 bytes_send = 0;
-    qint64 all_bytes = content.size();
-    char* data = content.data();
-    qint64 transfer_unit_size = 1024;
-
-    while(bytes_send != all_bytes){
-        qint64 bytes_written = push_connection.write(data, std::min(transfer_unit_size,all_bytes-bytes_send));
-        data += bytes_written;
-        bytes_send += bytes_written;
-        push_connection.flush();
-        push_connection.waitForBytesWritten();
-        std::cout << "\r" << bytes_send * 100 / all_bytes << "% done...              ";
-        //std::cout << bytes_send << " bytes send." << std::endl;
-    }
-    std::cout << std::endl;
-    push_connection.close();
-    push_connection.waitForDisconnected(10000);
-    std::cout << content.size() << " bytes uploaded!" << std::endl;
+    session.upload_pjobfile(file.readAll());
 
     std::cout << "Running job..." << std::endl;
-
-    connection.write("open_pjob_from_received_data()\n");
-    if(!connection.waitForReadyRead(10000))exit(0);
-    connection.write("run_job()\n");
-    bool ok=false;
-    bool want_exit=false;
-    while(!want_exit){
-        if(!connection.waitForReadyRead(10)) continue;
-        QString line = connection.readAll();
-        if(line.contains("Process exited normally.")){ ok = true; want_exit = true; }
-        if(line.contains("Process crashed!")) want_exit = true;
-        std::cout << line.toStdString() << std::endl;
-    }
-
-    if(!ok){
+    if(!session.run_job()){
         std::cout << "Job application crashed!" << std::endl << "Not pulling results..." << std::endl;
         exit(0);
-    }
+    }else std::cout << "Running job done!" << std::endl;
 
-    while(connection.waitForReadyRead(1000)) std::cout << QString(connection.readAll()).toStdString();
-    std::cout << std::endl;
 
-    std::cout << "Pulling results...";
-    connection.write("prepare_pull_connection_for_results()\n");
-    if(!connection.waitForReadyRead(10000)) exit(0);
-    line = connection.readLine();
-    QString all = connection.readAll();
-    port = line.toInt();
-    std::cout << " from port " << port << "...";
-    QTcpSocket pull_connection;
-    pull_connection.connectToHost(argv[1], port);
-    if(!pull_connection.waitForConnected(10000)) exit(0);
-    if(!pull_connection.waitForReadyRead(10000)) exit(0);
     QByteArray results;
-
-    while(true){
-        if(pull_connection.state() == QTcpSocket::UnconnectedState){
-            while(pull_connection.bytesAvailable())
-                results.append(pull_connection.readAll());
-            break;
-        }
-        if(pull_connection.waitForReadyRead(10)){
-            results.append(pull_connection.readAll());
-        }
-    }
-
+    std::cout << "Pulling results...";
+    session.download_results(results);
     std::cout << " done!" << std::endl;
 
     std::cout << "Saving results to local PJob file...";
-
     PJobFile pjob_file(file_path);
     pjob_file.add_raw_files(results);
     pjob_file.save();
     std::cout << " done!" << std::endl;
-
-
 
     return 0;
 }
