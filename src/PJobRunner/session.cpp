@@ -149,21 +149,21 @@ void Session::run_job(){
         return;
     }
     PJobFileApplication app = m_pjob_file->applicationByName(m_application);
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN32
     if(app.platform != PJobFileApplication::Win32  && app.platform != PJobFileApplication::Win64){
-        output(QString("Can't run %1. No Application not build for Windows!").arg(app.name));
+        output(QString("Can't run %1. No Application build for Windows!").arg(app.name));
         return;
     }
 #endif
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     if(app.platform != PJobFileApplication::MacOSX){
-        output(QString("Can't run %1. No Application not build for MacOSX!").arg(app.name));
+        output(QString("Can't run %1. No Application build for MacOSX!").arg(app.name));
         return;
     }
 #endif
-#ifdef Q_WS_X11
+#ifdef Q_OS_UNIX
     if(app.platform != PJobFileApplication::Linux){
-        output(QString("Can't run %1. No Application not build for Unix-like Systems!").arg(app.name));
+        output(QString("Can't run %1. No Application build for Unix-like Systems!").arg(app.name));
         return;
     }
 #endif
