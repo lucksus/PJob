@@ -8,6 +8,7 @@ class PJobRunnerNetworkScanner : public QThread
 Q_OBJECT
 public:
     PJobRunnerNetworkScanner();
+    static QList<PJobRunnerSessionWrapper*> do_blocking_scan();
 
 protected:
     virtual void run();
@@ -18,6 +19,10 @@ signals:
 
 private:
     quint32 m_port;
+    void found(PJobRunnerSessionWrapper*);
+    static QList<PJobRunnerSessionWrapper*> s_found_sessions;
+    void scan();
+    static bool s_blocking_scan;
 };
 
 #endif // PJOBRUNNERNETWORKSCANNER_H

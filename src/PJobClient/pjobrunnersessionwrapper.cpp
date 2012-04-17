@@ -2,11 +2,12 @@
 #include <QtCore/QRegExp>
 #include <iostream>
 
-PJobRunnerSessionWrapper::PJobRunnerSessionWrapper(QHostAddress hostname)
+PJobRunnerSessionWrapper::PJobRunnerSessionWrapper(QHostAddress hostname, long timeout)
+    : m_peer(hostname)
 {
     m_valid = false;
     m_socket.connectToHost(hostname, 23023);
-    if(!m_socket.waitForConnected(10000)) return;
+    if(!m_socket.waitForConnected(timeout)) return;
     m_socket.write("hello\n");
     if(!m_socket.waitForBytesWritten(10000)) return;
     if(!m_socket.waitForReadyRead(10000)) return;
@@ -17,7 +18,7 @@ PJobRunnerSessionWrapper::PJobRunnerSessionWrapper(QHostAddress hostname)
 
     if(hello_string.isEmpty()) return;
 
-    QRegExp reg_exp("This is ([^\\s]*) \\(.*\\) version ([^\\s]*) running on debroglie \\(([^\\s]*)\\)");
+    QRegExp reg_exp("This is ([^\\s]*) \\(.*\\) version ([^\\s]*) running on ([^\\s]*) \\(([^\\s]*)\\)");
 
     if(reg_exp.indexIn(hello_string) == -1) return;
     m_version = reg_exp.cap(2);
@@ -120,4 +121,8 @@ bool PJobRunnerSessionWrapper::run_job(){
 
 bool PJobRunnerSessionWrapper::wait_for_job_finished(){
 
+}
+
+QHostAddress PJobRunnerSessionWrapper::peer(){
+    return m_peer;
 }

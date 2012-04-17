@@ -5,6 +5,7 @@
 #include <algorithm>
 #include "PJobFile.h"
 #include "pjobrunnersessionwrapper.h"
+#include "pjobrunnernetworkscanner.h"
 #include <QtNetwork/QHostAddress>
 #include <QtNetwork/QHostInfo>
 
@@ -15,6 +16,11 @@ void usage(){
 
 int main(int argc, char *argv[])
 {
+    if(argc == 2 && QString(argv[1]) == "scan"){
+        PJobRunnerNetworkScanner::do_blocking_scan();
+        return 0;
+    }
+
     if(argc != 3) usage();
 
     //QCoreApplication a(argc, argv);

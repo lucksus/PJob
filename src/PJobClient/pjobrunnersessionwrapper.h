@@ -7,7 +7,7 @@ class PJobRunnerSessionWrapper : public QObject
 {
 Q_OBJECT
 public:
-    PJobRunnerSessionWrapper(QHostAddress hostname);
+    PJobRunnerSessionWrapper(QHostAddress hostname, long timeout = 10000);
     bool is_valid();
     QString platform();
     QString version();
@@ -18,6 +18,8 @@ public:
     bool run_job();
     bool wait_for_job_finished();
 
+    QHostAddress peer();
+
 signals:
     void job_std_out(QString);
     void job_error_out(QString);
@@ -26,6 +28,7 @@ private:
     QTcpSocket m_socket;
     bool m_valid;
     QString m_platform, m_version;
+    QHostAddress m_peer;
 };
 
 #endif // PJOBRUNNERSESSIONWRAPPER_H
