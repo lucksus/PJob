@@ -6,6 +6,7 @@
 #include "PJobFile.h"
 #include "pjobrunnersessionwrapper.h"
 #include <QtNetwork/QHostAddress>
+#include <QtNetwork/QHostInfo>
 
 void usage(){
     std::cout << "Usage: PJobClient <host> <pjob file>" << std::endl;
@@ -25,8 +26,9 @@ int main(int argc, char *argv[])
         usage();
     }
 
-    QHostAddress host(argv[1]);
-    PJobRunnerSessionWrapper session(host);
+    QString hostname(argv[1]);
+    QHostInfo host = QHostInfo::fromName(hostname);
+    PJobRunnerSessionWrapper session(host.addresses().first());
     if(!session.is_valid()){
         std::cout << "Could not connect to PJobRunner on host " << argv[1] << "!" << std::endl;
         usage();

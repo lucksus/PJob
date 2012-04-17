@@ -11,15 +11,17 @@ PJobRunnerSessionWrapper::PJobRunnerSessionWrapper(QHostAddress hostname)
     if(!m_socket.waitForBytesWritten(10000)) return;
     if(!m_socket.waitForReadyRead(10000)) return;
     QString hello_string;
-    while(m_socket.bytesAvailable() && m_socket.waitForReadyRead(1000) && hello_string.size() < 1024){
+    do{
         hello_string.append(m_socket.readAll());
-    }
+    }while(m_socket.waitForReadyRead(1000) && hello_string.size() < 1024);
+
     if(hello_string.isEmpty()) return;
 
-    QRegExp reg_exp("This is (.*) \(.*\) version (.*) running on (.*) \((.*)\).\nNice to meet you.");
-    if(!reg_exp.exactMatch(hello_string)) return;
-    m_version = reg_exp.cap(3);
-    m_platform = reg_exp.cap(5);
+    QRegExp reg_exp("This is ([^\\s]*) \\(.*\\) version ([^\\s]*) running on debroglie \\(([^\\s]*)\\)");
+
+    if(reg_exp.indexIn(hello_string) == -1) return;
+    m_version = reg_exp.cap(2);
+    m_platform = reg_exp.cap(3);
     m_valid = true;
 }
 
