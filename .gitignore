@@ -17,3 +17,9 @@ qrc_*.cpp
 *.dylib
 /src/PJobRunner/PJobRunner
 *.moc
+*.obj
+*.pdb
+*.Debug
+*.Release
+*.manifest
+*.res
