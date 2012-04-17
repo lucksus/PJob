@@ -160,7 +160,43 @@ void Session::run_job(){
         output("Can't run job! No pjob file opened!");
         return;
     }
+
+    PJobFileApplication::Platform this_platform;
+#ifdef Q_OS_WIN32
+#ifdef _WIN64
+    this_platform = PJobFileApplication::Win64;
+#else
+    this_platform = PJobFileApplication::Win32;
+#endif
+#endif
+#ifdef Q_OS_MAC
+    this_platform = PJobFileApplication::MacOSX;
+#endif
+#ifdef Q_OS_UNIX
+    this_platform = PJobFileApplication::Linux;
+#endif
+
     PJobFileApplication app = m_pjob_file->applicationByName(m_application);
+
+    if(m_application == "auto"){
+        QList<PJobFileApplication> apps = m_pjob_file->applications();
+        QStringList names;
+        foreach(PJobFileApplication current_app, apps){
+            names.append(current_app.name);
+        }
+        names.sort();
+        foreach(QString name, names){
+            PJobFileApplication current_app = m_pjob_file->applicationByName(name);
+            if(current_app.platform == this_platform){
+                app = current_app;
+                break;
+            }
+        }
+    }else{
+        app = m_pjob_file->applicationByName(m_application);
+    }
+
+
 #ifdef Q_OS_WIN32
     if(app.platform != PJobFileApplication::Win32  && app.platform != PJobFileApplication::Win64){
         output(QString("Can't run %1. No Application build for Windows!").arg(app.name));

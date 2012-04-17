@@ -434,6 +434,7 @@ void PJobFileWidget::syncApplicationsFileToModel(){
     QList<PJobFileApplication> applications = m_pjobFile->applications();
     ui.listOfApps->clear();
     ui.defaultApp->clear();
+    ui.defaultApp->addItem("auto");
     foreach(PJobFileApplication a, applications){
         QListWidgetItem* item = new QListWidgetItem(ui.listOfApps);
         item->setFlags(item->flags() | Qt::ItemIsEditable);
