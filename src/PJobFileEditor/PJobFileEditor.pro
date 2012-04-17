@@ -14,10 +14,12 @@ build_pass:CONFIG(debug, debug|release) {
     mac: LIBS +=  -lPJobFile_debug
     !mac: LIBS +=  -lPJobFiled
     mac: POST_TARGETDEPS += ../../lib/libPJobFile_debug.a
-    !mac: POST_TARGETDEPS += ../../lib/libPJobFiled.a
+    unix: POST_TARGETDEPS += ../../lib/libPJobFiled.a
+    win32: POST_TARGETDEPS += ../../lib/PJobFiled.lib
 } else {
     LIBS +=  -lPJobFile
-    POST_TARGETDEPS += ../../lib/libPJobFile.a
+    !win32: POST_TARGETDEPS += ../../lib/libPJobFile.a
+    win32: POST_TARGETDEPS += ../../lib/PJobFile.lib
 }
 
 # Input

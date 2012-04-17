@@ -16,10 +16,12 @@ build_pass:CONFIG(debug, debug|release) {
     mac: LIBS +=  -lPJobFile_debug -lPQueueModel_debug -lCondorC++Adapter_debug
     !mac: LIBS +=  -lPJobFiled -lPQueueModeld -lCondorC++Adapterd
     mac: POST_TARGETDEPS += ../../lib/libPJobFile_debug.a ../../lib/libPQueueModel_debug.a ../../lib/libCondorC++Adapter_debug.a 
-    !mac: POST_TARGETDEPS += ../../lib/libPJobFiled.a ../../lib/libPQueueModeld.a ../../lib/libCondorC++Adapterd.a 
+    unix: POST_TARGETDEPS += ../../lib/libPJobFiled.a ../../lib/libPQueueModeld.a ../../lib/libCondorC++Adapterd.a
+    win32: POST_TARGETDEPS += ../../lib/PJobFiled.lib ../../lib/PQueueModeld.lib ../../lib/CondorC++Adapterd.lib
 } else {
     LIBS +=  -lPJobFile -lPQueueModel -lCondorC++Adapter
-    POST_TARGETDEPS += ../../lib/libPJobFile.a ../../lib/libPQueueModel.a ../../lib/libCondorC++Adapter.a 
+    !win32: POST_TARGETDEPS += ../../lib/libPJobFile.a ../../lib/libPQueueModel.a ../../lib/libCondorC++Adapter.a
+    win32: POST_TARGETDEPS += ../../lib/PJobFile.lib ../../lib/PQueueModel.lib ../../lib/CondorC++Adapter.lib
 }
 
 unix:LIBS += -llapack -lblas
