@@ -176,7 +176,7 @@ void Session::run_job(){
     this_platform = PJobFileApplication::Linux;
 #endif
 
-    PJobFileApplication app = m_pjob_file->applicationByName(m_application);
+    PJobFileApplication app;
 
     if(m_application == "auto"){
         QList<PJobFileApplication> apps = m_pjob_file->applications();
