@@ -5,6 +5,9 @@
 #include <assert.h>
 #include "PlotWidget.h"
 #include "PQueueController.h"
+#ifdef Q_OS_WIN
+#include <gl/glu.h>
+#endif
 
 using namespace std;
 

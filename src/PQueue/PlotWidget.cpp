@@ -6,6 +6,9 @@
 #include "ResultVisualization.h"
 #include "InterpolationFunctionVisualization.h"
 #include "PQueueController.h"
+#ifdef Q_OS_WIN
+#include <gl/glu.h>
+#endif
 
 PlotWidget::PlotWidget(void)
 : m_cameraAngleXRotation(28), m_cameraAngleYRotation(40), m_cameraDistance(200), m_mousedown(false), m_haveDisplayList(false)

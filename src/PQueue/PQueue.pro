@@ -7,7 +7,7 @@ DESTDIR = ../../bin
 DEPENDPATH += . ../PQueueModel ../CondorC++Adapter ../PJobFile
 INCLUDEPATH += . ../PQueueModel ../CondorC++Adapter ../PJobFile
 QT += script xml
-LIBS += -L. -L../../lib -lboost_program_options-mt
+LIBS += -L. -L../../lib #-lboost_program_options-mt
 macx:LIBS += -framework Glut -framework veclib
 
 include(../src.pri)

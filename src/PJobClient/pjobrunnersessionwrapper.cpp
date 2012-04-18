@@ -96,7 +96,7 @@ bool PJobRunnerSessionWrapper::download_results(QByteArray& data){
 }
 
 bool PJobRunnerSessionWrapper::set_parameter(const QString& name, const double& value){
-
+    return false;
 }
 
 bool PJobRunnerSessionWrapper::run_job(){
@@ -120,7 +120,7 @@ bool PJobRunnerSessionWrapper::run_job(){
 }
 
 bool PJobRunnerSessionWrapper::wait_for_job_finished(){
-
+    return false;
 }
 
 QHostAddress PJobRunnerSessionWrapper::peer(){
