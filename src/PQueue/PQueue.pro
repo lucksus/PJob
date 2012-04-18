@@ -7,7 +7,8 @@ DESTDIR = ../../bin
 DEPENDPATH += . ../PQueueModel ../CondorC++Adapter ../PJobFile
 INCLUDEPATH += . ../PQueueModel ../CondorC++Adapter ../PJobFile
 QT += script xml
-LIBS += -L. -L../../lib #-lboost_program_options-mt
+LIBS += -L. -L../../lib
+!win32:LIBS += -lboost_program_options-mt
 macx:LIBS += -framework Glut -framework veclib
 
 include(../src.pri)
@@ -16,7 +17,7 @@ build_pass:CONFIG(debug, debug|release) {
     mac: LIBS +=  -lPJobFile_debug -lPQueueModel_debug -lCondorC++Adapter_debug
     !mac: LIBS +=  -lPJobFiled -lPQueueModeld -lCondorC++Adapterd
     mac: POST_TARGETDEPS += ../../lib/libPJobFile_debug.a ../../lib/libPQueueModel_debug.a ../../lib/libCondorC++Adapter_debug.a 
-    unix: POST_TARGETDEPS += ../../lib/libPJobFiled.a ../../lib/libPQueueModeld.a ../../lib/libCondorC++Adapterd.a
+    !mac: unix: POST_TARGETDEPS += ../../lib/libPJobFiled.a ../../lib/libPQueueModeld.a ../../lib/libCondorC++Adapterd.a
     win32: POST_TARGETDEPS += ../../lib/PJobFiled.lib ../../lib/PQueueModeld.lib ../../lib/CondorC++Adapterd.lib
 } else {
     LIBS +=  -lPJobFile -lPQueueModel -lCondorC++Adapter
