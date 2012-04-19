@@ -48,6 +48,11 @@ void PJobRunnerNetworkScanner::scan(){
                 continue;
             }
 
+            if(address_entry.ip() == QHostAddress::LocalHost){
+                std::cout << "Skipping loopback interface." << std::endl;
+                continue;
+            }
+
             std::cout << "Probing interface " << interface.humanReadableName().toStdString() << std::endl;
             std::cout << "Local address is " << interface.hardwareAddress().toStdString() << std::endl;
             std::cout << "Netmask: " << address_entry.netmask().toString().toStdString() << std::endl;
