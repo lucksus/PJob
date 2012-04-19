@@ -8,6 +8,8 @@
 #include "UserInputMediator.h"
 #include "ResultModel.h"
 #include "MainWindowWithProgressPopups.h"
+#include <QtNetwork/QHostAddress>
+#include <QtNetwork/QHostInfo>
 
 class NonEquidistantSlider;
 class PlotWidget;
@@ -41,6 +43,8 @@ private:
 	QSignalMapper m_builtInScriptsActionsMapper;
 	QString m_runningScript;
 
+        QHash<QHostAddress, QListWidgetItem*> m_pjob_runner_items;
+
 private slots:
 	void on_browsePJobFileButton_clicked();
 	void on_addParameterButton_clicked();
@@ -69,10 +73,10 @@ private slots:
 	void started();
 	void stopped();
 	void newValue();
-	/*! Baut den Baum zur Auswahl der Ergebnisse für die Visualisierung*/
+	/*! Baut den Baum zur Auswahl der Ergebnisse fÃ¼r die Visualisierung*/
 	void newValue(QString phoFile, QString result, QHash<QString,double> parameters, double value);
-	void updatePJobFileSelector(QString pjobFile); //!< Update der ComboBox zur Auswahl des PJobs für das ResultModel
-	void initialSortResultView(); //!< Initialisieren der Sortierung für das ResultView
+	void updatePJobFileSelector(QString pjobFile); //!< Update der ComboBox zur Auswahl des PJobs fÃ¼r das ResultModel
+	void initialSortResultView(); //!< Initialisieren der Sortierung fÃ¼r das ResultView
 	
 	void updateButtons();
 	void updateParametersBox();
@@ -93,8 +97,13 @@ private slots:
 	void on_actionMruAction3_triggered();
 
 	void on_loadPreviousRunsButton_clicked();
+        void hide_splash_screen();
 
-    void hide_splash_screen();
+        void found_new_pjob_runner(QHostAddress);
+        void lost_pjob_runner(QHostAddress);
+        void probing_host(QHostAddress);
+        void lookedUp(const QHostInfo& host);
+        void pjob_runner_search_finished();
 
 public:
 signals:

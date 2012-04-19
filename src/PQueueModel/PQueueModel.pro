@@ -2,7 +2,7 @@ TEMPLATE = lib
 CONFIG += qt staticlib 
 CONFIG += debug_and_release
 DEPENDPATH += . ../CondorC++Adapter ../PJobFile
-INCLUDEPATH += . ../CondorC++Adapter ../PJobFile
+INCLUDEPATH += . ../CondorC++Adapter ../PJobFile ../PJobClient
 LIBS += -L../../lib 
 QT += script
 DESTDIR=../../lib
@@ -28,7 +28,8 @@ HEADERS +=  PhotossJob.h \
 	EngineThread.h \
 	UserInputMediator.h \
 	ResultLoaderAndSaver.h \
-	RandomGenerator.h
+	RandomGenerator.h \
+    pjobrunnerpool.h
 SOURCES += PhotossJob.cpp \
 	PhotossJobSubmitStrategy.cpp \
 	PhotossJobSubmitCondor.cpp \
@@ -47,4 +48,5 @@ SOURCES += PhotossJob.cpp \
 	Tokenizer.cpp \
 	UserInputMediator.cpp \
 	ResultLoaderAndSaver.cpp \
-	RandomGenerator.cpp
+	RandomGenerator.cpp \
+    pjobrunnerpool.cpp

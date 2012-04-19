@@ -13,6 +13,8 @@
 #include <QtCore/QTimer>
 #include <QtCore/QSettings>
 #include <QSplashScreen>
+#include <QtNetwork/QHostInfo>
+#include "pjobrunnerpool.h"
 
 MainWindow::MainWindow(void)
 {
@@ -104,6 +106,12 @@ MainWindow::MainWindow(void)
 
 	add_calculator_object(&PQueueController::getInstace());
 	mruToFileMenu();
+
+        connect(&PJobRunnerPool::instance(), SIGNAL(found_new_pjob_runner(QHostAddress)), this, SLOT(found_new_pjob_runner(QHostAddress)));
+        connect(&PJobRunnerPool::instance(), SIGNAL(lost_pjob_runner(QHostAddress)), this, SLOT(lost_pjob_runner(QHostAddress)));
+        connect(&PJobRunnerPool::instance(), SIGNAL(probing_host(QHostAddress)), this, SLOT(probing_host(QHostAddress)));
+        connect(&PJobRunnerPool::instance(), SIGNAL(search_local_network_finished()), this, SLOT(pjob_runner_search_finished()));
+        PJobRunnerPool::instance().start_search_local_network();
 }
 
 void MainWindow::builtInScriptTriggered(const QString& script){
@@ -738,3 +746,37 @@ void MainWindow::viewResult(QString pjob_file, QString result){
 	visualizerSelectResult(pjob_file,result);
 }
 
+void MainWindow::found_new_pjob_runner(QHostAddress host){
+    if(m_pjob_runner_items.contains(host)) return;
+
+    QString hostname = PJobRunnerPool::instance().hostname(host);
+    QString os = PJobRunnerPool::instance().platform(host);
+    QListWidgetItem* item = new QListWidgetItem();
+    item->setData(Qt::DecorationRole, QColor("lime"));
+    item->setData(Qt::DisplayRole, QString("%1 (%2) running %3").arg(hostname).arg(host.toString()).arg(os));
+    m_pjob_runner_items[host] = item;
+    ui.pjobRunnerListWidget->addItem(item);
+    if(hostname.isEmpty()) QHostInfo::lookupHost(host.toString(), this, SLOT(lookedUp(QHostInfo)));
+}
+
+void MainWindow::lookedUp(const QHostInfo& host){
+    assert(!host.addresses().isEmpty());
+    QHostAddress address = host.addresses().first();
+    assert(m_pjob_runner_items.contains(address));
+    QString hostname = PJobRunnerPool::instance().hostname(address);
+    QString os = PJobRunnerPool::instance().platform(address);
+    m_pjob_runner_items[address]->setData(Qt::DisplayRole, QString("%1 (%2) running %3").arg(hostname).arg(address.toString()).arg(os));
+}
+
+void MainWindow::lost_pjob_runner(QHostAddress host){
+    if(!m_pjob_runner_items.contains(host)) return;
+    delete m_pjob_runner_items.take(host);
+}
+
+void MainWindow::probing_host(QHostAddress host){
+    ui.poolStatusLabel->setText(QString("Probing %1 ...").arg(host.toString()));
+}
+
+void MainWindow::pjob_runner_search_finished(){
+    ui.poolStatusLabel->setText(QString("Search finished."));
+}

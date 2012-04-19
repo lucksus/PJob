@@ -8,9 +8,12 @@ class PJobRunnerSessionWrapper : public QObject
 Q_OBJECT
 public:
     PJobRunnerSessionWrapper(QHostAddress hostname, long timeout = 10000);
+    ~PJobRunnerSessionWrapper();
+
     bool is_valid();
     QString platform();
     QString version();
+    QString hostname();
 
     bool upload_pjobfile(const QByteArray& data);
     bool download_results(QByteArray& data);
@@ -27,7 +30,7 @@ signals:
 private:
     QTcpSocket m_socket;
     bool m_valid;
-    QString m_platform, m_version;
+    QString m_platform, m_version, m_hostname;
     QHostAddress m_peer;
 };
 

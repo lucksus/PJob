@@ -22,8 +22,18 @@ PJobRunnerSessionWrapper::PJobRunnerSessionWrapper(QHostAddress hostname, long t
 
     if(reg_exp.indexIn(hello_string) == -1) return;
     m_version = reg_exp.cap(2);
-    m_platform = reg_exp.cap(3);
+    m_platform = reg_exp.cap(4);
+    m_hostname = reg_exp.cap(3);
     m_valid = true;
+}
+
+PJobRunnerSessionWrapper::~PJobRunnerSessionWrapper(){
+    if(m_socket.state() == QAbstractSocket::ConnectedState){
+        m_socket.write("exit()");
+        m_socket.waitForBytesWritten(100);
+        m_socket.close();
+        m_socket.waitForDisconnected(1000);
+    }
 }
 
 bool PJobRunnerSessionWrapper::is_valid(){
@@ -36,6 +46,10 @@ QString PJobRunnerSessionWrapper::platform(){
 
 QString PJobRunnerSessionWrapper::version(){
     return m_version;
+}
+
+QString PJobRunnerSessionWrapper::hostname(){
+    return m_hostname;
 }
 
 bool PJobRunnerSessionWrapper::upload_pjobfile(const QByteArray& content){

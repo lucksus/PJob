@@ -1,6 +1,7 @@
 #ifndef PJOBRUNNERNETWORKSCANNER_H
 #define PJOBRUNNERNETWORKSCANNER_H
 #include <QtCore/QThread>
+#include <QtNetwork/QHostAddress>
 
 class PJobRunnerSessionWrapper;
 class PJobRunnerNetworkScanner : public QThread
@@ -16,6 +17,7 @@ protected:
 signals:
     void found_pjob_runner(PJobRunnerSessionWrapper*);
     void finished_scanning();
+    void probing_host(QHostAddress);
 
 private:
     quint32 m_port;
