@@ -13,6 +13,8 @@
 #include <QtCore/QTimer>
 #include <QtCore/QSettings>
 #include <QSplashScreen>
+#include <QtNetwork/QHostInfo>
+#include "pjobrunnerpool.h"
 
 MainWindow::MainWindow(void)
 {
@@ -104,6 +106,11 @@ MainWindow::MainWindow(void)
 
 	add_calculator_object(&PQueueController::getInstace());
 	mruToFileMenu();
+
+        connect(&PJobRunnerPool::instance(), SIGNAL(found_new_pjob_runner(QHostAddress)), this, SLOT(found_new_pjob_runner(QHostAddress)));
+        connect(&PJobRunnerPool::instance(), SIGNAL(lost_pjob_runner(QHostAddress)), this, SLOT(lost_pjob_runner(QHostAddress)));
+        connect(&PJobRunnerPool::instance(), SIGNAL(probing_host(QHostAddress)), this, SLOT(probing_host(QHostAddress)));
+        PJobRunnerPool::instance().start_search_local_network();
 }
 
 void MainWindow::builtInScriptTriggered(const QString& script){
@@ -738,3 +745,29 @@ void MainWindow::viewResult(QString pjob_file, QString result){
 	visualizerSelectResult(pjob_file,result);
 }
 
+void MainWindow::found_new_pjob_runner(QHostAddress host){
+    if(m_pjob_runner_items.contains(host)) return;
+
+    QListWidgetItem* item = new QListWidgetItem();
+    item->setData(Qt::DecorationRole, QColor("lime"));
+    item->setData(Qt::DisplayRole, host.toString());
+    m_pjob_runner_items[host] = item;
+    ui.pjobRunnerListWidget->addItem(item);
+    QHostInfo::lookupHost(host.toString(), this, SLOT(lookedUp(QHostInfo)));
+}
+
+void MainWindow::lookedUp(const QHostInfo& host){
+    assert(!host.addresses().isEmpty());
+    QHostAddress address = host.addresses().first();
+    assert(m_pjob_runner_items.contains(address));
+    m_pjob_runner_items[address]->setData(Qt::DisplayRole, host.hostName());
+}
+
+void MainWindow::lost_pjob_runner(QHostAddress host){
+    if(!m_pjob_runner_items.contains(host)) return;
+    delete m_pjob_runner_items.take(host);
+}
+
+void MainWindow::probing_host(QHostAddress host){
+    ui.poolStatusLabel->setText(QString("Probing %1 ...").arg(host.toString()));
+}
