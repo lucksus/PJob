@@ -110,6 +110,7 @@ MainWindow::MainWindow(void)
         connect(&PJobRunnerPool::instance(), SIGNAL(found_new_pjob_runner(QHostAddress)), this, SLOT(found_new_pjob_runner(QHostAddress)));
         connect(&PJobRunnerPool::instance(), SIGNAL(lost_pjob_runner(QHostAddress)), this, SLOT(lost_pjob_runner(QHostAddress)));
         connect(&PJobRunnerPool::instance(), SIGNAL(probing_host(QHostAddress)), this, SLOT(probing_host(QHostAddress)));
+        connect(&PJobRunnerPool::instance(), SIGNAL(search_local_network_finished()), this, SLOT(pjob_runner_search_finished()));
         PJobRunnerPool::instance().start_search_local_network();
 }
 
@@ -748,19 +749,23 @@ void MainWindow::viewResult(QString pjob_file, QString result){
 void MainWindow::found_new_pjob_runner(QHostAddress host){
     if(m_pjob_runner_items.contains(host)) return;
 
+    QString hostname = PJobRunnerPool::instance().hostname(host);
+    QString os = PJobRunnerPool::instance().platform(host);
     QListWidgetItem* item = new QListWidgetItem();
     item->setData(Qt::DecorationRole, QColor("lime"));
-    item->setData(Qt::DisplayRole, host.toString());
+    item->setData(Qt::DisplayRole, QString("%1 (%2) running %3").arg(hostname).arg(host.toString()).arg(os));
     m_pjob_runner_items[host] = item;
     ui.pjobRunnerListWidget->addItem(item);
-    QHostInfo::lookupHost(host.toString(), this, SLOT(lookedUp(QHostInfo)));
+    if(hostname.isEmpty()) QHostInfo::lookupHost(host.toString(), this, SLOT(lookedUp(QHostInfo)));
 }
 
 void MainWindow::lookedUp(const QHostInfo& host){
     assert(!host.addresses().isEmpty());
     QHostAddress address = host.addresses().first();
     assert(m_pjob_runner_items.contains(address));
-    m_pjob_runner_items[address]->setData(Qt::DisplayRole, host.hostName());
+    QString hostname = PJobRunnerPool::instance().hostname(address);
+    QString os = PJobRunnerPool::instance().platform(address);
+    m_pjob_runner_items[address]->setData(Qt::DisplayRole, QString("%1 (%2) running %3").arg(hostname).arg(address.toString()).arg(os));
 }
 
 void MainWindow::lost_pjob_runner(QHostAddress host){
@@ -770,4 +775,8 @@ void MainWindow::lost_pjob_runner(QHostAddress host){
 
 void MainWindow::probing_host(QHostAddress host){
     ui.poolStatusLabel->setText(QString("Probing %1 ...").arg(host.toString()));
+}
+
+void MainWindow::pjob_runner_search_finished(){
+    ui.poolStatusLabel->setText(QString("Search finished."));
 }

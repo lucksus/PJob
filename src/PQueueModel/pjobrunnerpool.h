@@ -12,11 +12,14 @@ public:
 
 public slots:
     void start_search_local_network();
+    QString hostname(QHostAddress);
+    QString platform(QHostAddress);
 
 signals:
     void found_new_pjob_runner(QHostAddress);
     void lost_pjob_runner(QHostAddress);
     void probing_host(QHostAddress);
+    void search_local_network_finished();
 
 private slots:
     void found_pjob_runner(PJobRunnerSessionWrapper*);
@@ -27,6 +30,7 @@ private:
     PJobRunnerPool();
     PJobRunnerNetworkScanner m_scanner;
     QList<QHostAddress> m_known_pjob_runners, m_backup_list;
+    QHash<QHostAddress, PJobRunnerSessionWrapper*> m_open_sessions;
 };
 
 #endif // PJOBRUNNERPOOL_H

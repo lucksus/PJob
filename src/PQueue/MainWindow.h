@@ -103,6 +103,7 @@ private slots:
         void lost_pjob_runner(QHostAddress);
         void probing_host(QHostAddress);
         void lookedUp(const QHostInfo& host);
+        void pjob_runner_search_finished();
 
 public:
 signals:
