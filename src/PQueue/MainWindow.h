@@ -69,10 +69,10 @@ private slots:
 	void started();
 	void stopped();
 	void newValue();
-	/*! Baut den Baum zur Auswahl der Ergebnisse für die Visualisierung*/
+	/*! Baut den Baum zur Auswahl der Ergebnisse fÃ¼r die Visualisierung*/
 	void newValue(QString phoFile, QString result, QHash<QString,double> parameters, double value);
-	void updatePJobFileSelector(QString pjobFile); //!< Update der ComboBox zur Auswahl des PJobs für das ResultModel
-	void initialSortResultView(); //!< Initialisieren der Sortierung für das ResultView
+	void updatePJobFileSelector(QString pjobFile); //!< Update der ComboBox zur Auswahl des PJobs fÃ¼r das ResultModel
+	void initialSortResultView(); //!< Initialisieren der Sortierung fÃ¼r das ResultView
 	
 	void updateButtons();
 	void updateParametersBox();
