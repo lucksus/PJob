@@ -8,7 +8,7 @@ PQueueModel.subdir = PQueueModel
 PQueueModel.depends = PJobFile CondorC++Adapter
 
 PQueue.subdir = PQueue
-PQueue.depends = PQueueModel
+PQueue.depends = PQueueModel PJobFile PJobClient CondorC++Adapter
 
 PJobCmdLine.subdir = PJobCmdLine
 PJobCmdLine.depends = PJobFile
