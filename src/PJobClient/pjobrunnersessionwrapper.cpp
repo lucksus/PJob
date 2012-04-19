@@ -26,6 +26,15 @@ PJobRunnerSessionWrapper::PJobRunnerSessionWrapper(QHostAddress hostname, long t
     m_valid = true;
 }
 
+PJobRunnerSessionWrapper::~PJobRunnerSessionWrapper(){
+    if(m_socket.state() == QAbstractSocket::ConnectedState){
+        m_socket.write("exit()");
+        m_socket.waitForBytesWritten(100);
+        m_socket.close();
+        m_socket.waitForDisconnected(1000);
+    }
+}
+
 bool PJobRunnerSessionWrapper::is_valid(){
     return m_valid;
 }

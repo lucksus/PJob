@@ -8,6 +8,8 @@ class PJobRunnerSessionWrapper : public QObject
 Q_OBJECT
 public:
     PJobRunnerSessionWrapper(QHostAddress hostname, long timeout = 10000);
+    ~PJobRunnerSessionWrapper();
+
     bool is_valid();
     QString platform();
     QString version();

@@ -9,6 +9,7 @@ bool PJobRunnerNetworkScanner::s_blocking_scan = false;
 PJobRunnerNetworkScanner::PJobRunnerNetworkScanner()
     : m_port(23023)
 {
+    qRegisterMetaType<QHostAddress>("QHostAddress");
 }
 
 void PJobRunnerNetworkScanner::run(){
@@ -54,6 +55,7 @@ void PJobRunnerNetworkScanner::scan(){
             while((address_to_try & netmask) == (local_ip & netmask)){
                 std::cout << "\r" << QHostAddress(address_to_try).toString().toStdString();
                 std::cout.flush();
+                emit probing_host(QHostAddress(address_to_try));
                 PJobRunnerSessionWrapper* session = new PJobRunnerSessionWrapper(QHostAddress(address_to_try), 200);
                 if(session->is_valid()) found(session);
                 else delete session;

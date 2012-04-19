@@ -13,11 +13,16 @@ CONFIG   += console
 CONFIG   += debug_and_release
 CONFIG   -= app_bundle
 
-TEMPLATE = app
+#DESTDIR=../../bin
+#TEMPLATE = app
+DESTDIR=../../lib
+TEMPLATE = lib
+CONFIG += staticlib
+
 LIBS += -L../../lib
 DEPENDPATH += . ../PJobFile
 INCLUDEPATH += . ../PJobFile
-DESTDIR=../../bin
+
 
 include(../src.pri)
 
@@ -39,3 +44,4 @@ SOURCES += main.cpp \
 HEADERS += \
     pjobrunnersessionwrapper.h \
     pjobrunnernetworkscanner.h
+

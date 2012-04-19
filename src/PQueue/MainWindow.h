@@ -8,6 +8,8 @@
 #include "UserInputMediator.h"
 #include "ResultModel.h"
 #include "MainWindowWithProgressPopups.h"
+#include <QtNetwork/QHostAddress>
+#include <QtNetwork/QHostInfo>
 
 class NonEquidistantSlider;
 class PlotWidget;
@@ -40,6 +42,8 @@ private:
 
 	QSignalMapper m_builtInScriptsActionsMapper;
 	QString m_runningScript;
+
+        QHash<QHostAddress, QListWidgetItem*> m_pjob_runner_items;
 
 private slots:
 	void on_browsePJobFileButton_clicked();
@@ -93,8 +97,12 @@ private slots:
 	void on_actionMruAction3_triggered();
 
 	void on_loadPreviousRunsButton_clicked();
+        void hide_splash_screen();
 
-    void hide_splash_screen();
+        void found_new_pjob_runner(QHostAddress);
+        void lost_pjob_runner(QHostAddress);
+        void probing_host(QHostAddress);
+        void lookedUp(const QHostInfo& host);
 
 public:
 signals:
