@@ -58,6 +58,19 @@ QString Session::platform(){
 #endif
 }
 
+void Session::give_turn(){
+    m_has_turn = true;
+    output("It's your turn now! Go!");
+}
+
+void Session::loose_turn(){
+    m_has_turn = false;
+}
+
+QHostAddress Session::peer(){
+    return m_socket->peerAddress();
+}
+
 void Session::open_local_pjob_file(QString filename){
     if(m_pjob_file) delete m_pjob_file;
     try{
@@ -160,6 +173,10 @@ void Session::run_job(){
         output("Can't run job! No pjob file opened!");
         return;
     }
+    if(!m_has_turn){
+        output("Can't run job! It's not your turn! Use enqueue() first and wait till it's your turn!");
+        return;
+    }
 
     PJobFileApplication::Platform this_platform;
 #ifdef Q_OS_WIN32
@@ -216,6 +233,7 @@ void Session::run_job(){
     }
 #endif
 
+    ProcessCounter counter;
     QtServiceBase::instance()->logMessage(QString("Running job for peer %1 in temp dir %2.").arg(m_socket->peerAddress().toString()).arg(m_temp_dir));
 
     QString temp_dir = QFileInfo(m_temp_dir).absoluteFilePath();
@@ -269,6 +287,7 @@ void Session::run_job(){
         output(process.readAllStandardError());
     }
     m_pjob_file->save();
+    loose_turn();
 }
 
 QStringList Session::create_commandline_arguments_for_app(const PJobFileApplication& app){
@@ -320,4 +339,11 @@ void Session::write_received_data_to_file(QString path){
     file.write(m_received_data);
     file.close();
     QtServiceBase::instance()->logMessage(QString("Wrote received data to file %1 for peer %2.").arg(path).arg(m_socket->peerAddress().toString()), QtServiceBase::Information);
+}
+
+void Session::enqueue(){
+    PJobRunnerService* service = dynamic_cast<PJobRunnerService*>(QtServiceBase::instance());
+    if(service->number_queue_entries_for_peer(peer()) < service->max_process_count())
+        service->enqueue(this);
+    else
 }

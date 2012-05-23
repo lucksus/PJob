@@ -19,6 +19,10 @@ public:
     void set_temp_dir(QString path);
     QString hello();
 
+    void give_turn();
+    void loose_turn();
+    QHostAddress peer();
+
 public slots:
     QString platform();
     void open_local_pjob_file(QString filename);
@@ -31,7 +35,7 @@ public slots:
     const QByteArray& received_data();
     void write_received_data_to_file(QString);
     quint32 prepare_pull_connection_for_results();
-
+    void enqueue();
     QStringList run_directories();
 
 
@@ -49,8 +53,9 @@ private:
     DataReceiveConnection* m_data_receive_connection;
     DataPushConnection* m_data_push_connection;
 
-
     QStringList create_commandline_arguments_for_app(const PJobFileApplication&);
+
+    bool m_has_turn;
 };
 
 #endif // CONTROLLER_H

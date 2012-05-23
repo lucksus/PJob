@@ -140,3 +140,11 @@ bool PJobRunnerSessionWrapper::wait_for_job_finished(){
 QHostAddress PJobRunnerSessionWrapper::peer(){
     return m_peer;
 }
+
+void PJobRunnerSessionWrapper::enqueue(){
+    m_socket.write("enqueue();\n");
+}
+
+bool PJobRunnerSessionWrapper::wait_till_its_your_turn(){
+
+}

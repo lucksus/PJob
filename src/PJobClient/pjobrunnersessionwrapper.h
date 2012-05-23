@@ -23,6 +23,9 @@ public:
 
     QHostAddress peer();
 
+    void enqueue();
+    bool wait_till_its_your_turn();
+
 signals:
     void job_std_out(QString);
     void job_error_out(QString);
