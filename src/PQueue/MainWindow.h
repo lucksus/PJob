@@ -23,12 +23,12 @@ public:
 
 private:
 	Ui::MainWindow ui;
-	QHash<QListWidgetItem*,PhotossJob*> m_jobs;
+	QHash<QListWidgetItem*,Job*> m_jobs;
 
 	QHash<QString,QTreeWidgetItem*> m_phoFileItemsNavigator;
 	QHash<QTreeWidgetItem*, QHash<QString,QTreeWidgetItem*> > m_resultItemsNavigator;
 
-	QListWidgetItem* itemForJob(PhotossJob*);
+	QListWidgetItem* itemForJob(Job*);
 
 	void visualizerSelectResult(QString phoFile, QString result);
 	void fillParametersBox(QString);
@@ -66,10 +66,10 @@ private slots:
 	void on_runScriptButton_clicked();
 	void on_stopScriptButton_clicked();
 
-	void jobCreated(PhotossJob* j, unsigned int position);
-	void jobRemoved(PhotossJob* j);
-	void jobMoved(PhotossJob* j, unsigned int position);
-	void jobStateChanged(PhotossJob* j, PhotossJob::State state);
+	void jobCreated(Job* j, unsigned int position);
+	void jobRemoved(Job* j);
+	void jobMoved(Job* j, unsigned int position);
+	void jobStateChanged(Job* j, Job::State state);
 	void started();
 	void stopped();
 	void newValue();

@@ -7,7 +7,7 @@
 class PhotossJobSubmitCondor : public PhotossJobSubmitStrategy{
 Q_OBJECT
 public:
-	PhotossJobSubmitCondor(PhotossJob*);
+        PhotossJobSubmitCondor(Job*);
 	~PhotossJobSubmitCondor(void);
 
 	void submit();

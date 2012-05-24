@@ -10,12 +10,12 @@ public:
 	static Logger& getInstance(void);
 
 public slots:
-	void jobStateChanged(PhotossJob*, PhotossJob::State);
+	void jobStateChanged(Job*, Job::State);
 	void jobResults(QHash< QHash<QString,double>, QHash<QString,double> > values, QString phoFile);
-	void jobAdded(PhotossJob*, unsigned int position);
-	void jobRemoved(PhotossJob*);
-	void jobMoved(PhotossJob*, unsigned int position);
-	void jobHasProblemsReadingResult(PhotossJob*, QString);
+	void jobAdded(Job*, unsigned int position);
+	void jobRemoved(Job*);
+	void jobMoved(Job*, unsigned int position);
+	void jobHasProblemsReadingResult(Job*, QString);
 	void started();
 	void stopped();
 	void scriptPrint(QString text);
@@ -30,5 +30,5 @@ private:
 	//std::ostream& out();
 	//void log(std::string);
 	void log(QString);
-	QString toString(PhotossJob* j);
+	QString toString(Job* j);
 };

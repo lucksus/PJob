@@ -5,7 +5,7 @@
 #include <QtCore/QTimer>
 #include <QtCore/QDir>
 
-PhotossJobSubmitLocal::PhotossJobSubmitLocal(PhotossJob* j)
+PhotossJobSubmitLocal::PhotossJobSubmitLocal(Job* j)
 :PhotossJobSubmitStrategy(j)
 {
 	//This assures that slots are processed by the main (=GUI) thread

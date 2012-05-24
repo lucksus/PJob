@@ -3,11 +3,11 @@
 #include <QtCore/QDir>
 #include "PhotossJobSubmitStrategyProcessHolder.h"
 
-class PhotossJob;
+class Job;
 class PhotossJobSubmitStrategy : public QObject{
 Q_OBJECT
 public:
-	PhotossJobSubmitStrategy(PhotossJob* j);
+        PhotossJobSubmitStrategy(Job* j);
 	virtual ~PhotossJobSubmitStrategy(void){};
 
 	virtual void submit() = 0;
@@ -18,12 +18,12 @@ signals:
 	void finished(QString newRunDireectory);
 
 protected:
-	//! Gibt den Pfad zurück, zu dem kopiert wurde.
+	//! Gibt den Pfad zurck, zu dem kopiert wurde.
 	QString copyJobToWorkingDirectoryWithoutRuns();
 	QString mergeNewResultsFromWorkingDirectoryBack();
 	QString temporaryPJobFileName();
 	QDir workingDirectory();
-	PhotossJob* m_job;
+        Job* m_job;
 
 private:	
 	static unsigned int m_jobDirectoryCounter;

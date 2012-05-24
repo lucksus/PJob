@@ -10,19 +10,19 @@ Logger& Logger::getInstance(void){
 	return l;
 }
 
-void Logger::jobStateChanged(PhotossJob* job, PhotossJob::State state){
+void Logger::jobStateChanged(Job* job, Job::State state){
 	QString s;
 	switch(state){
-		case PhotossJob::FINISHED:
+		case Job::FINISHED:
 			s.append("FINISHED: ");
 			break;
-		case PhotossJob::SUBMITED:
+		case Job::SUBMITED:
 			s.append("SUBMITED: ");
 			break;
-		case PhotossJob::RUNNING:
+		case Job::RUNNING:
 			s.append("RUNNING: ");
 			break;
-		case PhotossJob::QUEUED:
+		case Job::QUEUED:
 			s.append("QUEUED: ");
 			break;
 	}
@@ -57,20 +57,20 @@ void Logger::jobResults(QHash< QHash<QString,double>, QHash<QString,double> > va
 	}
 }
 
-void Logger::jobAdded(PhotossJob* job, unsigned int position){
+void Logger::jobAdded(Job* job, unsigned int position){
 	log(QString("ADDED: at pos %1: %2").arg(position).arg(toString(job)));
 
 }
 
-void Logger::jobRemoved(PhotossJob* job){
+void Logger::jobRemoved(Job* job){
 	log(QString("REMOVED: %1").arg(toString(job)));
 }
 
-void Logger::jobMoved(PhotossJob* job, unsigned int position){
+void Logger::jobMoved(Job* job, unsigned int position){
 	log(QString("MOVED: to pos %1: %2").arg(position).arg(toString(job)));
 }
 
-void Logger::jobHasProblemsReadingResult(PhotossJob* j, QString s){
+void Logger::jobHasProblemsReadingResult(Job* j, QString s){
 	log(QString("!!!PROBLEM READING RESULT:"));
 	log(QString("%1: %2").arg(toString(j)).arg(s));
 }
@@ -88,7 +88,7 @@ void Logger::stopped(){
 //	return std::cout;
 //}
 
-QString Logger::toString(PhotossJob* j){
+QString Logger::toString(Job* j){
 	//QString parameters;
 	//QString parameter;
 	//foreach(parameter,j->parameters().keys()){

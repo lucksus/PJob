@@ -6,7 +6,7 @@
 class PhotossJobSubmitLocal : public PhotossJobSubmitStrategy{
 Q_OBJECT
 public:
-	PhotossJobSubmitLocal(PhotossJob*);
+	PhotossJobSubmitLocal(Job*);
 	~PhotossJobSubmitLocal(void);
 
 	void submit();

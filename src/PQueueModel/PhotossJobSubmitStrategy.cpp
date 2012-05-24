@@ -5,7 +5,7 @@
 unsigned int PhotossJobSubmitStrategy::m_jobDirectoryCounter = 0;
 
 
-PhotossJobSubmitStrategy::PhotossJobSubmitStrategy(PhotossJob* j)
+PhotossJobSubmitStrategy::PhotossJobSubmitStrategy(Job* j)
 :m_job(j)
 {
 	QDir workingDirectory(Settings::getInstance().workingDirectory());

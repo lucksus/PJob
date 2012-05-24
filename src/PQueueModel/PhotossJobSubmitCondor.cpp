@@ -1,13 +1,13 @@
 #include "PhotossJobSubmitCondor.h"
 #include "PJobFile.h"
 #include "CondorJob.h"
-#include "PhotossJob.h"
+#include "Job.h"
 #include "Settings.h"
 #include <sstream>
 #include "Logger.h"
 
 
-PhotossJobSubmitCondor::PhotossJobSubmitCondor(PhotossJob* j)
+PhotossJobSubmitCondor::PhotossJobSubmitCondor(Job* j)
 :PhotossJobSubmitStrategy(j)
 {
 }

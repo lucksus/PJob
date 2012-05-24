@@ -66,11 +66,11 @@ MainWindow::MainWindow(void)
 
 	ui.scriptProgressBar->setHidden(true);
 
-	connect(&PQueueController::getInstace(), SIGNAL(jobAdded(PhotossJob*,unsigned int)), this, SLOT(jobCreated(PhotossJob*,unsigned int)));
-	connect(&PQueueController::getInstace(), SIGNAL(jobAdded(PhotossJob*,unsigned int)), this, SLOT(updateButtons()));
-	connect(&PQueueController::getInstace(), SIGNAL(jobRemoved(PhotossJob*)), this, SLOT(jobRemoved(PhotossJob*)));
-	connect(&PQueueController::getInstace(), SIGNAL(jobRemoved(PhotossJob*)), this, SLOT(updateButtons()));
-	connect(&PQueueController::getInstace(), SIGNAL(jobMoved(PhotossJob*, unsigned int)), this, SLOT(jobMoved(PhotossJob*, unsigned int)));
+	connect(&PQueueController::getInstace(), SIGNAL(jobAdded(Job*,unsigned int)), this, SLOT(jobCreated(Job*,unsigned int)));
+	connect(&PQueueController::getInstace(), SIGNAL(jobAdded(Job*,unsigned int)), this, SLOT(updateButtons()));
+	connect(&PQueueController::getInstace(), SIGNAL(jobRemoved(Job*)), this, SLOT(jobRemoved(Job*)));
+	connect(&PQueueController::getInstace(), SIGNAL(jobRemoved(Job*)), this, SLOT(updateButtons()));
+	connect(&PQueueController::getInstace(), SIGNAL(jobMoved(Job*, unsigned int)), this, SLOT(jobMoved(Job*, unsigned int)));
 	connect(ui.jobsWidget, SIGNAL(itemSelectionChanged()), this, SLOT(updateButtons()));
 	updateButtons();
 
@@ -215,33 +215,33 @@ void MainWindow::on_addJobButton_clicked(){
 		parameters[name]  = value;
 	}
 
-	PQueueController::getInstace().addJob(new PhotossJob(ui.pjobFile->text(), parameters));
+	PQueueController::getInstace().addJob(new Job(ui.pjobFile->text(), parameters));
 }
 
 void MainWindow::on_jobUpButton_clicked(){
 	int selectedRow = ui.jobsWidget->selectionModel()->selectedRows().first().row();
 	QListWidgetItem* item = ui.jobsWidget->item(selectedRow);
-	PhotossJob* job = m_jobs[item];
+	Job* job = m_jobs[item];
 	PQueueController::getInstace().setQueuePosition(job,selectedRow-1);
 }
 
 void MainWindow::on_jobDownButton_clicked(){
 	int selectedRow = ui.jobsWidget->selectionModel()->selectedRows().first().row();
 	QListWidgetItem* item = ui.jobsWidget->item(selectedRow);
-	PhotossJob* job = m_jobs[item];
+	Job* job = m_jobs[item];
 	PQueueController::getInstace().setQueuePosition(job,selectedRow+1);
 }
 
 void MainWindow::on_jobDeleteButton_clicked(){
 	QModelIndex index;
-	QList<PhotossJob*> jobs;
+	QList<Job*> jobs;
 	foreach(index,ui.jobsWidget->selectionModel()->selectedRows()){
 		int row = index.row();
 		QListWidgetItem* item = ui.jobsWidget->item(row);
-		PhotossJob* job = m_jobs[item];
+		Job* job = m_jobs[item];
 		jobs << job;
 	}
-	PhotossJob* job;
+	Job* job;
 	foreach(job,jobs){
 		PQueueController::getInstace().removeJob(job);
 		delete job;
@@ -249,7 +249,7 @@ void MainWindow::on_jobDeleteButton_clicked(){
 }
 
 
-void MainWindow::jobCreated(PhotossJob* j, unsigned int){
+void MainWindow::jobCreated(Job* j, unsigned int){
 	QListWidgetItem* item = new QListWidgetItem(ui.jobsWidget);
 
 	QHash<QString,QString> parameters = j->parameters();
@@ -265,13 +265,13 @@ void MainWindow::jobCreated(PhotossJob* j, unsigned int){
 	item->setText(j->description() + " " + label);
 	item->setData(Qt::DecorationRole, QColor("silver"));
 	m_jobs[item] = j;
-	connect(j,SIGNAL(stateChanged(PhotossJob*,PhotossJob::State)),this,SLOT(jobStateChanged(PhotossJob*,PhotossJob::State)));
+	connect(j,SIGNAL(stateChanged(Job*,Job::State)),this,SLOT(jobStateChanged(Job*,Job::State)));
 }
 
-void MainWindow::jobRemoved(PhotossJob* job){
+void MainWindow::jobRemoved(Job* job){
 	for(int row=0;row<ui.jobsWidget->count();++row){
 		QListWidgetItem* item = ui.jobsWidget->item(row);
-		PhotossJob* j = m_jobs[item];
+		Job* j = m_jobs[item];
 		if(j == job){
 			ui.jobsWidget->removeItemWidget(item);
 			delete item;
@@ -279,7 +279,7 @@ void MainWindow::jobRemoved(PhotossJob* job){
 	}
 }
 
-QListWidgetItem* MainWindow::itemForJob(PhotossJob* j){
+QListWidgetItem* MainWindow::itemForJob(Job* j){
 	QListWidgetItem* item;
 	foreach(item, m_jobs.keys()){
 		if(m_jobs[item] == j){
@@ -289,7 +289,7 @@ QListWidgetItem* MainWindow::itemForJob(PhotossJob* j){
 	return 0;
 }
 
-void MainWindow::jobMoved(PhotossJob* j, unsigned int position){
+void MainWindow::jobMoved(Job* j, unsigned int position){
 	QListWidgetItem* item = itemForJob(j);
 	int oldPosition = ui.jobsWidget->row(item);
 	ui.jobsWidget->takeItem(oldPosition);
@@ -309,22 +309,22 @@ void MainWindow::updateButtons(){
 	ui.jobDownButton->setEnabled(ui.jobsWidget->selectionModel()->selectedRows().first().row()<ui.jobsWidget->count()-1);
 }
 
-void MainWindow::jobStateChanged(PhotossJob* j, PhotossJob::State state){
+void MainWindow::jobStateChanged(Job* j, Job::State state){
 	QListWidgetItem* item = itemForJob(j);
 	switch(state){
-		case PhotossJob::FINISHED:
+		case Job::FINISHED:
 			item->setData(Qt::DecorationRole, QColor("lime"));
 			break;
-		case PhotossJob::SUBMITED:
+		case Job::SUBMITED:
 			item->setData(Qt::DecorationRole, QColor("yellow"));
 			break;
-		case PhotossJob::RUNNING:
+		case Job::RUNNING:
 			item->setData(Qt::DecorationRole, QColor("yellowgreen"));
 			break;
-		case PhotossJob::QUEUED:
+		case Job::QUEUED:
 			item->setData(Qt::DecorationRole, QColor("silver"));
 			break;
-		case PhotossJob::FAILED:
+		case Job::FAILED:
 			item->setData(Qt::DecorationRole, QColor("red"));
 			break;
 	}

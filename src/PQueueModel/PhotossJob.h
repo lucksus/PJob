@@ -12,13 +12,13 @@
 using namespace std;
 
 
-class PhotossJob : public QObject
+class Job : public QObject
 {
 Q_OBJECT
 
 public:
-	PhotossJob(QString pjobFile, QHash<QString,QString> parameters);
-	~PhotossJob();
+        Job(QString pjobFile, QHash<QString,QString> parameters);
+        ~Job();
 
 	 
 	PJobFile* pjobFile();
@@ -43,10 +43,10 @@ public slots:
 	void submit();
 
 signals:
-	void stateChanged(PhotossJob*, PhotossJob::State);
+        void stateChanged(Job*, Job::State);
 	void results(QHash< QHash<QString,double>, QHash<QString,double> > values, QString phoFile);
-	void results(PhotossJob* job, QHash< QHash<QString,double>, QHash<QString,double> > values, QString phoFile);
-	void problemReadingResults(PhotossJob*, QString);
+        void results(Job* job, QHash< QHash<QString,double>, QHash<QString,double> > values, QString phoFile);
+        void problemReadingResults(Job*, QString);
 
 private slots:
 	void submited();

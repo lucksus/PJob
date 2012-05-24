@@ -9,9 +9,9 @@ PQueueController::PQueueController(void)
 {
 	qRegisterMetaType< QHash<QString,double> >("QHash<QString,double>");
 	qRegisterMetaType<QHash< QHash<QString,double>, QHash<QString,double> > >("QHash< QHash<QString,double>, QHash<QString,double> >");
-	connect(this, SIGNAL(jobAdded(PhotossJob*,unsigned int)), &Logger::getInstance(), SLOT(jobAdded(PhotossJob*,unsigned int)));
-	connect(this, SIGNAL(jobRemoved(PhotossJob*)), &Logger::getInstance(), SLOT(jobRemoved(PhotossJob*)));
-	connect(this, SIGNAL(jobMoved(PhotossJob*,unsigned int)), &Logger::getInstance(), SLOT(jobMoved(PhotossJob*,unsigned int)));
+        connect(this, SIGNAL(jobAdded(Job*,unsigned int)), &Logger::getInstance(), SLOT(jobAdded(Job*,unsigned int)));
+        connect(this, SIGNAL(jobRemoved(Job*)), &Logger::getInstance(), SLOT(jobRemoved(Job*)));
+        connect(this, SIGNAL(jobMoved(Job*,unsigned int)), &Logger::getInstance(), SLOT(jobMoved(Job*,unsigned int)));
 	connect(this, SIGNAL(started()), &Logger::getInstance(), SLOT(started()));
 	connect(this, SIGNAL(stopped()), &Logger::getInstance(), SLOT(stopped()));
 	connect(&m_results, SIGNAL(newValueSet(QString , QString , QHash<QString,double> , double )),
@@ -39,15 +39,15 @@ void PQueueController::setPJobFile(PJobFile* p){
     emit pjobFileChanged(p);
 }
 
-void PQueueController::addJob(PhotossJob* j){
+void PQueueController::addJob(Job* j){
 	m_jobsQueued.push_back(j);
-	connect(j, SIGNAL(stateChanged(PhotossJob*, PhotossJob::State)), this, SLOT(jobStateChanged(PhotossJob*, PhotossJob::State)));
-	connect(j, SIGNAL(stateChanged(PhotossJob*, PhotossJob::State)), &Logger::getInstance(), SLOT(jobStateChanged(PhotossJob*, PhotossJob::State)));
+        connect(j, SIGNAL(stateChanged(Job*, Job::State)), this, SLOT(jobStateChanged(Job*, Job::State)));
+        connect(j, SIGNAL(stateChanged(Job*, Job::State)), &Logger::getInstance(), SLOT(jobStateChanged(Job*, Job::State)));
 	connect(j, SIGNAL(results(QHash< QHash<QString,double>, QHash<QString,double> > , QString )),
 		&m_results, SLOT(newValues(QHash< QHash<QString,double>, QHash<QString,double> > , QString )));
 	connect(j, SIGNAL(results(QHash< QHash<QString,double>, QHash<QString,double> > , QString )),
 		&Logger::getInstance(), SLOT(jobResults(QHash< QHash<QString,double>, QHash<QString,double> > , QString )));
-	connect(j, SIGNAL(problemReadingResults(PhotossJob*,QString)), &Logger::getInstance(), SLOT(jobHasProblemsReadingResult(PhotossJob*,QString)));
+        connect(j, SIGNAL(problemReadingResults(Job*,QString)), &Logger::getInstance(), SLOT(jobHasProblemsReadingResult(Job*,QString)));
 	emit jobAdded(j, m_jobsQueued.indexOf(j));
 
         if(m_running && (m_jobsAtOnce == 0 || m_jobsRunning.size()+m_jobsSubmited.size() < static_cast<int>(m_jobsAtOnce))){
@@ -55,13 +55,13 @@ void PQueueController::addJob(PhotossJob* j){
 	}
 }
 
-void PQueueController::removeJob(PhotossJob* j){
+void PQueueController::removeJob(Job* j){
 	m_jobsSubmited.removeOne(j);
 	m_jobsRunning.removeOne(j);
 	m_jobsFinished.removeOne(j);
 	m_jobsQueued.removeOne(j);
-	disconnect(j, SIGNAL(stateChanged(PhotossJob*, PhotossJob::State)), this, SLOT(jobStateChanged(PhotossJob*, PhotossJob::State)));
-	disconnect(j, SIGNAL(stateChanged(PhotossJob*, PhotossJob::State)), &Logger::getInstance(), SLOT(jobStateChanged(PhotossJob*, PhotossJob::State)));
+        disconnect(j, SIGNAL(stateChanged(Job*, Job::State)), this, SLOT(jobStateChanged(Job*, Job::State)));
+        disconnect(j, SIGNAL(stateChanged(Job*, Job::State)), &Logger::getInstance(), SLOT(jobStateChanged(Job*, Job::State)));
 	disconnect(j, SIGNAL(results(QHash< QHash<QString,double>, QHash<QString,double> > , QString )),
 		&m_results, SLOT(newValues(QHash< QHash<QString,double>, QHash<QString,double> > , QString )));
 	disconnect(j, SIGNAL(results(QHash< QHash<QString,double>, QHash<QString,double> > , QString )),
@@ -69,7 +69,7 @@ void PQueueController::removeJob(PhotossJob* j){
 	emit jobRemoved(j);
 }
 
-void PQueueController::setQueuePosition(PhotossJob* j, unsigned int position){
+void PQueueController::setQueuePosition(Job* j, unsigned int position){
         if(static_cast<int>(position) >= m_jobsQueued.size()) position = m_jobsQueued.size()-1;
 	m_jobsQueued.removeOne(j);
 	m_jobsQueued.insert(position,j);
@@ -80,7 +80,7 @@ void PQueueController::start(unsigned int atOnce){
 	m_running = true;
 	m_jobsAtOnce = atOnce;
 	emit started();
-	PhotossJob* job;
+        Job* job;
 	unsigned int submitCount=0;
 	foreach(job, m_jobsQueued){
 		if(atOnce > 0 && submitCount == atOnce)
@@ -97,28 +97,28 @@ void PQueueController::stop(){
 }
 
 
-void PQueueController::jobStateChanged(PhotossJob* job, PhotossJob::State state){
+void PQueueController::jobStateChanged(Job* job, Job::State state){
 	switch(state){
-		case PhotossJob::FINISHED:
+                case Job::FINISHED:
 			jobFinished(job);
 			break;
-		case PhotossJob::SUBMITED:
+                case Job::SUBMITED:
 			jobSubmited(job);
 			break;
-		case PhotossJob::RUNNING:
+                case Job::RUNNING:
 			jobStarted(job);
 			break;
-		case PhotossJob::QUEUED:
+                case Job::QUEUED:
 			break;
 	}
 }
 
-void PQueueController::jobSubmited(PhotossJob* j){
+void PQueueController::jobSubmited(Job* j){
 	m_jobsQueued.removeOne(j);
 	m_jobsSubmited.push_back(j);
 }
 
-void PQueueController::jobStarted(PhotossJob* j){
+void PQueueController::jobStarted(Job* j){
 	m_jobsQueued.removeOne(j);
 	m_jobsSubmited.removeOne(j);
 	m_jobsRunning.push_back(j);
@@ -126,11 +126,11 @@ void PQueueController::jobStarted(PhotossJob* j){
 
 void PQueueController::startNextJobInQueue(){
 	if(m_jobsQueued.isEmpty())return;
-	PhotossJob* job = m_jobsQueued.first();
+        Job* job = m_jobsQueued.first();
 	job->submit();
 }
 
-void PQueueController::jobFinished(PhotossJob* j){
+void PQueueController::jobFinished(Job* j){
 	m_jobsRunning.removeOne(j);
 	m_jobsFinished.push_back(j);
 	if(m_running) startNextJobInQueue();

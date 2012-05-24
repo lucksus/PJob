@@ -19,7 +19,7 @@
 #include "PQueueController.h"
 
 
-PhotossJob::PhotossJob(QString pjobFile, QHash<QString,QString> parameters)
+Job::Job(QString pjobFile, QHash<QString,QString> parameters)
 :m_parameters(parameters), m_submitStrategy(0)
 {
 	QFileInfo fileInfo(pjobFile);
@@ -29,36 +29,36 @@ PhotossJob::PhotossJob(QString pjobFile, QHash<QString,QString> parameters)
 	QObject::moveToThread(PQueueController::getInstace().thread());
 }
 
-PhotossJob::~PhotossJob(){
+Job::~Job(){
 	PJobFileRepository::getInstance().decreaseCounter(m_pjobFileAbsoulutePath);
 }
 
-PJobFile* PhotossJob::pjobFile(){
+PJobFile* Job::pjobFile(){
 	return m_pjobFile;
 }
 
-QString PhotossJob::mainScript(){
+QString Job::mainScript(){
 	return m_pjobFile->mainPscript();
 }
 
-QString PhotossJob::description(){
+QString Job::description(){
 	return m_pjobFile->pjobFile()+": ";
 }
 
-void PhotossJob::addResource(QString path){
+void Job::addResource(QString path){
 	m_pjobFile->addResource(path);
 }
 
-QHash<QString,QString> PhotossJob::parameters(){
+QHash<QString,QString> Job::parameters(){
 	return m_parameters;
 }
 
-void PhotossJob::submit(){
+void Job::submit(){
 	createSubmitStrategy();
 	m_submitStrategy->submit();
 }
 
-void PhotossJob::createSubmitStrategy(){
+void Job::createSubmitStrategy(){
 	if(m_submitStrategy) delete m_submitStrategy;
 
 	if(Settings::getInstance().submitMethod() == Settings::START_LOCAL_PHOTOSS){
@@ -76,27 +76,27 @@ void PhotossJob::createSubmitStrategy(){
 }
 
 
-void PhotossJob::submited(){
+void Job::submited(){
 	m_state = SUBMITED;
 	emit stateChanged(this,m_state);
 }
 
-void PhotossJob::started(){
+void Job::started(){
 	m_state = RUNNING;
 	emit stateChanged(this,m_state);
 }
 
-void PhotossJob::failed(){
+void Job::failed(){
 	m_state = FAILED;
 	emit stateChanged(this,m_state);
 }
 
-void PhotossJob::finished(){
+void Job::finished(){
 	m_state = FINISHED;
 	emit stateChanged(this,m_state);
 }
 
-void PhotossJob::process_finished_run(QString runDirectory){
+void Job::process_finished_run(QString runDirectory){
 	try{
 		m_pjobFile->checkIfRunIsProperlyFinished(runDirectory);
 	}
@@ -123,7 +123,7 @@ void PhotossJob::process_finished_run(QString runDirectory){
 	m_waitConditionJobState.wakeAll();
 }
 
-void PhotossJob::waitUntilFinished(){
+void Job::waitUntilFinished(){
 	while(m_state != FINISHED){
 		m_mutex.lock();
 		m_waitConditionJobState.wait(&m_mutex);
@@ -134,7 +134,7 @@ void PhotossJob::waitUntilFinished(){
 
 
 
-QHash< QString,QVector<double> > PhotossJob::readGlobalVariablesFromPHOFile(QString file){
+QHash< QString,QVector<double> > Job::readGlobalVariablesFromPHOFile(QString file){
 	QHash< QString,QVector<double> > result;
 
 	std::ifstream phoFile(file.toStdString().c_str());

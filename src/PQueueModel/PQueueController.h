@@ -17,9 +17,9 @@ public:
 
 public slots:
         void setPJobFile(PJobFile*);
-	void addJob(PhotossJob*);
-	void removeJob(PhotossJob*);
-	void setQueuePosition(PhotossJob*, unsigned int position);
+        void addJob(Job*);
+        void removeJob(Job*);
+        void setQueuePosition(Job*, unsigned int position);
 	void start(unsigned int atOnce=0);
 	void stop();
 	bool isRunning();
@@ -29,9 +29,9 @@ public slots:
 
 
 signals:
-	void jobAdded(PhotossJob*, unsigned int position);
-	void jobRemoved(PhotossJob*);
-	void jobMoved(PhotossJob*, unsigned int position);
+        void jobAdded(Job*, unsigned int position);
+        void jobRemoved(Job*);
+        void jobMoved(Job*, unsigned int position);
 	void started();
 	void stopped();
 	void progress(QString what, unsigned int percent);
@@ -39,7 +39,7 @@ signals:
 
 
 private slots:
-	void jobStateChanged(PhotossJob*, PhotossJob::State);
+        void jobStateChanged(Job*, Job::State);
 
 private:
 	PQueueController(void);
@@ -48,16 +48,16 @@ private:
         PJobFile* m_pjob_file;
 
 	Results m_results;
-	QList<PhotossJob*> m_jobsRunning;
-	QList<PhotossJob*> m_jobsFinished;
-	QList<PhotossJob*> m_jobsQueued;
-	QList<PhotossJob*> m_jobsSubmited;
+        QList<Job*> m_jobsRunning;
+        QList<Job*> m_jobsFinished;
+        QList<Job*> m_jobsQueued;
+        QList<Job*> m_jobsSubmited;
 	bool m_running;
 	unsigned int m_jobsAtOnce;
 
-	void jobFinished(PhotossJob*);
-	void jobStarted(PhotossJob*);
-	void jobSubmited(PhotossJob*);
+        void jobFinished(Job*);
+        void jobStarted(Job*);
+        void jobSubmited(Job*);
 	void startNextJobInQueue();
 
 	QSet<QString> m_progresses_to_abort;

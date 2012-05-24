@@ -26,7 +26,7 @@ QScriptValue PhotossJobConstructor(QScriptContext *context, QScriptEngine *engin
 	if(context->argumentCount()==3)
 		arg3 = qscriptvalue_cast<QString> (context->argument(2));
 	//qscriptvalue_cast< QStringHash > (context->argument(1)); 
-	PhotossJob* pj = new PhotossJob(arg1,arg2); 
+	Job* pj = new Job(arg1,arg2); 
 	return engine->newQObject(pj);
 }
 
@@ -127,7 +127,7 @@ QScriptValue userInput(QScriptContext *context, QScriptEngine *engine){
 
 QScriptValue readGlobalVariablesFromPHOFile(QScriptContext *context, QScriptEngine *engine){
 	QString phoFile = context->argument(0).toString();
-	QHash< QString,QVector<double> > variables = PhotossJob::readGlobalVariablesFromPHOFile(phoFile);
+	QHash< QString,QVector<double> > variables = Job::readGlobalVariablesFromPHOFile(phoFile);
 	QScriptValue result = engine->newObject();
 	QString name;
 	foreach(name,variables.keys()){
