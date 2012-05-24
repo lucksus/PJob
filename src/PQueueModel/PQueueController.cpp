@@ -148,7 +148,7 @@ void PQueueController::import_results_from_pjobfile(QString filename)
 		runList.replace(i++,s.section('/',0,1));
 	}
 
-	//doppelte Einträge verwerfen (jeder run soll logischerweise nur einmal geladen werden)
+	//doppelte EintrÃ¤ge verwerfen (jeder run soll logischerweise nur einmal geladen werden)
 	runList.removeDuplicates();
 	
 	unsigned int size = runList.size();
@@ -165,8 +165,8 @@ void PQueueController::import_results_from_pjobfile(QString filename)
 		}
 		catch(QString s)
 		{
-			//Ursache z.B.: Dateien unvollständig => parametercombination.xml passt nicht zu den Ergebnissen)
-			//=> überspringen
+			//Ursache z.B.: Dateien unvollstÃ¤ndig => parametercombination.xml passt nicht zu den Ergebnissen)
+			//=> Ã¼berspringen
 			continue;
 		}
 
