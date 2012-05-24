@@ -10,8 +10,8 @@ include(../src.pri)
 # Input
 HEADERS += Condor.h \
 			LogAdapter.h \
-			Job.h
+    CondorJob.h
 SOURCES += Condor.cpp \
 			LogAdapter.cpp \
-			Job.cpp 
+    CondorJob.cpp
 			#test.cpp

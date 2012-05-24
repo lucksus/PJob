@@ -45,7 +45,7 @@ enum JobState {_notsubmited, _submited, _running, _suspended, _finished};
 * to _finished.
 * 
 */
-class Job : public QObject{
+class CondorJob : public QObject{
 Q_OBJECT
 friend class Condor;
 public:
@@ -56,7 +56,7 @@ public:
 	* \param directory Working directory
 	* \param executable Application to be run on Condor
 	*/
-	Job(string directory, string executable);
+        CondorJob(string directory, string executable);
 
 	//! Returns the Jobs state
 	/*!
@@ -100,7 +100,7 @@ signals:
 	void suspended();
 	void unsuspended();
 	void finished();
-	void finished(Job*);
+        void finished(CondorJob*);
 
 private:
 	int m_id;

@@ -9,7 +9,7 @@ namespace CondorAdapter{
 using namespace std;
 typedef int Event;
 class LogAdapter;
-class Job;
+class CondorJob;
 
 //! Singleton object which incorporates Condor and all its supported features (like submit, remove..)
 /*!
@@ -32,7 +32,7 @@ public:
 	* submits that job to Condor by executing "condor_submit" and spawns
 	* a thread for run() if it does not exist yet.
 	*/
-	void submit(Job*);
+        void submit(CondorJob*);
 	
 	//! Sets Condor install directory
 	/*!
@@ -69,9 +69,9 @@ protected:
 private:
 	Condor();
 	~Condor();
-	void writeJobFile(string directory, string filename, Job*);
+        void writeJobFile(string directory, string filename, CondorJob*);
 
-	map<Job*,LogAdapter*> m_logAdapters;
+        map<CondorJob*,LogAdapter*> m_logAdapters;
 	QMutex m_mutex;
 	bool m_stopRequested;
 	bool m_noJobs;

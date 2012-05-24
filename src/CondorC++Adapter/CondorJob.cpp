@@ -1,43 +1,43 @@
-#include "Job.h"
+#include "CondorJob.h"
 using namespace CondorAdapter;
 
-Job::Job(string directory, string executable)
+CondorJob::CondorJob(string directory, string executable)
 : m_id(-1), m_state(_notsubmited), m_directory(directory), m_executable(executable)
 {
 
 }
 
-JobState Job::getState(){
+JobState CondorJob::getState(){
 	return m_state;
 }
 
-string Job::getDirectory(){
+string CondorJob::getDirectory(){
 	return m_directory;
 }
 
-string Job::getExecutable(){
+string CondorJob::getExecutable(){
 	return m_executable;
 }
 
-vector<string> Job::getFilesToBeTransfered(){
+vector<string> CondorJob::getFilesToBeTransfered(){
 	return m_filesToBeTransfered;
 }
 
-void Job::addFileToBeTransfered(string filename){
+void CondorJob::addFileToBeTransfered(string filename){
 	m_filesToBeTransfered.push_back(filename);
 }
 
-vector<string> Job::getArguments(){
+vector<string> CondorJob::getArguments(){
 	return m_arguments;
 }
 
-void Job::addArgument(string argument){
+void CondorJob::addArgument(string argument){
 	m_arguments.push_back(argument);
 }
 
 
 
-void Job::eventForYou(Event e){
+void CondorJob::eventForYou(Event e){
 
 	switch(e){
 		case __CONDORCPPADAPTER_SUBMITED:

@@ -1,5 +1,5 @@
 #include "Condor.h"
-#include "Job.h"
+#include "CondorJob.h"
 #include "LogAdapter.h"
 #include <QMutexLocker>
 #include <QProcess>
@@ -26,7 +26,7 @@ Condor& Condor::getInstance(){
 	return c;
 }
 
-void Condor::submit(Job* job){
+void Condor::submit(CondorJob* job){
 	stringstream jobFileName; jobFileName << job->getDirectory() << "/job.txt";
 	stringstream logFileName; logFileName << job->getDirectory() << "/log.txt";
 	stringstream condorSubmit; condorSubmit << m_condorDirectory << "/bin/" << m_condorSubmit;
@@ -62,7 +62,7 @@ void Condor::submit(Job* job){
 
 }
 
-void Condor::writeJobFile(string directory, string filename, Job* job){
+void Condor::writeJobFile(string directory, string filename, CondorJob* job){
 	stringstream stream;
 	stream << directory << "/" << filename;
 	cout << stream.str();
@@ -105,11 +105,11 @@ void Condor::run(){
 	m_stopRequested = false;
 	while(!m_stopRequested && !m_noJobs){
 		QMutexLocker locker(&m_mutex);
-			vector<map<Job*,LogAdapter*>::iterator> eraseList;
-			map<Job*,LogAdapter*>::iterator it;
+			vector<map<CondorJob*,LogAdapter*>::iterator> eraseList;
+			map<CondorJob*,LogAdapter*>::iterator it;
 			//there is one LogAdapter for every running job:
 			for(it=m_logAdapters.begin();it!=m_logAdapters.end();++it){
-				Job* job = it->first;
+				CondorJob* job = it->first;
 				LogAdapter* logAdapter = it->second;
 
 				//-----------------------------------------------------

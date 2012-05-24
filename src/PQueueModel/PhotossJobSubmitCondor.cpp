@@ -1,6 +1,6 @@
 #include "PhotossJobSubmitCondor.h"
 #include "PJobFile.h"
-#include "Job.h"
+#include "CondorJob.h"
 #include "PhotossJob.h"
 #include "Settings.h"
 #include <sstream>
@@ -32,12 +32,12 @@ void PhotossJobSubmitCondor::submit(){
 	}
 }
 
-CondorAdapter::Job* PhotossJobSubmitCondor::createJob(){
+CondorAdapter::CondorJob* PhotossJobSubmitCondor::createJob(){
 	stringstream photoss_exe;
 	string photossDirectory = Settings::getInstance().photossDirectory().toStdString();
 	photoss_exe << photossDirectory << "/Photoss.exe";
 
-	CondorAdapter::Job* j = new CondorAdapter::Job(workingDirectory().absolutePath().toStdString(), photoss_exe.str());
+        CondorAdapter::CondorJob* j = new CondorAdapter::CondorJob(workingDirectory().absolutePath().toStdString(), photoss_exe.str());
 	connect(j,SIGNAL(started()),this,SLOT(_started()));
 	connect(j,SIGNAL(failed()),this,SLOT(_failed()));
 	connect(j,SIGNAL(finished()),this,SLOT(_finished()));

@@ -19,8 +19,8 @@ private slots:
 
 private:
 	
-	CondorAdapter::Job* m_condorJob;
-	CondorAdapter::Job* createJob();
+        CondorAdapter::CondorJob* m_condorJob;
+        CondorAdapter::CondorJob* createJob();
 	QString m_path_to_workingcopy_pjobfile;
 
 };
