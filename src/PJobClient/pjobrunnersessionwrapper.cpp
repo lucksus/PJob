@@ -141,10 +141,21 @@ QHostAddress PJobRunnerSessionWrapper::peer(){
     return m_peer;
 }
 
-void PJobRunnerSessionWrapper::enqueue(){
+bool PJobRunnerSessionWrapper::enqueue(){
     m_socket.write("enqueue();\n");
+    if(!m_socket.waitForReadyRead(10000)) return false;
+    QString line = m_socket.readAll();
+    if(line.contains("Successfully added to queue.")) return true;
+    else return false;
 }
 
 bool PJobRunnerSessionWrapper::wait_till_its_your_turn(){
-
+    QString buffer;
+    while(m_socket.isReadable()){
+        if(m_socket.waitForReadyRead(5000)){
+            buffer.append(m_socket.readAll());
+            if(buffer.contains("It's your turn now! Go!")) return true;
+        }
+    }
+    return false;
 }

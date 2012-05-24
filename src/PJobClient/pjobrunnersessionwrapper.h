@@ -23,7 +23,7 @@ public:
 
     QHostAddress peer();
 
-    void enqueue();
+    bool enqueue();
     bool wait_till_its_your_turn();
 
 signals:

@@ -3,6 +3,8 @@
 #include <QObject>
 #include "PJobFile.h"
 #include "scriptengine.h"
+#include <QHostAddress>
+#include <QTimer>
 
 class QTcpSocket;
 class DataReceiveConnection;
@@ -20,7 +22,7 @@ public:
     QString hello();
 
     void give_turn();
-    void loose_turn();
+    void finish_turn();
     QHostAddress peer();
 
 public slots:
@@ -38,8 +40,10 @@ public slots:
     void enqueue();
     QStringList run_directories();
 
-
     void output(const QString& msg);
+
+private slots:
+    void turn_timeout();
 
 private:
     PJobFile *m_pjob_file;
@@ -56,6 +60,8 @@ private:
     QStringList create_commandline_arguments_for_app(const PJobFileApplication&);
 
     bool m_has_turn;
+    bool m_has_running_process;
+    QTimer m_turn_timeout;
 };
 
 #endif // CONTROLLER_H

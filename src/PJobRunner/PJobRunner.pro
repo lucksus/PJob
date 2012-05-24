@@ -37,7 +37,8 @@ SOURCES += main.cpp \
     session.cpp \
     sessionthread.cpp \
     dataconnectionthread.cpp \
-    pjobrunnerservice.cpp
+    pjobrunnerservice.cpp \
+    ticketdispatcher.cpp
 
 HEADERS += \
     scriptengine.h \
@@ -45,6 +46,7 @@ HEADERS += \
     session.h \
     sessionthread.h \
     dataconnectionthread.h \
-    pjobrunnerservice.h
+    pjobrunnerservice.h \
+    ticketdispatcher.h
 
 include(qtservice/src/qtservice.pri)

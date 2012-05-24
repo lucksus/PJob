@@ -11,7 +11,7 @@
 #include "pjobrunnerservice.h"
 #include <QtNetwork/QHostInfo>
 
-Session::Session(QTcpSocket* socket) : m_pjob_file(0), m_script_engine(0), m_wants_shutdown(false), m_socket(socket), m_data_to_send(0), m_data_receive_connection(0), m_data_push_connection(0)
+Session::Session(QTcpSocket* socket) : m_pjob_file(0), m_script_engine(0), m_wants_shutdown(false), m_socket(socket), m_data_to_send(0), m_data_receive_connection(0), m_data_push_connection(0), m_has_turn(false), m_has_running_process(false)
 {
     QDir temp = QDir::temp();
     QString random = QDateTime::currentDateTime().toString("yyyyMMdd_hhmm_ss_zzz");;
@@ -20,9 +20,11 @@ Session::Session(QTcpSocket* socket) : m_pjob_file(0), m_script_engine(0), m_wan
     temp.cd(random);
     m_temp_dir = temp.absolutePath();
     if(m_socket) QtServiceBase::instance()->logMessage(QString("Opening new session for peer %1 over port %2 with temporary directory %3.").arg(socket->peerAddress().toString()).arg(socket->localPort()).arg(m_temp_dir));
+    connect(&m_turn_timeout, SIGNAL(timeout()), this, SLOT(turn_timeout()));
 }
 
 Session::~Session(){
+    dynamic_cast<PJobRunnerService*>(QtServiceBase::instance())->ticket_dispatcher()->remove_session(this);
     delete m_script_engine;
     delete m_pjob_file;
     delete m_data_receive_connection;
@@ -61,10 +63,18 @@ QString Session::platform(){
 void Session::give_turn(){
     m_has_turn = true;
     output("It's your turn now! Go!");
+    m_turn_timeout.start(6000);
 }
 
-void Session::loose_turn(){
+void Session::finish_turn(){
+    output("Your turn has ended.");
     m_has_turn = false;
+    dynamic_cast<PJobRunnerService*>(QtServiceBase::instance())->ticket_dispatcher()->finished_turn(this);
+}
+
+void Session::turn_timeout(){
+    m_turn_timeout.stop();
+    if(!m_has_running_process && m_has_turn) finish_turn();
 }
 
 QHostAddress Session::peer(){
@@ -233,7 +243,7 @@ void Session::run_job(){
     }
 #endif
 
-    ProcessCounter counter;
+    m_has_running_process = true;
     QtServiceBase::instance()->logMessage(QString("Running job for peer %1 in temp dir %2.").arg(m_socket->peerAddress().toString()).arg(m_temp_dir));
 
     QString temp_dir = QFileInfo(m_temp_dir).absoluteFilePath();
@@ -287,7 +297,8 @@ void Session::run_job(){
         output(process.readAllStandardError());
     }
     m_pjob_file->save();
-    loose_turn();
+    m_has_running_process = false;
+    finish_turn();
 }
 
 QStringList Session::create_commandline_arguments_for_app(const PJobFileApplication& app){
@@ -342,8 +353,17 @@ void Session::write_received_data_to_file(QString path){
 }
 
 void Session::enqueue(){
+    if(m_has_turn){
+        output("It's already your turn! Did not enqueue.");
+        return;
+    }
+
     PJobRunnerService* service = dynamic_cast<PJobRunnerService*>(QtServiceBase::instance());
-    if(service->number_queue_entries_for_peer(peer()) < service->max_process_count())
-        service->enqueue(this);
-    else
+    if(service->ticket_dispatcher()->number_queue_entries_for_peer(peer()) < service->ticket_dispatcher()->max_process_count()){
+        if(service->ticket_dispatcher()->enqueue(this))
+            output("Successfully added to queue.");
+        else
+            output("Not added to queue! You are already waiting.");
+    }
+    else output(QString("Not added to queue! You already have %1 session(s) enqueued and that is the allowed maximum.").arg(service->ticket_dispatcher()->max_process_count()));
 }
