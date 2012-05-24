@@ -367,3 +367,13 @@ void Session::enqueue(){
     }
     else output(QString("Not added to queue! You already have %1 session(s) enqueued and that is the allowed maximum.").arg(service->ticket_dispatcher()->max_process_count()));
 }
+
+unsigned int Session::max_process_count(){
+    PJobRunnerService* service = dynamic_cast<PJobRunnerService*>(QtServiceBase::instance());
+    return service->ticket_dispatcher()->max_process_count();
+}
+
+unsigned int Session::process_count(){
+    PJobRunnerService* service = dynamic_cast<PJobRunnerService*>(QtServiceBase::instance());
+    return service->ticket_dispatcher()->running_processes();
+}

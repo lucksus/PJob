@@ -56,3 +56,7 @@ void TicketDispatcher::remove_session(Session* s){
     m_queue.remove(s);
     m_active_sessions.erase(s);
 }
+
+unsigned int TicketDispatcher::running_processes(){
+    return m_active_sessions.size();
+}

@@ -39,6 +39,8 @@ public slots:
     quint32 prepare_pull_connection_for_results();
     void enqueue();
     QStringList run_directories();
+    unsigned int max_process_count();
+    unsigned int process_count();
 
     void output(const QString& msg);
 
