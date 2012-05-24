@@ -5,7 +5,7 @@
 #include "Scripter.h"
 #include "PhotossJobSubmitStrategyProcessHolder.h"
 PQueueController::PQueueController(void)
-: m_running(false)
+: m_pjob_file(0), m_running(false)
 {
 	qRegisterMetaType< QHash<QString,double> >("QHash<QString,double>");
 	qRegisterMetaType<QHash< QHash<QString,double>, QHash<QString,double> > >("QHash< QHash<QString,double>, QHash<QString,double> >");
@@ -32,6 +32,11 @@ PQueueController& PQueueController::getInstace(void)
 
 Results& PQueueController::getResults(){
 	return m_results;
+}
+
+void PQueueController::setPJobFile(PJobFile* p){
+    m_pjob_file = p;
+    emit pjobFileChanged(p);
 }
 
 void PQueueController::addJob(PhotossJob* j){

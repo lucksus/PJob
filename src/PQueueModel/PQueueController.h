@@ -3,6 +3,8 @@
 #include <QtCore/QList>
 #include "PhotossJob.h"
 #include "Results.h"
+#include "PJobFile.h"
+
 using namespace std;
 
 class PQueueController : public QObject
@@ -14,6 +16,7 @@ public:
 	Results& getResults();
 
 public slots:
+        void setPJobFile(PJobFile*);
 	void addJob(PhotossJob*);
 	void removeJob(PhotossJob*);
 	void setQueuePosition(PhotossJob*, unsigned int position);
@@ -32,6 +35,7 @@ signals:
 	void started();
 	void stopped();
 	void progress(QString what, unsigned int percent);
+        void pjobFileChanged(PJobFile*);
 
 
 private slots:
@@ -40,6 +44,8 @@ private slots:
 private:
 	PQueueController(void);
 	~PQueueController(void);
+
+        PJobFile* m_pjob_file;
 
 	Results m_results;
 	QList<PhotossJob*> m_jobsRunning;
