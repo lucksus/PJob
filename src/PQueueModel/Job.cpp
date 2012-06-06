@@ -1,4 +1,4 @@
-#include "PhotossJob.h"
+#include "Job.h"
 #include <QtCore/QStringList>
 #include <QtCore/QDir>
 #include <QtCore/QFile>

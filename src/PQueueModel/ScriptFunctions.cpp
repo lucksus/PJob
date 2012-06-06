@@ -1,6 +1,6 @@
 #include "ScriptFunctions.h"
 #include "PQueueController.h"
-#include "PhotossJob.h"
+#include "Job.h"
 #include "InterpolationFunction.h"
 #include "LatinHypercubeDesign.h"
 #include "Scripter.h"

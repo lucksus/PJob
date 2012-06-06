@@ -9,7 +9,7 @@ DESTDIR=../../lib
 include(../src.pri)
 
 # Input
-HEADERS +=  PhotossJob.h \
+HEADERS +=  \
 	PhotossJobSubmitStrategy.h \
 	PhotossJobSubmitCondor.h \
 	PhotossJobSubmitLocal.h \
@@ -29,8 +29,9 @@ HEADERS +=  PhotossJob.h \
 	UserInputMediator.h \
 	ResultLoaderAndSaver.h \
 	RandomGenerator.h \
-    pjobrunnerpool.h
-SOURCES += PhotossJob.cpp \
+    pjobrunnerpool.h \
+    Job.h
+SOURCES += \
 	PhotossJobSubmitStrategy.cpp \
 	PhotossJobSubmitCondor.cpp \
 	PhotossJobSubmitLocal.cpp \
@@ -49,4 +50,5 @@ SOURCES += PhotossJob.cpp \
 	UserInputMediator.cpp \
 	ResultLoaderAndSaver.cpp \
 	RandomGenerator.cpp \
-    pjobrunnerpool.cpp
+    pjobrunnerpool.cpp \
+    Job.cpp

@@ -1,6 +1,6 @@
 #include "PhotossJobSubmitLocal.h"
 #include <QtCore/QFileInfo>
-#include "PhotossJob.h"
+#include "Job.h"
 #include "Settings.h"
 #include <QtCore/QTimer>
 #include <QtCore/QDir>

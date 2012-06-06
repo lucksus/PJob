@@ -1,7 +1,7 @@
 #pragma once
 #include <QtCore/QObject>
 #include <QtCore/QList>
-#include "PhotossJob.h"
+#include "Job.h"
 #include "Results.h"
 #include "PJobFile.h"
 

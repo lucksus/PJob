@@ -3,7 +3,7 @@
 #include <QtGui/QTreeWidgetItem>
 #include <QtGui/QSortFilterProxyModel>
 #include <QtCore/QSignalMapper>
-#include "PhotossJob.h"
+#include "Job.h"
 #include "ui_MainWindow.h"
 #include "UserInputMediator.h"
 #include "ResultModel.h"

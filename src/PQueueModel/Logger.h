@@ -1,7 +1,7 @@
 #pragma once
 #include <QtCore/QObject>
 #include <ostream>
-#include "PhotossJob.h"
+#include "Job.h"
 
 class Logger : public QObject
 {

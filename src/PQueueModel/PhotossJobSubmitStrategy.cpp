@@ -1,6 +1,6 @@
 #include "PhotossJobSubmitStrategy.h"
 #include "Settings.h"
-#include "PhotossJob.h"
+#include "Job.h"
 #include <QtCore/QDateTime>
 unsigned int PhotossJobSubmitStrategy::m_jobDirectoryCounter = 0;
 
