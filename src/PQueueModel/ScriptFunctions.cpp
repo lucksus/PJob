@@ -125,20 +125,6 @@ QScriptValue userInput(QScriptContext *context, QScriptEngine *engine){
 	return UserInputMediator::getInstance().userInputForScript(context,engine);
 }
 
-QScriptValue readGlobalVariablesFromPHOFile(QScriptContext *context, QScriptEngine *engine){
-	QString phoFile = context->argument(0).toString();
-	QHash< QString,QVector<double> > variables = Job::readGlobalVariablesFromPHOFile(phoFile);
-	QScriptValue result = engine->newObject();
-	QString name;
-	foreach(name,variables.keys()){
-		QScriptValue array = engine->newArray();
-		for(int i=0;i<variables[name].size();++i)
-			array.setProperty(i,QScriptValue(engine,variables[name][i]));
-		result.setProperty(name,array);
-	}
-	return result;
-}
-
 QScriptValue readParametersFromPJOBFile(QScriptContext *context, QScriptEngine *engine){
 	QString pjobFile = context->argument(0).toString();
 	QList<PJobFileParameterDefinition> params ;
@@ -204,10 +190,6 @@ void addFunctionsToEngine(QScriptEngine* engine){
 	QScriptValue userInputFunction = engine->newFunction(userInput);
 	QScriptValue userInputFunctionMetaObject = engine->newQMetaObject(&QObject::staticMetaObject, userInputFunction);
 	engine->globalObject().setProperty("userInput", userInputFunction);
-
-	QScriptValue readGlobalVariablesFromPHOFileFunction = engine->newFunction(readGlobalVariablesFromPHOFile);
-	QScriptValue readGlobalVariablesFromPHOFileFunctionMetaObject = engine->newQMetaObject(&QObject::staticMetaObject, readGlobalVariablesFromPHOFileFunction);
-	engine->globalObject().setProperty("readGlobalVariablesFromPHOFile", readGlobalVariablesFromPHOFileFunctionMetaObject);
 
 	QScriptValue readVariablesFromPJOBFileFunction = engine->newFunction(readParametersFromPJOBFile);
 	QScriptValue readVariablesFromPJOBFileFunctionMetaObject = engine->newQMetaObject(&QObject::staticMetaObject, readVariablesFromPJOBFileFunction);

@@ -36,8 +36,6 @@ public:
 	*/
 	Q_INVOKABLE void waitUntilFinished();
 
-	static QHash< QString,QVector<double> > readGlobalVariablesFromPHOFile(QString file);
-
 public slots:
 	void submit();
 

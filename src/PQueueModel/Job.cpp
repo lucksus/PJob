@@ -10,7 +10,6 @@
 #include <limits>
 #include "Settings.h"
 //#include "PQueueController.h"
-#include "Tokenizer.h"
 #include <iostream>
 #include <algorithm>
 #include "PJobFileRepository.h"
@@ -110,43 +109,3 @@ void Job::waitUntilFinished(){
 	};
 }
 
-
-
-
-QHash< QString,QVector<double> > Job::readGlobalVariablesFromPHOFile(QString file){
-	QHash< QString,QVector<double> > result;
-
-	std::ifstream phoFile(file.toStdString().c_str());
-	std::string parameterVariation;
-	std::string globalVariables;
-	std::vector<token> variables;
-	FindString("ParameterVariation{", "}ParameterVariation", phoFile, parameterVariation);
-	std::stringstream stream(parameterVariation);
-	FindString("GlobalVariables{","}GlobalVariables",stream,globalVariables);
-	FindTokens("(#","#)",globalVariables,variables);
-	for(unsigned int i=0;i<variables.size();++i){
-		std::vector<token> tokens;
-		FindTokens("(#","#)", variables[i].getValue(), tokens);
-		std::string name;
-		std::string values;
-		std::string variation_type;
-		ReadToken(tokens,"Variation_type", variation_type);
-		if(variation_type != "Variation") continue;
-
-		ReadToken(tokens,"Name",name);
-		ReadToken(tokens,"Variation_vector",values);
-		std::stringstream valuesStream(values);
-		std::vector<double> variationValues;
-		while(true){
-			double d;
-			valuesStream >> d;
-			if(valuesStream.eof()) break;
-			variationValues.push_back(d);
-		}
-		sort(variationValues.begin(),variationValues.end());
-
-		result[QString::fromStdString(name)] = QVector<double>::fromStdVector(variationValues);
-	}
-
-	return result;
-}

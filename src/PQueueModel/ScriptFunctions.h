@@ -21,7 +21,6 @@ void fromScriptValueQDoubleHash(const QScriptValue &obj, QDoubleHash &s);
 QScriptValue createLHDPoints(QScriptContext *ctx, QScriptEngine *eng);
 QScriptValue print(QScriptContext *context, QScriptEngine *engine);
 QScriptValue setProgress(QScriptContext *context, QScriptEngine *engine);
-QScriptValue readGlobalVariablesFromPHOFile(QScriptContext *context, QScriptEngine *engine);
 QScriptValue readParametersFromPJOBFile(QScriptContext *context, QScriptEngine *engine);
 QScriptValue isExistingFile(QScriptContext *context, QScriptEngine *engine);
 QScriptValue exportResults(QScriptContext *context, QScriptEngine *engine);
