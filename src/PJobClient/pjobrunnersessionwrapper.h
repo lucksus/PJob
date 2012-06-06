@@ -26,6 +26,9 @@ public:
     bool enqueue();
     bool wait_till_its_your_turn();
 
+    int max_process_count();
+    int process_count();
+
 signals:
     void job_std_out(QString);
     void job_error_out(QString);

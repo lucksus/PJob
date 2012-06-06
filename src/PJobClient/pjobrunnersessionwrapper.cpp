@@ -159,3 +159,23 @@ bool PJobRunnerSessionWrapper::wait_till_its_your_turn(){
     }
     return false;
 }
+
+int PJobRunnerSessionWrapper::max_process_count(){
+    m_socket.write("max_process_count();\n");
+    if(!m_socket.waitForReadyRead(10000)) throw QString("connection timeout");
+    bool ok;
+    QString line = m_socket.readAll();
+    int value = line.toInt(&ok);
+    if(ok) return value;
+    else throw QString("connection problem");
+}
+
+int PJobRunnerSessionWrapper::process_count(){
+    m_socket.write("process_count();\n");
+    if(!m_socket.waitForReadyRead(10000)) throw QString("connection timeout");
+    bool ok;
+    QString line = m_socket.readAll();
+    int value = line.toInt(&ok);
+    if(ok) return value;
+    else throw QString("connection problem");
+}
