@@ -25,8 +25,8 @@ void PJobRunnerPool::start_search_local_network(){
 
 void PJobRunnerPool::found_pjob_runner(PJobRunnerSessionWrapper* session){
     QHostAddress new_peer = session->peer();
-    if(!m_open_sessions.contains(new_peer)){
-        m_open_sessions[new_peer] = session;
+    if(!m_info_sessions.contains(new_peer)){
+        m_info_sessions[new_peer] = session;
     }else delete session;
     if(!m_known_pjob_runners.contains(new_peer)){
         m_known_pjob_runners.append(new_peer);
@@ -47,11 +47,11 @@ void PJobRunnerPool::scanner_is_probing(QHostAddress host){
 }
 
 QString PJobRunnerPool::hostname(QHostAddress host){
-    assert(m_open_sessions.contains(host));
-    return m_open_sessions[host]->hostname();
+    assert(m_info_sessions.contains(host));
+    return m_info_sessions[host]->hostname();
 }
 
 QString PJobRunnerPool::platform(QHostAddress host){
-    assert(m_open_sessions.contains(host));
-    return m_open_sessions[host]->platform();
+    assert(m_info_sessions.contains(host));
+    return m_info_sessions[host]->platform();
 }
