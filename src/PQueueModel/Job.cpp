@@ -13,14 +13,12 @@
 #include "Tokenizer.h"
 #include <iostream>
 #include <algorithm>
-#include "PhotossJobSubmitCondor.h"
-#include "PhotossJobSubmitLocal.h"
 #include "PJobFileRepository.h"
 #include "PQueueController.h"
 
 
 Job::Job(QString pjobFile, QHash<QString,QString> parameters)
-:m_parameters(parameters), m_submitStrategy(0)
+:m_parameters(parameters)
 {
 	QFileInfo fileInfo(pjobFile);
 	m_pjobFileAbsoulutePath = fileInfo.absoluteFilePath();
@@ -54,27 +52,8 @@ QHash<QString,QString> Job::parameters(){
 }
 
 void Job::submit(){
-	createSubmitStrategy();
-	m_submitStrategy->submit();
+
 }
-
-void Job::createSubmitStrategy(){
-	if(m_submitStrategy) delete m_submitStrategy;
-
-	if(Settings::getInstance().submitMethod() == Settings::START_LOCAL_PHOTOSS){
-		m_submitStrategy = new PhotossJobSubmitLocal(this);
-	}
-
-	if(Settings::getInstance().submitMethod() == Settings::USE_CONDOR){
-		m_submitStrategy = new PhotossJobSubmitCondor(this);
-	}
-
-	connect(m_submitStrategy, SIGNAL(submited()), this, SLOT(submited()));
-	connect(m_submitStrategy, SIGNAL(started()), this, SLOT(started()));
-	connect(m_submitStrategy, SIGNAL(failed()), this, SLOT(failed()));
-	connect(m_submitStrategy, SIGNAL(finished(QString)), this, SLOT(process_finished_run(QString)));
-}
-
 
 void Job::submited(){
 	m_state = SUBMITED;

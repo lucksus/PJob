@@ -8,7 +8,6 @@
 #include <QtCore/QProcess>
 #include <fstream>
 #include "PJobFile.h"
-#include "PhotossJobSubmitStrategy.h"
 using namespace std;
 
 
@@ -64,8 +63,6 @@ private:
 	QString m_workingDirectory;
 	QHash<QString, QString> m_parameters;
 	State m_state;
-	PhotossJobSubmitStrategy* m_submitStrategy;
-	void createSubmitStrategy();
 	
 	QMutex m_mutex;
 	QWaitCondition m_waitConditionJobState;

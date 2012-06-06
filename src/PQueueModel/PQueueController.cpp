@@ -3,7 +3,6 @@
 #include <QtCore/QMetaType>
 #include "Logger.h"
 #include "Scripter.h"
-#include "PhotossJobSubmitStrategyProcessHolder.h"
 PQueueController::PQueueController(void)
 : m_pjob_file(0), m_running(false)
 {
@@ -16,7 +15,6 @@ PQueueController::PQueueController(void)
 	connect(this, SIGNAL(stopped()), &Logger::getInstance(), SLOT(stopped()));
 	connect(&m_results, SIGNAL(newValueSet(QString , QString , QHash<QString,double> , double )),
 		&Logger::getInstance(), SLOT(newValueSet(QString , QString , QHash<QString,double> , double )));
-	PhotossJobSubmitStrategyProcessHolder::getInstance();
 	Scripter::getInstance();
 }
 

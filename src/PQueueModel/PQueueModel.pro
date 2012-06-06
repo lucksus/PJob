@@ -10,10 +10,6 @@ include(../src.pri)
 
 # Input
 HEADERS +=  \
-	PhotossJobSubmitStrategy.h \
-	PhotossJobSubmitCondor.h \
-	PhotossJobSubmitLocal.h \
-	PhotossJobSubmitStrategyProcessHolder.h \
 	PJobFileRepository.h \
 	PQueueController.h \
 	Results.h \
@@ -32,10 +28,6 @@ HEADERS +=  \
     pjobrunnerpool.h \
     Job.h
 SOURCES += \
-	PhotossJobSubmitStrategy.cpp \
-	PhotossJobSubmitCondor.cpp \
-	PhotossJobSubmitLocal.cpp \
-	PhotossJobSubmitStrategyProcessHolder.cpp \
 	PJobFileRepository.cpp \
 	PQueueController.cpp \
 	Results.cpp \
