@@ -55,3 +55,11 @@ QString PJobRunnerPool::platform(QHostAddress host){
     assert(m_info_sessions.contains(host));
     return m_info_sessions[host]->platform();
 }
+
+unsigned int PJobRunnerPool::max_thread_count(){
+    unsigned int count = 0;
+    foreach(PJobRunnerSessionWrapper* info_session, m_info_sessions.values()){
+        count += info_session->max_process_count();
+    }
+    return count;
+}

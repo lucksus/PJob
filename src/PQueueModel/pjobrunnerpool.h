@@ -8,7 +8,11 @@ class PJobRunnerPool : public QObject
 Q_OBJECT
 public:
     static PJobRunnerPool& instance();
+    //! Gives a List of all hosts of this pool running a pjob runner
     QList<QHostAddress> known_pjob_runners();
+
+    //! Calculates the number of threads of the entire pool
+    unsigned int max_thread_count();
 
 
 public slots:
