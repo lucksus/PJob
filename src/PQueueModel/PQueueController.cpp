@@ -37,6 +37,10 @@ void PQueueController::setPJobFile(PJobFile* p){
     emit pjobFileChanged(p);
 }
 
+PJobFile* PQueueController::getPJobFile(){
+    return m_pjob_file;
+}
+
 void PQueueController::addJob(Job* j){
 	m_jobsQueued.push_back(j);
         connect(j, SIGNAL(stateChanged(Job*, Job::State)), this, SLOT(jobStateChanged(Job*, Job::State)));
@@ -186,4 +190,12 @@ void PQueueController::import_results_from_pjobfile(QString filename)
 
 void PQueueController::abort_progress(const QString& what){
 	m_progresses_to_abort.insert(what);
+}
+
+Job* PQueueController::startNextQueuedJob(){
+    QMutexLocker locker(&m_mutex);
+    if(m_jobsQueued.isEmpty()) return 0;
+    Job* job = m_jobsQueued.takeFirst();
+    m_jobsRunning.push_back(job);
+    return job;
 }

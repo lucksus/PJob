@@ -15,8 +15,13 @@ public:
 	static PQueueController& getInstace(void);
 	Results& getResults();
 
+        //! Moves top queued job from m_jobsQueued to m_jobsRunning and returns it
+        Job* startNextQueuedJob();
+
+
 public slots:
         void setPJobFile(PJobFile*);
+        PJobFile* getPJobFile();
         void addJob(Job*);
         void removeJob(Job*);
         void setQueuePosition(Job*, unsigned int position);
@@ -45,13 +50,15 @@ private:
 	PQueueController(void);
 	~PQueueController(void);
 
+        QMutex m_mutex;
+
         PJobFile* m_pjob_file;
 
 	Results m_results;
         QList<Job*> m_jobsRunning;
         QList<Job*> m_jobsFinished;
         QList<Job*> m_jobsQueued;
-        QList<Job*> m_jobsSubmited;
+        //QList<Job*> m_jobsSubmited;
 	bool m_running;
 	unsigned int m_jobsAtOnce;
 

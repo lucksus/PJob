@@ -26,7 +26,8 @@ HEADERS +=  \
 	ResultLoaderAndSaver.h \
 	RandomGenerator.h \
     pjobrunnerpool.h \
-    Job.h
+    Job.h \
+    PJobRunnerSessionThread.h
 SOURCES += \
 	PJobFileRepository.cpp \
 	PQueueController.cpp \
@@ -43,4 +44,5 @@ SOURCES += \
 	ResultLoaderAndSaver.cpp \
 	RandomGenerator.cpp \
     pjobrunnerpool.cpp \
-    Job.cpp
+    Job.cpp \
+    PJobRunnerSessionThread.cpp
