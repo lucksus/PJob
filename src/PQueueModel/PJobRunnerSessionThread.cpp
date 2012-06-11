@@ -11,7 +11,7 @@ void PJobRunnerSessionThread::run(){
     m_session = new PJobRunnerSessionWrapper(m_peer);
     m_session->enqueue();
     m_session->wait_till_its_your_turn();
-    Job* job = m_workspace->startNextJobInQueue();
+    Job* job = m_workspace->startNextQueuedJob();
     if(!job) return;
     job->submited();
     PJobFile* pjob_file = m_workspace->getPJobFile();
@@ -34,6 +34,9 @@ void PJobRunnerSessionThread::run(){
             //Job is finished. Get results.
             QByteArray results;
             m_session->download_results(results);
+            QString run_name = PJobFile::name_of_first_run_in_raw_bytes(results);
+            pjob_file->add_raw_files(results);
+            job->process_finished_run(run_name);
             job->finished();
         }
     }else job->failed();
