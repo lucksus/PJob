@@ -24,7 +24,11 @@ Session::Session(QTcpSocket* socket) : m_pjob_file(0), m_script_engine(0), m_wan
 }
 
 Session::~Session(){
-    dynamic_cast<PJobRunnerService*>(QtServiceBase::instance())->ticket_dispatcher()->remove_session(this);
+    PJobRunnerService* service = dynamic_cast<PJobRunnerService*>(QtServiceBase::instance());
+    if(service){
+        TicketDispatcher* ticket_dispatcher = service->ticket_dispatcher();
+        if(ticket_dispatcher) ticket_dispatcher->remove_session(this);
+    }
     delete m_script_engine;
     delete m_pjob_file;
     delete m_data_receive_connection;
