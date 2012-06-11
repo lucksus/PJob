@@ -10,12 +10,10 @@ class PJobRunnerSessionThread : public QThread
 Q_OBJECT
 public:
     PJobRunnerSessionThread(QHostAddress, PQueueController*);
-    virtual ~PJobRunnerSessionThread();
     virtual void run();
 
 private:
     QHostAddress m_peer;
-    PJobRunnerSessionWrapper *m_session;
     PQueueController *m_workspace;
 };
 

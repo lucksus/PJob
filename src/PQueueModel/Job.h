@@ -16,15 +16,12 @@ class Job : public QObject
 Q_OBJECT
 friend class PJobRunnerSessionThread;
 public:
-        Job(QString pjobFile, QHash<QString,QString> parameters);
+        Job(QHash<QString,QString> parameters);
         ~Job();
 
 	 
 	PJobFile* pjobFile();
-	QString mainScript();
 	QString description();
-	void addResource(QString path);
-	//QString phoFile();
 	QHash<QString,QString> parameters();
 
 
@@ -35,9 +32,6 @@ public:
 	* until this job is finished.
 	*/
 	Q_INVOKABLE void waitUntilFinished();
-
-public slots:
-	void submit();
 
 signals:
         void stateChanged(Job*, Job::State);
@@ -57,12 +51,10 @@ private slots:
 private:
 	
 	PJobFile* m_pjobFile;
-	QString m_pjobFileAbsoulutePath;
-	//QString m_phoFile;
-	//QString m_scriptFile;
-	QString m_workingDirectory;
 	QHash<QString, QString> m_parameters;
 	State m_state;
+        QString m_std_out;
+        QString m_err_out;
 	
 	QMutex m_mutex;
 	QWaitCondition m_waitConditionJobState;

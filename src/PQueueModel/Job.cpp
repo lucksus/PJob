@@ -16,42 +16,25 @@
 #include "PQueueController.h"
 
 
-Job::Job(QString pjobFile, QHash<QString,QString> parameters)
+Job::Job(QHash<QString,QString> parameters)
 :m_parameters(parameters)
 {
-	QFileInfo fileInfo(pjobFile);
-	m_pjobFileAbsoulutePath = fileInfo.absoluteFilePath();
-	m_pjobFile = PJobFileRepository::getInstance().forFile(m_pjobFileAbsoulutePath);
-	PJobFileRepository::getInstance().increaseCounter(m_pjobFileAbsoulutePath);
 	QObject::moveToThread(PQueueController::getInstace().thread());
 }
 
 Job::~Job(){
-	PJobFileRepository::getInstance().decreaseCounter(m_pjobFileAbsoulutePath);
 }
 
 PJobFile* Job::pjobFile(){
 	return m_pjobFile;
 }
 
-QString Job::mainScript(){
-	return m_pjobFile->mainPscript();
-}
-
 QString Job::description(){
 	return m_pjobFile->pjobFile()+": ";
 }
 
-void Job::addResource(QString path){
-	m_pjobFile->addResource(path);
-}
-
 QHash<QString,QString> Job::parameters(){
 	return m_parameters;
-}
-
-void Job::submit(){
-
 }
 
 void Job::submited(){
@@ -109,3 +92,13 @@ void Job::waitUntilFinished(){
 	};
 }
 
+
+void Job::std_out(QString s){
+    m_std_out.append("\n");
+    m_std_out.append(s);
+}
+
+void Job::err_out(QString s){
+    m_err_out.append("\n");
+    m_err_out.append(s);
+}

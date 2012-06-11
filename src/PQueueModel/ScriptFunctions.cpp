@@ -20,13 +20,8 @@ QScriptValue getSetScriptProgress(QScriptContext *ctx, QScriptEngine *eng){
 }
 
 QScriptValue PhotossJobConstructor(QScriptContext *context, QScriptEngine *engine){
-	QString arg1 = qscriptvalue_cast<QString> (context->argument(0)); 
-	QStringHash arg2 = engine->fromScriptValue<QStringHash>(context->argument(1));
-	QString arg3 = "";
-	if(context->argumentCount()==3)
-		arg3 = qscriptvalue_cast<QString> (context->argument(2));
-	//qscriptvalue_cast< QStringHash > (context->argument(1)); 
-	Job* pj = new Job(arg1,arg2); 
+        QStringHash arg1 = engine->fromScriptValue<QStringHash>(context->argument(0));
+        Job* pj = new Job(arg1);
 	return engine->newQObject(pj);
 }
 

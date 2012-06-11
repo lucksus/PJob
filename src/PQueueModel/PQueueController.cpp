@@ -3,6 +3,9 @@
 #include <QtCore/QMetaType>
 #include "Logger.h"
 #include "Scripter.h"
+#include "pjobrunnerpool.h"
+#include "PJobRunnerSessionThread.h"
+
 PQueueController::PQueueController(void)
 : m_pjob_file(0), m_running(false)
 {
@@ -51,10 +54,6 @@ void PQueueController::addJob(Job* j){
 		&Logger::getInstance(), SLOT(jobResults(QHash< QHash<QString,double>, QHash<QString,double> > , QString )));
         connect(j, SIGNAL(problemReadingResults(Job*,QString)), &Logger::getInstance(), SLOT(jobHasProblemsReadingResult(Job*,QString)));
 	emit jobAdded(j, m_jobsQueued.indexOf(j));
-
-        if(m_running && (m_jobsAtOnce == 0 || m_jobsRunning.size()+m_jobsSubmited.size() < static_cast<int>(m_jobsAtOnce))){
-		j->submit();
-	}
 }
 
 void PQueueController::removeJob(Job* j){
@@ -78,19 +77,14 @@ void PQueueController::setQueuePosition(Job* j, unsigned int position){
 	emit jobMoved(j,position);
 }
 
-void PQueueController::start(unsigned int atOnce){
-	m_running = true;
-	m_jobsAtOnce = atOnce;
-	emit started();
-        Job* job;
-	unsigned int submitCount=0;
-	foreach(job, m_jobsQueued){
-		if(atOnce > 0 && submitCount == atOnce)
-			return;
-		job->submit();
-		submitCount++;
-	}
-	
+void PQueueController::start(){
+    populate_session_threads();
+    foreach(PJobRunnerSessionThread* thread, m_session_threads){
+        thread->start();
+    }
+
+    m_running = true;
+    emit started();
 }
 
 void PQueueController::stop(){
@@ -126,16 +120,9 @@ void PQueueController::jobStarted(Job* j){
 	m_jobsRunning.push_back(j);
 }
 
-void PQueueController::startNextJobInQueue(){
-	if(m_jobsQueued.isEmpty())return;
-        Job* job = m_jobsQueued.first();
-	job->submit();
-}
-
 void PQueueController::jobFinished(Job* j){
 	m_jobsRunning.removeOne(j);
 	m_jobsFinished.push_back(j);
-	if(m_running) startNextJobInQueue();
 }
 
 
@@ -198,4 +185,32 @@ Job* PQueueController::startNextQueuedJob(){
     Job* job = m_jobsQueued.takeFirst();
     m_jobsRunning.push_back(job);
     return job;
+}
+
+void PQueueController::session_finished(){
+    if(!m_running) return;
+    QObject* object = sender();
+    PJobRunnerSessionThread* thread = dynamic_cast<PJobRunnerSessionThread*>(object);
+    if(!thread) return;
+    thread->start();
+}
+
+void PQueueController::populate_session_threads(){
+    clear_session_threads();
+    foreach(QHostAddress host, PJobRunnerPool::instance().known_pjob_runners()){
+        unsigned int thread_count = PJobRunnerPool::instance().thread_count(host);
+        for(unsigned int i=0; i<thread_count; i++){
+            PJobRunnerSessionThread* thread = new PJobRunnerSessionThread(host, this);
+            connect(thread, SIGNAL(finished()), this, SLOT(session_finished()), Qt::QueuedConnection);
+            m_session_threads.insert(thread);
+        }
+    }
+}
+
+void PQueueController::clear_session_threads(){
+    foreach(PJobRunnerSessionThread* thread, m_session_threads){
+        if(thread->isRunning()) continue;
+        m_session_threads.remove(thread);
+        delete thread;
+    }
 }

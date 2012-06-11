@@ -6,7 +6,7 @@
 #include "PJobFile.h"
 
 using namespace std;
-
+class PJobRunnerSessionThread;
 class PQueueController : public QObject
 {
 Q_OBJECT
@@ -25,7 +25,7 @@ public slots:
         void addJob(Job*);
         void removeJob(Job*);
         void setQueuePosition(Job*, unsigned int position);
-	void start(unsigned int atOnce=0);
+        void start();
 	void stop();
 	bool isRunning();
 	void import_results_from_pjobfile(QString file);
@@ -45,6 +45,7 @@ signals:
 
 private slots:
         void jobStateChanged(Job*, Job::State);
+        void session_finished();
 
 private:
 	PQueueController(void);
@@ -58,7 +59,7 @@ private:
         QList<Job*> m_jobsRunning;
         QList<Job*> m_jobsFinished;
         QList<Job*> m_jobsQueued;
-        //QList<Job*> m_jobsSubmited;
+        QList<Job*> m_jobsSubmited;
 	bool m_running;
 	unsigned int m_jobsAtOnce;
 
@@ -68,5 +69,9 @@ private:
 	void startNextJobInQueue();
 
 	QSet<QString> m_progresses_to_abort;
+
+        QSet<PJobRunnerSessionThread*> m_session_threads;
+        void populate_session_threads();
+        void clear_session_threads();
 };
 

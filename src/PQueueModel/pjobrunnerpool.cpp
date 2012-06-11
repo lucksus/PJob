@@ -13,7 +13,7 @@ PJobRunnerPool& PJobRunnerPool::instance(){
     return pool;
 }
 
-QList<QHostAddress> PJobRunnerPool::known_pjob_runners(){
+QList<QHostAddress> PJobRunnerPool::known_pjob_runners() const{
     return m_known_pjob_runners;
 }
 
@@ -46,20 +46,30 @@ void PJobRunnerPool::scanner_is_probing(QHostAddress host){
     emit probing_host(host);
 }
 
-QString PJobRunnerPool::hostname(QHostAddress host){
+QString PJobRunnerPool::hostname(QHostAddress host) const{
     assert(m_info_sessions.contains(host));
     return m_info_sessions[host]->hostname();
 }
 
-QString PJobRunnerPool::platform(QHostAddress host){
+QString PJobRunnerPool::platform(QHostAddress host) const{
     assert(m_info_sessions.contains(host));
     return m_info_sessions[host]->platform();
 }
 
-unsigned int PJobRunnerPool::max_thread_count(){
+unsigned int PJobRunnerPool::max_thread_count() const{
     unsigned int count = 0;
     foreach(PJobRunnerSessionWrapper* info_session, m_info_sessions.values()){
         count += info_session->max_process_count();
     }
     return count;
+}
+
+
+unsigned int PJobRunnerPool::thread_count(QHostAddress host) const{
+    QHash<QHostAddress, PJobRunnerSessionWrapper*>::const_iterator it = m_info_sessions.find(host);
+    if(it == m_info_sessions.end()){
+        PJobRunnerSessionWrapper session(host);
+        return session.max_process_count();
+    }
+    return it.value()->max_process_count();
 }

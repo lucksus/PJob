@@ -215,7 +215,7 @@ void MainWindow::on_addJobButton_clicked(){
 		parameters[name]  = value;
 	}
 
-	PQueueController::getInstace().addJob(new Job(ui.pjobFile->text(), parameters));
+        PQueueController::getInstace().addJob(new Job(parameters));
 }
 
 void MainWindow::on_jobUpButton_clicked(){
@@ -331,7 +331,7 @@ void MainWindow::jobStateChanged(Job* j, Job::State state){
 }
 
 void MainWindow::on_startButton_clicked(){
-	PQueueController::getInstace().start(ui.parallelJobs->value());
+        PQueueController::getInstace().start();
 }
 
 void MainWindow::on_stopButton_clicked(){
@@ -751,9 +751,10 @@ void MainWindow::found_new_pjob_runner(QHostAddress host){
 
     QString hostname = PJobRunnerPool::instance().hostname(host);
     QString os = PJobRunnerPool::instance().platform(host);
+    unsigned int thread_count = PJobRunnerPool::instance().thread_count(host);
     QListWidgetItem* item = new QListWidgetItem();
     item->setData(Qt::DecorationRole, QColor("lime"));
-    item->setData(Qt::DisplayRole, QString("%1 (%2) running %3").arg(hostname).arg(host.toString()).arg(os));
+    item->setData(Qt::DisplayRole, QString("%1 (%2) with %4 threads(s) running %3").arg(hostname).arg(host.toString()).arg(os).arg(thread_count));
     m_pjob_runner_items[host] = item;
     ui.pjobRunnerListWidget->addItem(item);
     if(hostname.isEmpty()) QHostInfo::lookupHost(host.toString(), this, SLOT(lookedUp(QHostInfo)));
@@ -765,7 +766,8 @@ void MainWindow::lookedUp(const QHostInfo& host){
     assert(m_pjob_runner_items.contains(address));
     QString hostname = PJobRunnerPool::instance().hostname(address);
     QString os = PJobRunnerPool::instance().platform(address);
-    m_pjob_runner_items[address]->setData(Qt::DisplayRole, QString("%1 (%2) running %3").arg(hostname).arg(address.toString()).arg(os));
+    unsigned int thread_count = PJobRunnerPool::instance().thread_count(address);
+    m_pjob_runner_items[address]->setData(Qt::DisplayRole, QString("%1 (%2) with %4 threads(s) running %3").arg(hostname).arg(address.toString()).arg(os).arg(thread_count));
 }
 
 void MainWindow::lost_pjob_runner(QHostAddress host){
