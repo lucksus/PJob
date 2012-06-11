@@ -61,7 +61,7 @@ void PJobRunnerNetworkScanner::scan(){
                 std::cout << "\r" << QHostAddress(address_to_try).toString().toStdString();
                 std::cout.flush();
                 emit probing_host(QHostAddress(address_to_try));
-                PJobRunnerSessionWrapper* session = new PJobRunnerSessionWrapper(QHostAddress(address_to_try), 200);
+                PJobRunnerSessionWrapper* session = new PJobRunnerSessionWrapper(QHostAddress(address_to_try), 50);
                 if(session->is_valid()) found(session);
                 else delete session;
                 address_to_try++;
