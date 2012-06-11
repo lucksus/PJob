@@ -633,3 +633,14 @@ QByteArray* PJobFile::raw_without_results(){
 void PJobFile::add_raw_files(const QByteArray& data){
     m_data->appendRaw(data);
 }
+
+QString PJobFile::name_of_first_run_in_raw_bytes(const QByteArray& raw){
+    const PJobFileFormat format(raw);
+    foreach(QString file, format.content()){
+        if(!file.startsWith("Runs/")) continue;
+        QStringList list = file.split("/");
+        return list.at(1);
+    }
+    throw QString("No result file found!");
+    return QString();
+}

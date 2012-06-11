@@ -67,6 +67,8 @@ public:
     QByteArray* raw_without_results();
 
     void add_raw_files(const QByteArray&);
+    static QString name_of_first_run_in_raw_bytes(const QByteArray&);
+
 
 public slots:
     void abort_progress(const QString &);
