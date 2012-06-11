@@ -108,7 +108,7 @@ public:
 
         //INFO
         //! Gibt eine QStringList zurück, welche alle Dateinamen (relativer Pfad) im .pjob-File enthält
-        QStringList content();
+        QStringList content() const;
 
         //! Gibt eine detaillierte Liste mit den Dateien in der .pjob-File und deren Eigenschaften zurück.
         /*!

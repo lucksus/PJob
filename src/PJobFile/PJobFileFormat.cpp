@@ -508,7 +508,7 @@ void PJobFileFormat::extract(QString targetAbsolutePath, QString sourceRelativeP
     }
 }
 
-QStringList PJobFileFormat::content()
+QStringList PJobFileFormat::content() const
 {
     //Hilfsvariablen
     QStringList list;
