@@ -530,17 +530,14 @@ QList< QHash< QString, double > > PJobFile::readResultFilePHOTOSS_CSV(QString re
 
 void PJobFile::copyWithoutRuns(QString path)
 {
-	//Es wird zunächst eine leere .pjob-Datei im Zielverzeichnis erzeugt
+        //Es wird zunächst eine leere .pjob-Datei im Zielverzeichnis erzeugt:
 	PJobFileFormat copy(path);
-
-	//Anschließend werden alle Einträge bis auf die Runs kopiert
-	foreach(QString s, m_data->content())
-	{
-		if(!s.startsWith("Runs/"))
-			copy.appendRaw(m_data->readRaw(s));
-	}
-	//Änderungen übernehmen
-	copy.flush();
+        //Kopie ohne runs erzeugen..
+        QByteArray* raw = raw_without_results();
+        //..und in neue Datei übernehmen:
+        copy.appendRaw(*raw);
+        copy.flush();
+        delete raw;
 }
 
 void PJobFile::mergeRunsFrom(const PJobFile& otherPJob)
@@ -621,6 +618,16 @@ QByteArray* PJobFile::get_result_files_raw(){
             arr->append( m_data->readRaw(file) );
     }
     return arr;
+}
+
+QByteArray* PJobFile::raw_without_results(){
+    QByteArray* result = new QByteArray;
+    foreach(QString s, m_data->content())
+    {
+            if(!s.startsWith("Runs/"))
+                    result->append(m_data->readRaw(s));
+    }
+    return result;
 }
 
 void PJobFile::add_raw_files(const QByteArray& data){

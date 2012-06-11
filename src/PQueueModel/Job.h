@@ -14,7 +14,7 @@ using namespace std;
 class Job : public QObject
 {
 Q_OBJECT
-
+friend class PJobRunnerSessionThread;
 public:
         Job(QString pjobFile, QHash<QString,QString> parameters);
         ~Job();
@@ -51,6 +51,8 @@ private slots:
 	void failed();
 	void finished();
 	void process_finished_run(QString runDirectory);
+        void std_out(QString);
+        void err_out(QString);
 
 private:
 	

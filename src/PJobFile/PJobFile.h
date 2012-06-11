@@ -64,6 +64,7 @@ public:
 
     //! Reads all result files (all files in all run directories) with header from underlying file format and concatenates them into one QByteArray
     QByteArray* get_result_files_raw();
+    QByteArray* raw_without_results();
 
     void add_raw_files(const QByteArray&);
 
