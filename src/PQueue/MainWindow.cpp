@@ -17,6 +17,7 @@
 #include "pjobrunnerpool.h"
 
 MainWindow::MainWindow(void)
+    : m_pjob_file(0)
 {
 	ui.setupUi(this);
 
@@ -25,8 +26,6 @@ MainWindow::MainWindow(void)
 	UserInputMediator::getInstance().setUserInputHandler(this);
 
 	setCentralWidget(ui.tabWidget);
-	addDockWidget(Qt::BottomDockWidgetArea, ui.newJobDockWidget);
-	ui.newJobDockWidget->hide();
 	addDockWidget(Qt::BottomDockWidgetArea, ui.logDockWidget);
 	ui.logDockWidget->hide();
 	addDockWidget(Qt::BottomDockWidgetArea, ui.scriptingConsoleDockWidget);
@@ -114,6 +113,13 @@ MainWindow::MainWindow(void)
         PJobRunnerPool::instance().start_search_local_network();
 }
 
+void MainWindow::open_pjob_file(QString filename){
+    if(m_pjob_file) delete m_pjob_file;
+    m_pjob_file = new PJobFile(filename);
+    pjobFile_changed();
+}
+
+
 void MainWindow::builtInScriptTriggered(const QString& script){
 	Scripter::getInstance().runLoadedScript(script);
 }
@@ -134,16 +140,6 @@ void MainWindow::openScriptedUserInputDialog(QScriptContext *context, QScriptEng
 }
 
 
-
-void MainWindow::on_browsePJobFileButton_clicked(){
-	QFileInfo fileInfo(mostRecentlyUsedPJOBFiles().first());
-
-	QStringList files = QFileDialog::getOpenFileNames(this,"Select PHOTOSS PJOB File",
-		fileInfo.absolutePath(),"PJOB-File (*.pjob)");
-	if(files.isEmpty())return;
-	ui.pjobFile->setText(files.first());
-	mostRecentlyUsedPJOBFilesAdd(files.first());
-}
 
 void MainWindow::on_addParameterButton_clicked(){
 	QTableWidgetItem* name = new QTableWidgetItem();
@@ -175,12 +171,8 @@ void MainWindow::on_delParameterButton_clicked(){
 }
 
 
-void MainWindow::on_pjobFile_textChanged(QString s){
-	ui.addJobButton->setEnabled(s.length() > 0);
-
-	if(!QFileInfo(ui.pjobFile->text()).exists()) return;
-	if(!QFileInfo(ui.pjobFile->text()).isFile()) return;
-
+void MainWindow::pjobFile_changed(){
+        PQueueController::getInstace().setPJobFile(m_pjob_file);
 	ui.parametersWidget->clear();
 	QStringList l1;
 	l1 << "Parametername" << "Parametervalue";
@@ -188,16 +180,14 @@ void MainWindow::on_pjobFile_textChanged(QString s){
 	ui.parametersWidget->setHorizontalHeaderLabels(l1);
 	ui.parametersWidget->setRowCount(0);
 
-	PJobFile pjobFile(ui.pjobFile->text());
-	QList<PJobFileParameterDefinition> params = pjobFile.parameterDefinitions();
+        ui.addJobButton->setEnabled(m_pjob_file != 0);
+        if(!m_pjob_file) return;
+        QList<PJobFileParameterDefinition> params = m_pjob_file->parameterDefinitions();
 	PJobFileParameterDefinition p;
-	//QHash< QString,QVector<double> > variables = PhotossJob::readGlobalVariablesFromPHOFile(ui.phoFile->text());
-	//QString name;
 	foreach(p,params){
 		QTableWidgetItem* nameItem = new QTableWidgetItem();
 		QTableWidgetItem* valueItem = new QTableWidgetItem();
 		nameItem->setText(p.name());
-		//valueItem->setText(QString("%1_%2:1").arg(variables[name].front()).arg(variables[name].back()));
 		valueItem->setText(QString("%1").arg(p.defaultValue()));
 
 		int row = ui.parametersWidget->rowCount();
@@ -712,18 +702,15 @@ void MainWindow::mruToFileMenu(){
 }
 
 void MainWindow::on_actionMruAction1_triggered(){
-	ui.pjobFile->setText(mostRecentlyUsedPJOBFiles().at(0));
-	ui.newJobDockWidget->show();
+    open_pjob_file(mostRecentlyUsedPJOBFiles().at(0));
 }
 
 void MainWindow::on_actionMruAction2_triggered(){
-	ui.pjobFile->setText(mostRecentlyUsedPJOBFiles().at(1));
-	ui.newJobDockWidget->show();
+    open_pjob_file(mostRecentlyUsedPJOBFiles().at(1));
 }
 
 void MainWindow::on_actionMruAction3_triggered(){
-	ui.pjobFile->setText(mostRecentlyUsedPJOBFiles().at(2));
-	ui.newJobDockWidget->show();
+    open_pjob_file(mostRecentlyUsedPJOBFiles().at(2));
 }
 
 void MainWindow::on_loadPreviousRunsButton_clicked()

@@ -45,11 +45,12 @@ private:
 
         QHash<QHostAddress, QListWidgetItem*> m_pjob_runner_items;
 
+        PJobFile* m_pjob_file;
+
 private slots:
-	void on_browsePJobFileButton_clicked();
+        void open_pjob_file(QString);
 	void on_addParameterButton_clicked();
 	void on_delParameterButton_clicked();
-	void on_pjobFile_textChanged(QString);
 	void on_addJobButton_clicked();
 	void on_jobUpButton_clicked();
 	void on_jobDownButton_clicked();
@@ -104,6 +105,8 @@ private slots:
         void probing_host(QHostAddress);
         void lookedUp(const QHostInfo& host);
         void pjob_runner_search_finished();
+
+        void pjobFile_changed();
 
 public:
 signals:
