@@ -2,7 +2,7 @@
 #include <QtGlobal>
 #include <math.h>
 #include <QtCore/QStringList>
-#include "PQueueController.h"
+#include "Workspace.h"
 #include "SimulatedAnnealing.h"
 #include <set>
 #include <limits>

@@ -1,6 +1,6 @@
 #include "PJobRunnerSessionThread.h"
 #include "pjobrunnersessionwrapper.h"
-#include "PQueueController.h"
+#include "Workspace.h"
 #include <memory>
 
 PJobRunnerSessionThread::PJobRunnerSessionThread(QHostAddress address, Workspace* workspace)

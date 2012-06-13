@@ -11,7 +11,6 @@ include(../src.pri)
 # Input
 HEADERS +=  \
 	PJobFileRepository.h \
-	PQueueController.h \
 	Results.h \
 	Settings.h \
 	LatinHypercubeDesign.h \
@@ -27,10 +26,10 @@ HEADERS +=  \
 	RandomGenerator.h \
     pjobrunnerpool.h \
     Job.h \
-    PJobRunnerSessionThread.h
+    PJobRunnerSessionThread.h \
+    Workspace.h
 SOURCES += \
 	PJobFileRepository.cpp \
-	PQueueController.cpp \
 	Results.cpp \
 	Settings.cpp \
 	LatinHypercubeDesign.cpp \
@@ -45,4 +44,5 @@ SOURCES += \
 	RandomGenerator.cpp \
     pjobrunnerpool.cpp \
     Job.cpp \
-    PJobRunnerSessionThread.cpp
+    PJobRunnerSessionThread.cpp \
+    Workspace.cpp

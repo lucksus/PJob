@@ -2,7 +2,7 @@
 #include <QtCore/QString>
 #include <QtCore/QSet>
 #include <QtCore/QHash>
-#include "PQueueController.h"
+#include "Workspace.h"
 
 class Drawable
 {

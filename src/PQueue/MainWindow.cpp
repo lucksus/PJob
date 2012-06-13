@@ -1,7 +1,7 @@
 #include "MainWindow.h"
 #include <QtGui/QFileDialog>
 #include <QtGui/QDockWidget>
-#include "PQueueController.h"
+#include "Workspace.h"
 #include "Logger.h"
 #include "SettingsDialog.h"
 #include "NonEquidistantSlider.h"
@@ -52,32 +52,32 @@ MainWindow::MainWindow(void)
 
 	// Initialisieren Result View
 	ui.pjobFileSelector->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-	m_resultModel = new ResultModel(&PQueueController::getInstace().getResults(), this);
+        m_resultModel = new ResultModel(&Workspace::getInstace().getResults(), this);
 	QSortFilterProxyModel* m_proxyResultModel = new QSortFilterProxyModel(this);
 	m_proxyResultModel->setSourceModel(m_resultModel);
 	ui.resultView->setModel(m_proxyResultModel);
 	ui.resultView->setSortingEnabled(true);
 	connect(ui.pjobFileSelector, SIGNAL(currentIndexChanged(QString)), m_resultModel, SLOT(initialize(QString)));
-	connect(&PQueueController::getInstace().getResults(), SIGNAL(newValuesSet(QString)), this, SLOT(updatePJobFileSelector(QString)));
-	connect(&PQueueController::getInstace().getResults(), SIGNAL(newValuesSet(QString)), m_resultModel, SLOT(update(QString)));
+        connect(&Workspace::getInstace().getResults(), SIGNAL(newValuesSet(QString)), this, SLOT(updatePJobFileSelector(QString)));
+        connect(&Workspace::getInstace().getResults(), SIGNAL(newValuesSet(QString)), m_resultModel, SLOT(update(QString)));
 	connect(m_resultModel, SIGNAL(layoutChanged()), ui.resultView, SLOT(resizeColumnsToContents()));
 	connect(m_resultModel, SIGNAL(modelInitialized()), this, SLOT(initialSortResultView()));
 
 	ui.scriptProgressBar->setHidden(true);
 
-	connect(&PQueueController::getInstace(), SIGNAL(jobAdded(Job*,unsigned int)), this, SLOT(jobCreated(Job*,unsigned int)));
-	connect(&PQueueController::getInstace(), SIGNAL(jobAdded(Job*,unsigned int)), this, SLOT(updateButtons()));
-	connect(&PQueueController::getInstace(), SIGNAL(jobRemoved(Job*)), this, SLOT(jobRemoved(Job*)));
-	connect(&PQueueController::getInstace(), SIGNAL(jobRemoved(Job*)), this, SLOT(updateButtons()));
-	connect(&PQueueController::getInstace(), SIGNAL(jobMoved(Job*, unsigned int)), this, SLOT(jobMoved(Job*, unsigned int)));
+        connect(&Workspace::getInstace(), SIGNAL(jobAdded(Job*,unsigned int)), this, SLOT(jobCreated(Job*,unsigned int)));
+        connect(&Workspace::getInstace(), SIGNAL(jobAdded(Job*,unsigned int)), this, SLOT(updateButtons()));
+        connect(&Workspace::getInstace(), SIGNAL(jobRemoved(Job*)), this, SLOT(jobRemoved(Job*)));
+        connect(&Workspace::getInstace(), SIGNAL(jobRemoved(Job*)), this, SLOT(updateButtons()));
+        connect(&Workspace::getInstace(), SIGNAL(jobMoved(Job*, unsigned int)), this, SLOT(jobMoved(Job*, unsigned int)));
 	connect(ui.jobsWidget, SIGNAL(itemSelectionChanged()), this, SLOT(updateButtons()));
 	updateButtons();
 
 	connect(&Logger::getInstance(),SIGNAL(text(QString)),ui.logTextEdit,SLOT(append(QString)));
-	connect(&PQueueController::getInstace().getResults(), SIGNAL(newValueSet(QString,QString,QHash<QString,double>,double)), this, SLOT(newValue(QString,QString,QHash<QString,double>,double)));
-	connect(&PQueueController::getInstace().getResults(), SIGNAL(newValuesSet(QString)), this, SLOT(newValue()));
-	connect(&PQueueController::getInstace(), SIGNAL(started()), this, SLOT(started()));
-	connect(&PQueueController::getInstace(), SIGNAL(stopped()), this, SLOT(stopped()));
+        connect(&Workspace::getInstace().getResults(), SIGNAL(newValueSet(QString,QString,QHash<QString,double>,double)), this, SLOT(newValue(QString,QString,QHash<QString,double>,double)));
+        connect(&Workspace::getInstace().getResults(), SIGNAL(newValuesSet(QString)), this, SLOT(newValue()));
+        connect(&Workspace::getInstace(), SIGNAL(started()), this, SLOT(started()));
+        connect(&Workspace::getInstace(), SIGNAL(stopped()), this, SLOT(stopped()));
 
 	connect(&m_x_axis_button_group, SIGNAL(buttonClicked(int)), this, SLOT(updateParametersBox()));
 	connect(&m_y_axis_button_group, SIGNAL(buttonClicked(int)), this, SLOT(updateParametersBox()));
@@ -103,7 +103,7 @@ MainWindow::MainWindow(void)
 	}
 	connect(&m_builtInScriptsActionsMapper,SIGNAL(mapped(QString)),this,SLOT(builtInScriptTriggered(QString)));
 
-	add_calculator_object(&PQueueController::getInstace());
+        add_calculator_object(&Workspace::getInstace());
 	mruToFileMenu();
 
         connect(&PJobRunnerPool::instance(), SIGNAL(found_new_pjob_runner(QHostAddress)), this, SLOT(found_new_pjob_runner(QHostAddress)));
@@ -172,7 +172,7 @@ void MainWindow::on_delParameterButton_clicked(){
 
 
 void MainWindow::pjobFile_changed(){
-        PQueueController::getInstace().setPJobFile(m_pjob_file);
+        Workspace::getInstace().setPJobFile(m_pjob_file);
 	ui.parametersWidget->clear();
 	QStringList l1;
 	l1 << "Parametername" << "Parametervalue";
@@ -205,21 +205,21 @@ void MainWindow::on_addJobButton_clicked(){
 		parameters[name]  = value;
 	}
 
-        PQueueController::getInstace().addJob(new Job(parameters));
+        Workspace::getInstace().addJob(new Job(parameters));
 }
 
 void MainWindow::on_jobUpButton_clicked(){
 	int selectedRow = ui.jobsWidget->selectionModel()->selectedRows().first().row();
 	QListWidgetItem* item = ui.jobsWidget->item(selectedRow);
 	Job* job = m_jobs[item];
-	PQueueController::getInstace().setQueuePosition(job,selectedRow-1);
+        Workspace::getInstace().setQueuePosition(job,selectedRow-1);
 }
 
 void MainWindow::on_jobDownButton_clicked(){
 	int selectedRow = ui.jobsWidget->selectionModel()->selectedRows().first().row();
 	QListWidgetItem* item = ui.jobsWidget->item(selectedRow);
 	Job* job = m_jobs[item];
-	PQueueController::getInstace().setQueuePosition(job,selectedRow+1);
+        Workspace::getInstace().setQueuePosition(job,selectedRow+1);
 }
 
 void MainWindow::on_jobDeleteButton_clicked(){
@@ -233,7 +233,7 @@ void MainWindow::on_jobDeleteButton_clicked(){
 	}
 	Job* job;
 	foreach(job,jobs){
-		PQueueController::getInstace().removeJob(job);
+                Workspace::getInstace().removeJob(job);
 		delete job;
 	}
 }
@@ -288,8 +288,8 @@ void MainWindow::jobMoved(Job* j, unsigned int position){
 }
 
 void MainWindow::updateButtons(){
-	ui.startButton->setEnabled(!PQueueController::getInstace().isRunning() && ui.jobsWidget->count());
-	ui.stopButton->setEnabled(PQueueController::getInstace().isRunning());
+        ui.startButton->setEnabled(!Workspace::getInstace().isRunning() && ui.jobsWidget->count());
+        ui.stopButton->setEnabled(Workspace::getInstace().isRunning());
 	ui.jobUpButton->setEnabled(false);
 	ui.jobDownButton->setEnabled(false);
 	ui.jobDeleteButton->setEnabled(false);
@@ -321,11 +321,11 @@ void MainWindow::jobStateChanged(Job* j, Job::State state){
 }
 
 void MainWindow::on_startButton_clicked(){
-        PQueueController::getInstace().start();
+        Workspace::getInstace().start();
 }
 
 void MainWindow::on_stopButton_clicked(){
-	PQueueController::getInstace().stop();
+        Workspace::getInstace().stop();
 }
 
 void MainWindow::started(){
@@ -382,7 +382,7 @@ void MainWindow::on_actionExport_To_CSV_triggered()
 	if(file == NULL) 
 		return;
 
-	PQueueController::getInstace().getResults().exportToCSV(file,PQueueController::getInstace().getResults().phoFiles());
+        Workspace::getInstace().getResults().exportToCSV(file,Workspace::getInstace().getResults().phoFiles());
 }
 
 void MainWindow::on_actionImport_From_CSV_triggered()
@@ -393,7 +393,7 @@ void MainWindow::on_actionImport_From_CSV_triggered()
 	if(file == NULL) 
 		return;
 
-	QHash< QString,QHash< QHash<QString,double>,QHash<QString,double> > > import = PQueueController::getInstace().getResults().importFromCSV(file);
+        QHash< QString,QHash< QHash<QString,double>,QHash<QString,double> > > import = Workspace::getInstace().getResults().importFromCSV(file);
 	foreach(QString job,import.keys())
 		emit Logger::getInstance().jobResults(import[job],job);
 }
@@ -406,7 +406,7 @@ void MainWindow::on_actionImport_From_PJob_triggered()
 	if(file == NULL) 
 		return;
 	
-	PQueueController::getInstace().import_results_from_pjobfile(file);
+        Workspace::getInstace().import_results_from_pjobfile(file);
 }
 
 void MainWindow::on_navigatorResultsTreeWidget_itemClicked(QTreeWidgetItem* item){
@@ -426,7 +426,7 @@ void MainWindow::visualizerSelectResult(QString pjob_file, QString result){
 
 
 void MainWindow::fillParametersBox(QString phoFile){
-	QSet<QString> set = PQueueController::getInstace().getResults().parametersFor(phoFile); 
+        QSet<QString> set = Workspace::getInstace().getResults().parametersFor(phoFile);
 	QList<QString> parameters = QList<QString>::fromSet(set);
 	qSort(parameters);
 
@@ -481,7 +481,7 @@ void MainWindow::fillParametersBox(QString phoFile){
 		ui.parametersBox->layout()->addWidget(frame);
 		m_parameterFrames.append(frame);
 
-		QList<double> values = PQueueController::getInstace().getResults().valuesFor(phoFile,parameter);
+                QList<double> values = Workspace::getInstace().getResults().valuesFor(phoFile,parameter);
 		slider->setValues(values);
 		++i;
 	}
@@ -489,7 +489,7 @@ void MainWindow::fillParametersBox(QString phoFile){
 	if(weHaveFormerValues){
 		m_x_axis_button_group.button(formerXAchsis)->setChecked(true);
 		m_y_axis_button_group.button(formerYAchsis)->setChecked(true);
-		QSet<QString> set = PQueueController::getInstace().getResults().parametersFor(phoFile); 
+                QSet<QString> set = Workspace::getInstace().getResults().parametersFor(phoFile);
 		QList<QString> parameters = QList<QString>::fromSet(set);
 		qSort(parameters);
 		int psize = parameters.size();
@@ -551,7 +551,7 @@ void MainWindow::showVisualization(){
 
 void MainWindow::showVisualization(QString pjob_file, QString result)
 {
-	QList<QString> parameters = QList<QString>::fromSet(PQueueController::getInstace().getResults().parametersFor(pjob_file));
+        QList<QString> parameters = QList<QString>::fromSet(Workspace::getInstace().getResults().parametersFor(pjob_file));
 	qSort(parameters);
 
 	QString xachsis = "";

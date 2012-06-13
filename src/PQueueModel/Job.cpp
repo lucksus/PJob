@@ -9,11 +9,11 @@
 #include <iostream>
 #include <limits>
 #include "Settings.h"
-//#include "PQueueController.h"
+//#include "Workspace.h"
 #include <iostream>
 #include <algorithm>
 #include "PJobFileRepository.h"
-#include "PQueueController.h"
+#include "Workspace.h"
 
 
 Job::Job(QHash<QString,QString> parameters)

@@ -1,4 +1,4 @@
-#include "PQueueController.h"
+#include "Workspace.h"
 #include <QtGui/QApplication>
 #include "MainWindow.h"
 //#include <Windows.h>
@@ -48,7 +48,7 @@ int main(int argc, char** argv){
 
 	if (vm.count("import-csv")) {
 		std::string filename = vm["import-csv"].as<std::string>();
-		PQueueController::getInstace().getResults().importFromCSV(filename.c_str());
+                Workspace::getInstace().getResults().importFromCSV(filename.c_str());
 	}
 
 	

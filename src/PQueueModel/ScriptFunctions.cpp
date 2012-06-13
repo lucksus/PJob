@@ -1,5 +1,5 @@
 #include "ScriptFunctions.h"
-#include "PQueueController.h"
+#include "Workspace.h"
 #include "Job.h"
 #include "InterpolationFunction.h"
 #include "LatinHypercubeDesign.h"

@@ -7,12 +7,12 @@
 
 using namespace std;
 class PJobRunnerSessionThread;
-class PQueueController : public QObject
+class Workspace : public QObject
 {
 Q_OBJECT
 
 public:
-	static PQueueController& getInstace(void);
+        static Workspace& getInstace(void);
 	Results& getResults();
 
         //! Moves top queued job from m_jobsQueued to m_jobsRunning and returns it
@@ -48,8 +48,8 @@ private slots:
         void session_finished();
 
 private:
-	PQueueController(void);
-	~PQueueController(void);
+        Workspace(void);
+        ~Workspace(void);
 
         QMutex m_mutex;
 

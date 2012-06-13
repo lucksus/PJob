@@ -1,7 +1,7 @@
 #include "ResultVisualization.h"
 #include <QtCore/QSet>
 #include <QtOpenGL/qgl.h>
-#include "PQueueController.h"
+#include "Workspace.h"
 
 ResultVisualization::ResultVisualization(QString phoFile, QString result, QHash<QString, double> parameters, QString xachsis, QString yachsis)
 :Drawable(phoFile,result,parameters,xachsis,yachsis)

@@ -5,7 +5,7 @@
 #include "Box.h"
 #include "ResultVisualization.h"
 #include "InterpolationFunctionVisualization.h"
-#include "PQueueController.h"
+#include "Workspace.h"
 #ifdef Q_OS_WIN
 #include <gl/glu.h>
 #endif

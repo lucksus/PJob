@@ -2,7 +2,7 @@
 #include "RandomGenerator.h"
 #include <QtCore/QSet>
 #include <QtCore/QHash>
-#include "PQueueController.h"
+#include "Workspace.h"
 
 SimulatedAnnealing::SimulatedAnnealing(InterpolationFunction* i)
 : m_interpolant(i), m_maxRuns(25), m_startTemp(5),  m_FAC(0.5f)
