@@ -16,8 +16,8 @@
 #include "Workspace.h"
 
 
-Job::Job(QHash<QString,QString> parameters)
-:m_parameters(parameters)
+Job::Job(QHash<QString,QString> parameters, Workspace* workspace)
+:m_workspace(workspace), m_parameters(parameters)
 {
 	QObject::moveToThread(Workspace::getInstace().thread());
 }
@@ -25,12 +25,18 @@ Job::Job(QHash<QString,QString> parameters)
 Job::~Job(){
 }
 
-PJobFile* Job::pjobFile(){
-	return m_pjobFile;
+Workspace* Job::workspace(){
+        return m_workspace;
 }
 
 QString Job::description(){
-	return m_pjobFile->pjobFile()+": ";
+    QString result;
+    QStringList list(m_parameters.keys());
+    list.sort();
+    foreach(QString key, list){
+        result += m_parameters[key] + " ";
+    }
+    return result;
 }
 
 QHash<QString,QString> Job::parameters(){
@@ -59,7 +65,7 @@ void Job::finished(){
 
 void Job::process_finished_run(QString runDirectory){
 	try{
-		m_pjobFile->checkIfRunIsProperlyFinished(runDirectory);
+                m_workspace->getPJobFile()->checkIfRunIsProperlyFinished(runDirectory);
 	}
 	catch (QString e){
 		emit problemReadingResults(this, e);
@@ -70,9 +76,9 @@ void Job::process_finished_run(QString runDirectory){
 	//Wenn wir bis hier kommen, ist PHOTOSS durchgelaufen und es liegen alle Resultdateien vor..
 
 	try{
-		QHash< QHash<QString,double>, QHash<QString,double> > r = m_pjobFile->getResultsForRun(runDirectory);
-		emit results(r, m_pjobFile->pjobFile());
-		emit results(this, r, m_pjobFile->pjobFile());
+                QHash< QHash<QString,double>, QHash<QString,double> > r = m_workspace->getPJobFile()->getResultsForRun(runDirectory);
+                emit results(r, m_workspace->getPJobFile()->pjobFile());
+                emit results(this, r, m_workspace->getPJobFile()->pjobFile());
 	}catch(QString s){
 		emit problemReadingResults(this, s);
 	}

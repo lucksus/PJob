@@ -1,9 +1,9 @@
 #pragma once
 #include <QtCore/QObject>
 #include <QtCore/QList>
-#include "Job.h"
 #include "Results.h"
 #include "PJobFile.h"
+#include "Job.h"
 
 using namespace std;
 class PJobRunnerSessionThread;

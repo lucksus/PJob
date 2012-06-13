@@ -7,6 +7,7 @@
 #include "UserInputMediator.h"
 #include <QtCore/QFileInfo>
 #include "PJobFileRepository.h"
+#include <assert.h>
 
 QScriptValue getSetScriptProgress(QScriptContext *ctx, QScriptEngine *eng){
 	QScriptValue result;
@@ -20,9 +21,11 @@ QScriptValue getSetScriptProgress(QScriptContext *ctx, QScriptEngine *eng){
 }
 
 QScriptValue PhotossJobConstructor(QScriptContext *context, QScriptEngine *engine){
+    assert(false);
         QStringHash arg1 = engine->fromScriptValue<QStringHash>(context->argument(0));
-        Job* pj = new Job(arg1);
-	return engine->newQObject(pj);
+        //Job* pj = new Job(arg1);
+        //return engine->newQObject(pj);
+        return QScriptValue();
 }
 
 QScriptValue InterpolationFunctionConstructor(QScriptContext *context, QScriptEngine *engine){

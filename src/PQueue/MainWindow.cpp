@@ -205,7 +205,7 @@ void MainWindow::on_addJobButton_clicked(){
 		parameters[name]  = value;
 	}
 
-        Workspace::getInstace().addJob(new Job(parameters));
+        Workspace::getInstace().addJob(new Job(parameters, &Workspace::getInstace()));
 }
 
 void MainWindow::on_jobUpButton_clicked(){

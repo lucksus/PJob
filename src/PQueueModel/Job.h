@@ -7,23 +7,19 @@
 #include <QtCore/QWaitCondition>
 #include <QtCore/QProcess>
 #include <fstream>
-#include "PJobFile.h"
 using namespace std;
 
-
+class Workspace;
 class Job : public QObject
 {
 Q_OBJECT
 friend class PJobRunnerSessionThread;
 public:
-        Job(QHash<QString,QString> parameters);
+        Job(QHash<QString,QString> parameters, Workspace*);
         ~Job();
 
-	 
-	PJobFile* pjobFile();
 	QString description();
 	QHash<QString,QString> parameters();
-
 
 	enum State{QUEUED, SUBMITED, RUNNING, FINISHED, FAILED};
 
@@ -32,6 +28,8 @@ public:
 	* until this job is finished.
 	*/
 	Q_INVOKABLE void waitUntilFinished();
+
+        Workspace* workspace();
 
 signals:
         void stateChanged(Job*, Job::State);
@@ -49,8 +47,7 @@ private slots:
         void err_out(QString);
 
 private:
-	
-	PJobFile* m_pjobFile;
+        Workspace* m_workspace;
 	QHash<QString, QString> m_parameters;
 	State m_state;
         QString m_std_out;

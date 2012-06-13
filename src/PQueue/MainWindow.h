@@ -13,6 +13,7 @@
 
 class NonEquidistantSlider;
 class PlotWidget;
+class PJobFile;
 class MainWindow : public MainWindowWithProgressPopups, public UserInputHandler{
 Q_OBJECT
 public:
