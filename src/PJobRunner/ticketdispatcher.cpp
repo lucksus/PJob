@@ -19,6 +19,7 @@ void TicketDispatcher::set_max_process_count(unsigned int count){
 }
 
 unsigned int TicketDispatcher::number_queue_entries_for_peer(QHostAddress address){
+    QMutexLocker l(&m_mutex);
     unsigned int count = 0;
     BOOST_FOREACH(Session* s, m_queue){
         if(s->peer() == address) count++;
@@ -30,6 +31,7 @@ unsigned int TicketDispatcher::number_queue_entries_for_peer(QHostAddress addres
 }
 
 bool TicketDispatcher::enqueue(Session* s){
+    QMutexLocker l(&m_mutex);
     BOOST_FOREACH(Session* it, m_queue){
         if(s == it) return false;
     }
@@ -53,10 +55,12 @@ void TicketDispatcher::dispatch(){
 }
 
 void TicketDispatcher::remove_session(Session* s){
+    QMutexLocker l(&m_mutex);
     m_queue.remove(s);
     m_active_sessions.erase(s);
 }
 
 unsigned int TicketDispatcher::running_processes(){
+    QMutexLocker l(&m_mutex);
     return m_active_sessions.size();
 }
