@@ -4,7 +4,7 @@
 InterpolationFunctionVisualization::InterpolationFunctionVisualization(QString phoFile, QString result, QHash<QString, double> parameters, QString xachsis, QString yachsis)
 : Drawable(phoFile,result,parameters,xachsis,yachsis)
 {
-	m_interpolant = PQueueController::getInstace().getResults().interpolation_function(phoFile,result);
+	m_interpolant = Workspace::getInstace().getResults().interpolation_function(phoFile,result);
 }
 
 InterpolationFunctionVisualization::~InterpolationFunctionVisualization(void)

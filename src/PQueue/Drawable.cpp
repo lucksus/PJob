@@ -12,8 +12,8 @@ void Drawable::draw(){
 	QSet< QHash<QString,double> > combinationsInPlane;
 
 	if(m_phoFile.size()){
-		combinationsInPlane = PQueueController::getInstace().getResults().combinationsInPlane(m_phoFile,m_xachsis,m_yachsis,m_parameters);
-		QSet< QHash<QString,double> > allCombinations = PQueueController::getInstace().getResults().parameterCombinationsFor(m_phoFile);
+		combinationsInPlane = Workspace::getInstace().getResults().combinationsInPlane(m_phoFile,m_xachsis,m_yachsis,m_parameters);
+		QSet< QHash<QString,double> > allCombinations = Workspace::getInstace().getResults().parameterCombinationsFor(m_phoFile);
 		m_minx = Results::minParameterValue(allCombinations,m_xachsis);
 		m_maxx = Results::maxParameterValue(allCombinations,m_xachsis);
 		m_miny = Results::minParameterValue(allCombinations,m_yachsis);
@@ -25,7 +25,7 @@ void Drawable::draw(){
 
 
 double Drawable::getValue(QHash<QString,double> parameterCombination){
-	return PQueueController::getInstace().getResults().getValue(m_phoFile,m_result,parameterCombination);
+	return Workspace::getInstace().getResults().getValue(m_phoFile,m_result,parameterCombination);
 }
 
 double Drawable::getGLHeight(QHash<QString,double> parameterCombination){

@@ -3,7 +3,7 @@
 #include "PQueueController.h"
 #include <memory>
 
-PJobRunnerSessionThread::PJobRunnerSessionThread(QHostAddress address, PQueueController* workspace)
+PJobRunnerSessionThread::PJobRunnerSessionThread(QHostAddress address, Workspace* workspace)
     : m_peer(address), m_workspace(workspace)
 {
 }

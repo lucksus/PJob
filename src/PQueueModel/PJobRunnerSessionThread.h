@@ -4,17 +4,17 @@
 #include <QtNetwork/QHostAddress>
 
 class PJobRunnerSessionWrapper;
-class PQueueController;
+class Workspace;
 class PJobRunnerSessionThread : public QThread
 {
 Q_OBJECT
 public:
-    PJobRunnerSessionThread(QHostAddress, PQueueController*);
+    PJobRunnerSessionThread(QHostAddress, Workspace*);
     virtual void run();
 
 private:
     QHostAddress m_peer;
-    PQueueController *m_workspace;
+    Workspace *m_workspace;
 };
 
 #endif // PJOBRUNNERSESSIONTHREAD_H

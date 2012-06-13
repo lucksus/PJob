@@ -76,9 +76,9 @@ QHash< QString, double > SimulatedAnnealing::generateTry(const QHash< QString, d
 	QHash< QString, double > result(oldPos);
 	QString parameter;
 	foreach(parameter, result.keys()){
-		QSet< QHash<QString,double> > combinations = PQueueController::getInstace().getResults().parameterCombinationsFor(m_interpolant->pjob_file());
-		double max = PQueueController::getInstace().getResults().maxParameterValue(combinations,parameter);
-		double min = PQueueController::getInstace().getResults().minParameterValue(combinations,parameter);
+		QSet< QHash<QString,double> > combinations = Workspace::getInstace().getResults().parameterCombinationsFor(m_interpolant->pjob_file());
+		double max = Workspace::getInstace().getResults().maxParameterValue(combinations,parameter);
+		double min = Workspace::getInstace().getResults().minParameterValue(combinations,parameter);
 		float stepSize = (max - min)/1000;
 		float step = static_cast<float>(PQueueMath::RandomGenerator::uniform(0.f,2.f*stepSize));
 		result[parameter] += step- stepSize;
@@ -89,10 +89,10 @@ QHash< QString, double > SimulatedAnnealing::generateTry(const QHash< QString, d
 QHash< QString, double > SimulatedAnnealing::generateStartPosition(){
 	QHash< QString, double > result;
 	QString parameter;
-	foreach(parameter, PQueueController::getInstace().getResults().parametersFor(m_interpolant->pjob_file())){
-		QSet< QHash<QString,double> > combinations = PQueueController::getInstace().getResults().parameterCombinationsFor(m_interpolant->pjob_file());
-		double max = PQueueController::getInstace().getResults().maxParameterValue(combinations,parameter);
-		double min = PQueueController::getInstace().getResults().minParameterValue(combinations,parameter);
+	foreach(parameter, Workspace::getInstace().getResults().parametersFor(m_interpolant->pjob_file())){
+		QSet< QHash<QString,double> > combinations = Workspace::getInstace().getResults().parameterCombinationsFor(m_interpolant->pjob_file());
+		double max = Workspace::getInstace().getResults().maxParameterValue(combinations,parameter);
+		double min = Workspace::getInstace().getResults().minParameterValue(combinations,parameter);
 		result[parameter] = static_cast<float>(PQueueMath::RandomGenerator::uniform(max, min)); 
 	}
 	return result;

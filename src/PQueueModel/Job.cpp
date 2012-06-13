@@ -19,7 +19,7 @@
 Job::Job(QHash<QString,QString> parameters)
 :m_parameters(parameters)
 {
-	QObject::moveToThread(PQueueController::getInstace().thread());
+	QObject::moveToThread(Workspace::getInstace().thread());
 }
 
 Job::~Job(){

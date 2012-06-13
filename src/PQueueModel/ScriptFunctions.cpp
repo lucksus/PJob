@@ -152,14 +152,14 @@ QScriptValue exportResults(QScriptContext *context, QScriptEngine *){
 	QString outputfile = context->argument(0).toString();
 	QString jobFile = context->argument(1).toString();
 	QStringList pjobFiles(jobFile);
-	PQueueController::getInstace().getResults().exportToCSV(outputfile,pjobFiles);
+	Workspace::getInstace().getResults().exportToCSV(outputfile,pjobFiles);
 	return QScriptValue();
 }
 
 void addFunctionsToEngine(QScriptEngine* engine){
 	engine->globalObject().setProperty("proxy",engine->newObject());
 
-	QScriptValue controller = engine->newQObject(&PQueueController::getInstace());
+	QScriptValue controller = engine->newQObject(&Workspace::getInstace());
 	engine->globalObject().setProperty("PQueue", controller);
 
 	QScriptValue scriptObject = engine->newObject();

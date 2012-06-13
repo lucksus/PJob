@@ -157,7 +157,7 @@ void Box::drawImplementation(QSet< QHash<QString,double> >,double,double,double,
 	gluProject(XMAX / 2, -25.f, ZMIN + 10.f, modelview, projection, viewport, &x1, &x2, &x3);
         m_parent->renderText(static_cast<int>(x1),static_cast<int>(h-x2),m_xachsis,font);
 
-	QList<double> xachsisValues = PQueueController::getInstace().getResults().valuesFor(m_phoFile, m_xachsis);
+	QList<double> xachsisValues = Workspace::getInstace().getResults().valuesFor(m_phoFile, m_xachsis);
 	if(!xachsisValues.isEmpty()){
 		qSort(xachsisValues);
 		double xmin = xachsisValues.first();
@@ -185,7 +185,7 @@ void Box::drawImplementation(QSet< QHash<QString,double> >,double,double,double,
 	glColor3f(0.f,0.f,0.f);
         m_parent->renderText(static_cast<int>(z1),static_cast<int>(h-z2),m_yachsis,font);
 
-	QList<double> yachsisValues = PQueueController::getInstace().getResults().valuesFor(m_phoFile, m_yachsis);
+	QList<double> yachsisValues = Workspace::getInstace().getResults().valuesFor(m_phoFile, m_yachsis);
 	if(!yachsisValues.isEmpty()){
 		qSort(yachsisValues);
 		double ymin = yachsisValues.first();

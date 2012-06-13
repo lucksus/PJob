@@ -120,8 +120,8 @@ void PlotWidget::show(QString phoFile, QString result, QHash<QString,double> par
 	m_box->setResultName(result);
 	m_box->setAchsisNames(xachsis, yachsis);
 	m_box->setPhoFile(phoFile);
-	double min = PQueueController::getInstace().getResults().getMinimumValue(phoFile,result,true);
-	double max = PQueueController::getInstace().getResults().getMaximumValue(phoFile,result,true);
+	double min = Workspace::getInstace().getResults().getMinimumValue(phoFile,result,true);
+	double max = Workspace::getInstace().getResults().getMaximumValue(phoFile,result,true);
 	m_box->setDimensions(min,max);
 	m_resultVisualization->setMinMax(min,max);
 	m_interpolantVisualization->setMinMax(min,max);

@@ -14,7 +14,7 @@ void ResultVisualization::drawImplementation(QSet< QHash<QString,double> > combi
 		QHash<QString,double> parameters = m_parameters;
 		parameters[m_xachsis] = c[m_xachsis];
 		parameters[m_yachsis] = c[m_yachsis];
-		double value = PQueueController::getInstace().getResults().getValue(m_phoFile, m_result, parameters);
+		double value = Workspace::getInstace().getResults().getValue(m_phoFile, m_result, parameters);
 		double color = (value-m_min)/(m_max-m_min);
 		if(m_max == m_min) color = 0.5;
 		double height = color*75;

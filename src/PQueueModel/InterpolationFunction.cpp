@@ -41,7 +41,7 @@ InterpolationFunction::InterpolationFunction(QString pjob_file, QString result)
 }
 
 void InterpolationFunction::buildParameterSorting(){
-	QSet< QHash<QString,double> > parameterCombinations = PQueueController::getInstace().getResults().parameterCombinationsFor(m_pjob_file);
+	QSet< QHash<QString,double> > parameterCombinations = Workspace::getInstace().getResults().parameterCombinationsFor(m_pjob_file);
 	QSet< QString > parameterNames;
 	QHash<QString,double> combination;
 	foreach(combination, parameterCombinations){
@@ -57,7 +57,7 @@ void InterpolationFunction::buildParameterSorting(){
 
 vector< vector<double> > InterpolationFunction::interpolationPoints(){
 	vector< vector<double> > result;
-	QSet< QHash<QString,double> > parameterCombinations = PQueueController::getInstace().getResults().parameterCombinationsFor(m_pjob_file);
+	QSet< QHash<QString,double> > parameterCombinations = Workspace::getInstace().getResults().parameterCombinationsFor(m_pjob_file);
 	QHash<QString,double> combination;
 	foreach(combination, parameterCombinations){
 		QString parameterName;
@@ -72,10 +72,10 @@ vector< vector<double> > InterpolationFunction::interpolationPoints(){
 
 vector<double> InterpolationFunction::interpolationValues(){
 	vector<double> result;
-	QSet< QHash<QString,double> > parameterCombinations = PQueueController::getInstace().getResults().parameterCombinationsFor(m_pjob_file);
+	QSet< QHash<QString,double> > parameterCombinations = Workspace::getInstace().getResults().parameterCombinationsFor(m_pjob_file);
 	QHash<QString,double> combination;
 	foreach(combination, parameterCombinations){
-		result.push_back(PQueueController::getInstace().getResults().getValue(m_pjob_file,m_result,combination));
+		result.push_back(Workspace::getInstace().getResults().getValue(m_pjob_file,m_result,combination));
 	}
 	return result;
 }
