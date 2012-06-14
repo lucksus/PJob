@@ -20,7 +20,8 @@ public slots:
 	void stopped();
 	void scriptPrint(QString text);
 
-	void error(QString text);
+        void error(const QString& text);
+        void debug(const QString& text);
 	
 signals:
 	void text(QString);

@@ -115,6 +115,10 @@ void Logger::scriptPrint(QString text){
 	log(QString("Script output: %1").arg(text));
 }
 
-void Logger::error(QString text){
-	log(text);
+void Logger::error(const QString& text){
+    log(QString("ERROR: %1").arg(text));
+}
+
+void Logger::debug(const QString& text){
+    log(QString("DEBUG: %1").arg(text));
 }
