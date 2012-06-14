@@ -29,15 +29,22 @@ public:
     int max_process_count();
     int process_count();
 
+    void set_debug(bool);
+
 signals:
     void job_std_out(QString);
     void job_error_out(QString);
+    void debug_out(QString);
 
 private:
     QTcpSocket m_socket;
     bool m_valid;
     QString m_platform, m_version, m_hostname;
     QHostAddress m_peer;
+    bool m_debug_mode;
+
+    void send(const QString&);
+    void received(const QString&);
 };
 
 #endif // PJOBRUNNERSESSIONWRAPPER_H

@@ -8,13 +8,14 @@ PJobRunnerSessionWrapper::PJobRunnerSessionWrapper(QHostAddress hostname, long t
     m_valid = false;
     m_socket.connectToHost(hostname, 23023);
     if(!m_socket.waitForConnected(timeout)) return;
-    m_socket.write("hello\n");
+    send("hello\n");
     if(!m_socket.waitForBytesWritten(10000)) return;
     if(!m_socket.waitForReadyRead(10000)) return;
     QString hello_string;
     do{
         hello_string.append(m_socket.readAll());
     }while(m_socket.waitForReadyRead(1000) && hello_string.size() < 1024);
+    received(hello_string);
 
     if(hello_string.isEmpty()) return;
 
@@ -29,7 +30,7 @@ PJobRunnerSessionWrapper::PJobRunnerSessionWrapper(QHostAddress hostname, long t
 
 PJobRunnerSessionWrapper::~PJobRunnerSessionWrapper(){
     if(m_socket.state() == QAbstractSocket::ConnectedState){
-        m_socket.write("exit()");
+        send("exit()");
         m_socket.waitForBytesWritten(100);
         m_socket.close();
         m_socket.waitForDisconnected(1000);
@@ -53,9 +54,10 @@ QString PJobRunnerSessionWrapper::hostname(){
 }
 
 bool PJobRunnerSessionWrapper::upload_pjobfile(const QByteArray& content){
-    m_socket.write("prepare_push_connection()\n");
+    send("prepare_push_connection()\n");
     if(!m_socket.waitForReadyRead(10000))return false;
     QString line = m_socket.readLine();
+    received(line);
     quint32 port = line.toInt();
 
     std::cout << "Opening data connection to port " << port << "... ";
@@ -85,10 +87,12 @@ bool PJobRunnerSessionWrapper::upload_pjobfile(const QByteArray& content){
 }
 
 bool PJobRunnerSessionWrapper::download_results(QByteArray& data){
-    m_socket.write("prepare_pull_connection_for_results()\n");
+    send("prepare_pull_connection_for_results()\n");
     if(!m_socket.waitForReadyRead(10000)) exit(0);
     QString line = m_socket.readLine();
+    received(line);
     QString all = m_socket.readAll();
+    received(all);
     quint32 port = line.toInt();
     std::cout << " from port " << port << "...";
     QTcpSocket pull_connection;
@@ -114,20 +118,23 @@ bool PJobRunnerSessionWrapper::set_parameter(const QString& name, const double& 
 }
 
 bool PJobRunnerSessionWrapper::run_job(){
-    m_socket.write("open_pjob_from_received_data()\n");
+    send("open_pjob_from_received_data()\n");
     if(!m_socket.waitForReadyRead(10000))exit(0);
-    m_socket.write("run_job()\n");
+    send("run_job()\n");
     bool ok=false;
     bool want_exit=false;
     while(!want_exit){
         if(!m_socket.waitForReadyRead(10)) continue;
         QString line = m_socket.readAll();
+        received(line);
         if(line.contains("Process exited normally.")){ ok = true; want_exit = true; }
         if(line.contains("Process crashed!")) want_exit = true;
         std::cout << line.toStdString() << std::endl;
     }
 
-    while(m_socket.waitForReadyRead(1000)) std::cout << QString(m_socket.readAll()).toStdString();
+    while(m_socket.waitForReadyRead(1000)){
+        received(m_socket.readAll());
+    }
     std::cout << std::endl;
 
     return ok;
@@ -142,9 +149,10 @@ QHostAddress PJobRunnerSessionWrapper::peer(){
 }
 
 bool PJobRunnerSessionWrapper::enqueue(){
-    m_socket.write("enqueue();\n");
+    send("enqueue();\n");
     if(!m_socket.waitForReadyRead(10000)) return false;
     QString line = m_socket.readAll();
+    received(line);
     if(line.contains("Successfully added to queue.")) return true;
     else return false;
 }
@@ -153,7 +161,9 @@ bool PJobRunnerSessionWrapper::wait_till_its_your_turn(){
     QString buffer;
     while(m_socket.isReadable()){
         if(m_socket.waitForReadyRead(5000)){
-            buffer.append(m_socket.readAll());
+            QByteArray read = m_socket.readAll();
+            buffer.append(read);
+            received(read);
             if(buffer.contains("It's your turn now! Go!")) return true;
         }
     }
@@ -161,21 +171,36 @@ bool PJobRunnerSessionWrapper::wait_till_its_your_turn(){
 }
 
 int PJobRunnerSessionWrapper::max_process_count(){
-    m_socket.write("max_process_count();\n");
+    send("max_process_count();\n");
     if(!m_socket.waitForReadyRead(10000)) throw QString("connection timeout");
     bool ok;
     QString line = m_socket.readAll();
+    received(line);
     int value = line.toInt(&ok);
     if(ok) return value;
     else throw QString("connection problem");
 }
 
 int PJobRunnerSessionWrapper::process_count(){
-    m_socket.write("process_count();\n");
+    send("process_count();\n");
     if(!m_socket.waitForReadyRead(10000)) throw QString("connection timeout");
     bool ok;
     QString line = m_socket.readAll();
+    received(line);
     int value = line.toInt(&ok);
     if(ok) return value;
     else throw QString("connection problem");
+}
+
+void PJobRunnerSessionWrapper::set_debug(bool b){
+    m_debug_mode = b;
+}
+
+void PJobRunnerSessionWrapper::send(const QString& data){
+    m_socket.write(data.toUtf8());
+    if(m_debug_mode) emit debug_out(QString("to %2 >>> %1").arg(data).arg(m_peer.toString()));
+}
+
+void PJobRunnerSessionWrapper::received(const QString& data){
+    if(m_debug_mode) emit debug_out(QString("from %2 <<< %1").arg(data).arg(m_peer.toString()));
 }
