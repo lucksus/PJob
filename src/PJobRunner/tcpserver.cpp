@@ -13,11 +13,13 @@ TcpServer& TcpServer::instance(){
 }
 
 void TcpServer::clean_threads(){
-    QList<int> to_delete;
+    QList<SessionThread*> to_delete;
     for(int i=0;i<m_threads.size();i++)
-        if(m_threads[i]->isFinished()) to_delete.append(i);
-    foreach(int index,to_delete)
-        delete m_threads.takeAt(index);
+        if(m_threads[i]->isFinished()) to_delete.append(m_threads[i]);
+    foreach(SessionThread* s,to_delete){
+        m_threads.removeOne(s);
+        delete s;
+    }
 }
 
 void TcpServer::run(){
