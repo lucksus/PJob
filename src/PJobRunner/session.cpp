@@ -269,38 +269,46 @@ void Session::run_job(){
     }
 
     process.start(executable, create_commandline_arguments_for_app(app));
-    process.waitForStarted(-1);
-    output("-------------------");
-    output("Process std output:");
-    output("-------------------");
-    do{
-        output(process.readAllStandardOutput());
-    }while(!process.waitForFinished(100));
+    if(process.waitForStarted(-1)){
+        output("-------------------");
+        output("Process std output:");
+        output("-------------------");
+        do{
+            output(process.readAllStandardOutput());
+        }while(!process.waitForFinished(100) && process.isOpen());
 
-    switch(process.exitStatus()){
-    case QProcess::NormalExit:
-        output("Process exited normally.");
-        m_pjob_file->import_run_directory(resources_directory);
-        output("Created files imported into run directory.");
-        break;
-    case QProcess::CrashExit:
-        output("Process crashed!");
-        switch(process.error()){
-        case QProcess::FailedToStart:
-            output("Process failed to start!");
+
+        switch(process.exitStatus()){
+        case QProcess::NormalExit:
+            output("Process exited normally.");
+            m_pjob_file->import_run_directory(resources_directory);
+            output("Created files imported into run directory.");
             break;
-        case QProcess::Crashed:
-            output("Process crashed some time after starting successfully!");
-            break;
-        default:
-            break;
+        case QProcess::CrashExit:
+            output("Process crashed!");
+            switch(process.error()){
+            case QProcess::FailedToStart:
+                output("Process failed to start!");
+                break;
+            case QProcess::Crashed:
+                output("Process crashed some time after starting successfully!");
+                break;
+            default:
+                break;
+            }
+            output("---------------------");
+            output("Process error output:");
+            output("---------------------");
+            output(process.readAllStandardError());
         }
-        output("---------------------");
-        output("Process error output:");
-        output("---------------------");
-        output(process.readAllStandardError());
+        m_pjob_file->save();
+    }else{
+        output("-----------------------------");
+        output("ERORR!");
+        output("Process could not be started!");
+        output("Problem within pjob file?");
+        output("-----------------------------");
     }
-    m_pjob_file->save();
     m_has_running_process = false;
     finish_turn();
 }
@@ -334,11 +342,10 @@ QStringList Session::run_directories(){
 }
 
 void Session::output(const QString& msg){
-    if(m_socket){
+    if(m_socket && m_socket->state() == QTcpSocket::ConnectedState){
         m_socket->write((msg + "\n").toAscii());
         m_socket->flush();
     }
-    else std::cout << msg.toStdString() << std::endl;
 }
 
 const QByteArray& Session::received_data(){
