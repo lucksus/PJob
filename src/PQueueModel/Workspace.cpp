@@ -197,12 +197,15 @@ void Workspace::session_finished(){
 
 void Workspace::populate_session_threads(){
     clear_session_threads();
+    unsigned int jobs = m_jobsQueued.size();
     foreach(QHostAddress host, PJobRunnerPool::instance().known_pjob_runners()){
         unsigned int thread_count = PJobRunnerPool::instance().thread_count(host);
         for(unsigned int i=0; i<thread_count; i++){
             PJobRunnerSessionThread* thread = new PJobRunnerSessionThread(host, this);
             connect(thread, SIGNAL(finished()), this, SLOT(session_finished()), Qt::QueuedConnection);
             m_session_threads.insert(thread);
+            jobs--;
+            if(jobs <= 0) return;
         }
     }
 }
