@@ -121,27 +121,32 @@ bool PJobRunnerSessionWrapper::run_job(){
     send("open_pjob_from_received_data()\n");
     if(!m_socket.waitForReadyRead(10000))exit(0);
     send("run_job()\n");
+    if(!m_socket.waitForReadyRead(10000)) return false;
+
+    while(m_socket.waitForReadyRead(1000) && m_socket.state() == QTcpSocket::ConnectedState){
+        QString line = m_socket.readAll();
+        received(line);
+        if(line.contains("Starting process:")) return true;
+        if(line.contains("Starting process:")) return true;
+        if(line.contains("Can't")) return false;
+    }
+    return false;
+}
+
+bool PJobRunnerSessionWrapper::wait_for_job_finished(){
     bool ok=false;
     bool want_exit=false;
-    while(!want_exit){
+    while(!want_exit && m_socket.state() == QTcpSocket::ConnectedState){
         if(!m_socket.waitForReadyRead(10)) continue;
         QString line = m_socket.readAll();
         received(line);
         if(line.contains("Process exited normally.")){ ok = true; want_exit = true; }
         if(line.contains("Process crashed!")) want_exit = true;
-        std::cout << line.toStdString() << std::endl;
     }
-
     while(m_socket.waitForReadyRead(1000)){
         received(m_socket.readAll());
     }
-    std::cout << std::endl;
-
     return ok;
-}
-
-bool PJobRunnerSessionWrapper::wait_for_job_finished(){
-    return false;
 }
 
 QHostAddress PJobRunnerSessionWrapper::peer(){
