@@ -242,21 +242,11 @@ void MainWindow::on_jobDeleteButton_clicked(){
 
 void MainWindow::jobCreated(Job* j, unsigned int){
 	QListWidgetItem* item = new QListWidgetItem(ui.jobsWidget);
-
-	QHash<QString,QString> parameters = j->parameters();
-	QString p;
-	QString label;
-	foreach(p,parameters.keys()){
-		label.append(p);
-		label.append("=");
-		label.append(parameters[p]);
-		label.append(" ");
-	}
-
-	item->setText(j->description() + " " + label);
+        item->setText(j->description());
 	item->setData(Qt::DecorationRole, QColor("silver"));
 	m_jobs[item] = j;
-	connect(j,SIGNAL(stateChanged(Job*,Job::State)),this,SLOT(jobStateChanged(Job*,Job::State)));
+        connect(j,SIGNAL(stateChanged(Job*,Job::State)),this,SLOT(jobStateChanged(Job*,Job::State)),Qt::QueuedConnection);
+        connect(j,SIGNAL(std_out(QString)),this,SLOT(jobOutput(QString)),Qt::QueuedConnection);
 }
 
 void MainWindow::jobRemoved(Job* job){
@@ -325,6 +315,14 @@ void MainWindow::jobStateChanged(Job* j, Job::State state){
 			item->setData(Qt::DecorationRole, QColor("red"));
 			break;
 	}
+}
+
+void MainWindow::jobOutput(QString s){
+    QObject *sender_object = sender();
+    Job* job = dynamic_cast<Job*>(sender_object);
+    if(!job) return;
+    QListWidgetItem* item = itemForJob(job);
+    item->setText(job->description() + ": " + s);
 }
 
 void MainWindow::on_startButton_clicked(){

@@ -74,6 +74,7 @@ private slots:
 	void jobRemoved(Job* j);
 	void jobMoved(Job* j, unsigned int position);
 	void jobStateChanged(Job* j, Job::State state);
+        void jobOutput(QString);
 	void started();
 	void stopped();
 	void newValue();
