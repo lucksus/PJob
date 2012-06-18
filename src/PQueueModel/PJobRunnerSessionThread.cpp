@@ -32,8 +32,8 @@ void PJobRunnerSessionThread::run(){
         double d = job->parameters()[parameter].toDouble(&ok);
         if(ok) session->set_parameter(parameter, d);
     }
-    connect(session.get(), SIGNAL(job_std_out(QString)), job, SLOT(err_out(QString)));
-    connect(session.get(), SIGNAL(job_error_out(QString)), job, SLOT(err_out(QString)));
+    connect(session.get(), SIGNAL(job_std_out(QString)), job, SLOT(got_std_out(QString)));
+    connect(session.get(), SIGNAL(job_error_out(QString)), job, SLOT(got_err_out(QString)));
     if(session->run_job()){
         job->started();
         if(!session->wait_for_job_finished())
@@ -48,8 +48,8 @@ void PJobRunnerSessionThread::run(){
             job->finished();
         }
     }else job->failed();
-    disconnect(session.get(), SIGNAL(job_std_out(QString)), job, SLOT(err_out(QString)));
-    disconnect(session.get(), SIGNAL(job_error_out(QString)), job, SLOT(err_out(QString)));
+    disconnect(session.get(), SIGNAL(job_std_out(QString)), job, SLOT(got_std_out(QString)));
+    disconnect(session.get(), SIGNAL(job_error_out(QString)), job, SLOT(got_err_out(QString)));
 }
 
 bool PJobRunnerSessionThread::is_enqueued(){

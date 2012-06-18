@@ -29,13 +29,16 @@ public:
 	*/
 	Q_INVOKABLE void waitUntilFinished();
 
-        Workspace* workspace();
+        Workspace* workspace() const;
+        QString std_out() const;
 
 signals:
         void stateChanged(Job*, Job::State);
 	void results(QHash< QHash<QString,double>, QHash<QString,double> > values, QString phoFile);
         void results(Job* job, QHash< QHash<QString,double>, QHash<QString,double> > values, QString phoFile);
         void problemReadingResults(Job*, QString);
+        void std_out(QString);
+        void err_out(QString);
 
 private slots:
 	void submited();
@@ -43,8 +46,8 @@ private slots:
 	void failed();
 	void finished();
 	void process_finished_run(QString runDirectory);
-        void std_out(QString);
-        void err_out(QString);
+        void got_std_out(QString);
+        void got_err_out(QString);
 
 private:
         Workspace* m_workspace;

@@ -141,6 +141,7 @@ bool PJobRunnerSessionWrapper::wait_for_job_finished(){
         if(!m_socket.waitForReadyRead(10)) continue;
         QString line = m_socket.readAll();
         received(line);
+        emit job_std_out(line);
         if(line.contains("Process exited normally.")){ ok = true; want_exit = true; }
         if(line.contains("Process crashed!")) want_exit = true;
     }

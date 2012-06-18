@@ -43,8 +43,10 @@ HEADERS += MainWindow.h \
 	ResultVisualization.h \
 	ScriptedUserInputDialog.h \
 	InterpolationFunctionVisualization.h \
-	ResultModel.h
-FORMS += MainWindow.ui SettingsDialog.ui
+	ResultModel.h \
+    JobOutputWidget.h
+FORMS += MainWindow.ui SettingsDialog.ui \
+    JobOutputWidget.ui
 SOURCES += main.cpp \
 	MainWindow.cpp \
 	SettingsDialog.cpp \
@@ -55,7 +57,8 @@ SOURCES += main.cpp \
 	ScriptedUserInputDialog.cpp \
 	Drawable.cpp \
 	InterpolationFunctionVisualization.cpp \
-	ResultModel.cpp
+	ResultModel.cpp \
+    JobOutputWidget.cpp
 RESOURCES += MainWindow.qrc \
     Resources/images.qrc
 RC_FILE = windows.rc

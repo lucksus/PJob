@@ -12,7 +12,6 @@
 //#include "Workspace.h"
 #include <iostream>
 #include <algorithm>
-#include "PJobFileRepository.h"
 #include "Workspace.h"
 
 
@@ -25,7 +24,7 @@ Job::Job(QHash<QString,QString> parameters, Workspace* workspace)
 Job::~Job(){
 }
 
-Workspace* Job::workspace(){
+Workspace* Job::workspace() const{
         return m_workspace;
 }
 
@@ -99,12 +98,18 @@ void Job::waitUntilFinished(){
 }
 
 
-void Job::std_out(QString s){
-    m_std_out.append("\n");
+void Job::got_std_out(QString s){
+    //m_std_out.append("\n");
     m_std_out.append(s);
+    emit std_out(s);
 }
 
-void Job::err_out(QString s){
-    m_err_out.append("\n");
+void Job::got_err_out(QString s){
+    //m_err_out.append("\n");
     m_err_out.append(s);
+    emit err_out(s);
+}
+
+QString Job::std_out() const{
+    return m_std_out;
 }

@@ -14,6 +14,7 @@
 class NonEquidistantSlider;
 class PlotWidget;
 class PJobFile;
+class JobOutputWidget;
 class MainWindow : public MainWindowWithProgressPopups, public UserInputHandler{
 Q_OBJECT
 public:
@@ -67,6 +68,7 @@ private slots:
 	void on_actionLoad_script_from_file_triggered();
 	void on_runScriptButton_clicked();
 	void on_stopScriptButton_clicked();
+        void on_jobsWidget_itemDoubleClicked(QListWidgetItem*);
 
 	void jobCreated(Job* j, unsigned int position);
 	void jobRemoved(Job* j);
@@ -123,4 +125,6 @@ private:
 	QStringList mostRecentlyUsedPJOBFiles();
 	void mostRecentlyUsedPJOBFilesAdd(QString pjobFilePath);
 	void mruToFileMenu();
+
+        QList<JobOutputWidget*> m_job_output_widgets;
 };

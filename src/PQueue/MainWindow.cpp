@@ -15,6 +15,7 @@
 #include <QSplashScreen>
 #include <QtNetwork/QHostInfo>
 #include "pjobrunnerpool.h"
+#include "JobOutputWidget.h"
 
 MainWindow::MainWindow(void)
     : m_pjob_file(0)
@@ -267,6 +268,12 @@ void MainWindow::jobRemoved(Job* job){
 			delete item;
 		}
 	}
+        JobOutputWidget* widget;
+        foreach(JobOutputWidget* w, m_job_output_widgets){
+            if(w->job() == job) widget = w;
+        }
+        m_job_output_widgets.removeOne(widget);
+        delete widget;
 }
 
 QListWidgetItem* MainWindow::itemForJob(Job* j){
@@ -768,4 +775,17 @@ void MainWindow::probing_host(QHostAddress host){
 
 void MainWindow::pjob_runner_search_finished(){
     ui.poolStatusLabel->setText(QString("Search finished."));
+}
+
+void MainWindow::on_jobsWidget_itemDoubleClicked(QListWidgetItem* item){
+    Job* job = m_jobs[item];
+    foreach(JobOutputWidget* w, m_job_output_widgets){
+        if(w->job() == job){
+            w->show();
+            return;
+        }
+    }
+    JobOutputWidget *w = new JobOutputWidget(job,0);
+    m_job_output_widgets.append(w);
+    w->show();
 }
