@@ -73,5 +73,6 @@ private:
         QSet<PJobRunnerSessionThread*> m_session_threads;
         void populate_session_threads();
         void clear_session_threads();
+        unsigned int number_of_enqueued_sessions();
 };
 

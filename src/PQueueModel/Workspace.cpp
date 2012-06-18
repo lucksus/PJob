@@ -190,6 +190,7 @@ Job* Workspace::startNextQueuedJob(){
 
 void Workspace::session_finished(){
     if(!m_running) return;
+    if(m_jobsQueued.size()<=0) return;
     QObject* object = sender();
     PJobRunnerSessionThread* thread = dynamic_cast<PJobRunnerSessionThread*>(object);
     if(!thread) return;
@@ -217,4 +218,12 @@ void Workspace::clear_session_threads(){
         m_session_threads.remove(thread);
         delete thread;
     }
+}
+
+unsigned int Workspace::number_of_enqueued_sessions(){
+    unsigned int count = 0;
+    foreach(PJobRunnerSessionThread* thread, m_session_threads){
+        if(thread->is_enqueued()) count++;
+    }
+    return count;
 }

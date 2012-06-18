@@ -7,14 +7,18 @@
 PJobRunnerSessionThread::PJobRunnerSessionThread(QHostAddress address, Workspace* workspace)
     : m_peer(address), m_workspace(workspace)
 {
+    m_enqueued = false;
 }
 
 void PJobRunnerSessionThread::run(){
+    m_enqueued = false;
     std::auto_ptr<PJobRunnerSessionWrapper> session(new PJobRunnerSessionWrapper(m_peer));
     session->set_debug(true);
     connect(session.get(), SIGNAL(debug_out(QString)), &Logger::getInstance(), SLOT(debug(QString)));
     session->enqueue();
+    m_enqueued = true;
     session->wait_till_its_your_turn();
+    m_enqueued = false;
     Job* job = m_workspace->startNextQueuedJob();
     if(!job) return;
     job->submited();
@@ -48,3 +52,6 @@ void PJobRunnerSessionThread::run(){
     disconnect(session.get(), SIGNAL(job_error_out(QString)), job, SLOT(err_out(QString)));
 }
 
+bool PJobRunnerSessionThread::is_enqueued(){
+    return m_enqueued;
+}
