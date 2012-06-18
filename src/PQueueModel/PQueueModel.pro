@@ -19,7 +19,6 @@ HEADERS +=  \
 	Scripter.h \
 	ScriptFunctions.h \
 	SimulatedAnnealing.h \
-	Tokenizer.h \
 	EngineThread.h \
 	UserInputMediator.h \
 	ResultLoaderAndSaver.h \
@@ -38,7 +37,6 @@ SOURCES += \
 	Scripter.cpp \
 	ScriptFunctions.cpp \
 	SimulatedAnnealing.cpp \
-	Tokenizer.cpp \
 	UserInputMediator.cpp \
 	ResultLoaderAndSaver.cpp \
 	RandomGenerator.cpp \
