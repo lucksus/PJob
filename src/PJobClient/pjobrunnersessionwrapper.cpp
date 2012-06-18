@@ -62,11 +62,10 @@ bool PJobRunnerSessionWrapper::upload_pjobfile(const QByteArray& content){
     quint32 port = line.toInt(&ok);
     if(! ok) return false;
 
-    std::cout << "Opening data connection to port " << port << "... ";
+    emit debug_out(QString("Opening data connection to port %1... ").arg(port));
     QTcpSocket push_connection;
     push_connection.connectToHost(m_socket.peerAddress(), port);
     if(!push_connection.waitForConnected(10000))return false;
-    std::cout << " done!" << std::endl;
 
     qint64 bytes_send = 0;
     qint64 all_bytes = content.size();
@@ -79,12 +78,10 @@ bool PJobRunnerSessionWrapper::upload_pjobfile(const QByteArray& content){
         bytes_send += bytes_written;
         push_connection.flush();
         push_connection.waitForBytesWritten();
-        std::cout << "\r" << bytes_send * 100 / all_bytes << "% done...              ";
     }
-    std::cout << std::endl;
     push_connection.close();
     push_connection.waitForDisconnected(10000);
-    std::cout << content.size() << " bytes uploaded!" << std::endl;
+    emit debug_out(QString("%1 bytes uploaded!").arg(content.size()));
     return true;
 }
 
@@ -98,7 +95,7 @@ bool PJobRunnerSessionWrapper::download_results(QByteArray& data){
     bool ok;
     quint32 port = line.toInt(&ok);
     if(! ok) return false;
-    std::cout << " from port " << port << "...";
+    emit debug_out(QString("Pulling from port %1...").arg(port));
     QTcpSocket pull_connection;
     pull_connection.connectToHost(m_socket.peerAddress(), port);
     if(!pull_connection.waitForConnected(10000)) exit(0);
