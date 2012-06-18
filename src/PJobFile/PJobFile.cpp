@@ -637,7 +637,8 @@ void PJobFile::add_raw_files(const QByteArray& data){
 }
 
 QString PJobFile::name_of_first_run_in_raw_bytes(const QByteArray& raw){
-    const PJobFileFormat format(raw);
+    PJobFileFormat format;
+    format.appendRaw(raw);
     foreach(QString file, format.content()){
         if(!file.startsWith("Runs/")) continue;
         QStringList list = file.split("/");
