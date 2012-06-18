@@ -19,6 +19,7 @@ Workspace::Workspace(void)
 	connect(&m_results, SIGNAL(newValueSet(QString , QString , QHash<QString,double> , double )),
 		&Logger::getInstance(), SLOT(newValueSet(QString , QString , QHash<QString,double> , double )));
 	Scripter::getInstance();
+        qRegisterMetaType<Job::State>("Job::State");
 }
 
 Workspace::~Workspace(void)
@@ -46,13 +47,13 @@ PJobFile* Workspace::getPJobFile(){
 
 void Workspace::addJob(Job* j){
 	m_jobsQueued.push_back(j);
-        connect(j, SIGNAL(stateChanged(Job*, Job::State)), this, SLOT(jobStateChanged(Job*, Job::State)));
-        connect(j, SIGNAL(stateChanged(Job*, Job::State)), &Logger::getInstance(), SLOT(jobStateChanged(Job*, Job::State)));
+        connect(j, SIGNAL(stateChanged(Job*, Job::State)), this, SLOT(jobStateChanged(Job*, Job::State)), Qt::QueuedConnection);
+        connect(j, SIGNAL(stateChanged(Job*, Job::State)), &Logger::getInstance(), SLOT(jobStateChanged(Job*, Job::State)), Qt::QueuedConnection);
 	connect(j, SIGNAL(results(QHash< QHash<QString,double>, QHash<QString,double> > , QString )),
-		&m_results, SLOT(newValues(QHash< QHash<QString,double>, QHash<QString,double> > , QString )));
+                &m_results, SLOT(newValues(QHash< QHash<QString,double>, QHash<QString,double> > , QString )), Qt::QueuedConnection);
 	connect(j, SIGNAL(results(QHash< QHash<QString,double>, QHash<QString,double> > , QString )),
-		&Logger::getInstance(), SLOT(jobResults(QHash< QHash<QString,double>, QHash<QString,double> > , QString )));
-        connect(j, SIGNAL(problemReadingResults(Job*,QString)), &Logger::getInstance(), SLOT(jobHasProblemsReadingResult(Job*,QString)));
+                &Logger::getInstance(), SLOT(jobResults(QHash< QHash<QString,double>, QHash<QString,double> > , QString )), Qt::QueuedConnection);
+        connect(j, SIGNAL(problemReadingResults(Job*,QString)), &Logger::getInstance(), SLOT(jobHasProblemsReadingResult(Job*,QString)), Qt::QueuedConnection);
 	emit jobAdded(j, m_jobsQueued.indexOf(j));
 }
 
