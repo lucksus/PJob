@@ -621,13 +621,15 @@ QByteArray* PJobFile::get_result_files_raw(){
 }
 
 QByteArray* PJobFile::raw_without_results(){
-    QByteArray* result = new QByteArray;
+    PJobFileFormat new_file;
     foreach(QString s, m_data->content())
     {
             if(!s.startsWith("Runs/"))
-                    result->append(m_data->readRaw(s));
+                    new_file.appendRaw(m_data->readRaw(s));
     }
-    return result;
+    QByteArray *arr = new QByteArray;
+    arr->append(new_file.raw());
+    return arr;
 }
 
 void PJobFile::add_raw_files(const QByteArray& data){

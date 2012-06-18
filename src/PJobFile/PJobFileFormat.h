@@ -45,6 +45,9 @@ public:
           */
         PJobFileFormat(const QByteArray& data);
 
+        //! Erstellt eine leere PJobDatei.
+        PJobFileFormat();
+
         //! Destruktor verwirft alle veränderten Daten, wenn nicht voher flush() aufgerufen wurde.
         ~PJobFileFormat();
 
@@ -119,6 +122,8 @@ public:
 
         //!Gibt die aktuelle Version zurück
         static int version();
+
+        const QByteArray& raw() const;
 
 signals:
     void output(QString fileName);

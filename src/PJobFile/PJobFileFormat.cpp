@@ -4,6 +4,11 @@
 #include <QtCore/QVariant>
 #include <QtCore/QDateTime>
 
+PJobFileFormat::PJobFileFormat(){
+    m_version = c_version;
+    createNewFile();
+}
+
 PJobFileFormat::PJobFileFormat(QString path):QFile(path)
 //lädt eine .pjob-Datei oder erstellt eine leere .pjob-Datei (inklusive Header) falls diese noch nicht existiert
 {
@@ -440,9 +445,10 @@ void PJobFileFormat::extract(QString targetAbsolutePath, QString sourceRelativeP
     while(iterator.hasNext())
     {
         iterator.next();
+        QString filename = iterator.key();
 		
         //Wenn aktuelle Datei mit dem zu entpackenden Pfad beginnt oder alle Dateien entpackt werden sollen
-        if(iterator.key().indexOf(sourceRelativePath)==0 || sourceRelativePath==0)
+        if(filename.startsWith(sourceRelativePath) || sourceRelativePath==0)
         {
           //ggf. Verzeichnis erstellen
 			
@@ -573,7 +579,7 @@ bool PJobFileFormat::isValid()
 	if(!m_data.startsWith("PJobFile\n"))
         return false;
 	
-	//nicht unterstützte Version
+        //nicht unterstützte Versio    QFile file(fileName);n
 	if(!(readInt32(m_data,9)<=m_version))
 		return false;
 
@@ -768,4 +774,8 @@ quint32 PJobFileFormat::power(const int base, int exponent)
     while((exponent--)>0)
         result*=base;
     return result;
+}
+
+const QByteArray& PJobFileFormat::raw() const{
+    return m_data;
 }
