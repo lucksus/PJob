@@ -58,7 +58,9 @@ bool PJobRunnerSessionWrapper::upload_pjobfile(const QByteArray& content){
     if(!m_socket.waitForReadyRead(10000))return false;
     QString line = m_socket.readLine();
     received(line);
-    quint32 port = line.toInt();
+    bool ok;
+    quint32 port = line.toInt(&ok);
+    if(! ok) return false;
 
     std::cout << "Opening data connection to port " << port << "... ";
     QTcpSocket push_connection;
@@ -93,7 +95,9 @@ bool PJobRunnerSessionWrapper::download_results(QByteArray& data){
     received(line);
     QString all = m_socket.readAll();
     received(all);
-    quint32 port = line.toInt();
+    bool ok;
+    quint32 port = line.toInt(&ok);
+    if(! ok) return false;
     std::cout << " from port " << port << "...";
     QTcpSocket pull_connection;
     pull_connection.connectToHost(m_socket.peerAddress(), port);
