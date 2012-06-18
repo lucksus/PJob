@@ -34,6 +34,7 @@ void PJobFileEditor::open(QString pjobFile){
 	ui.actionSave->setEnabled(true);
 	ui.actionClose->setEnabled(true);
 	ui.actionDelete_runs->setEnabled(true);
+        ui.actionSave_without_runs->setEnabled(true);
 	QFileInfo fileInfo(pjobFile);
         setWindowTitle(fileInfo.fileName()+"[*] - PJOB Editor");
 	addFileToRecentlyUsed(pjobFile);
@@ -67,6 +68,7 @@ void PJobFileEditor::close(){
 	ui.actionSave->setEnabled(false);
 	ui.actionClose->setEnabled(false);
 	ui.actionDelete_runs->setEnabled(false);
+        ui.actionSave_without_runs->setEnabled(false);
 	setWindowTitle("PJOB Editor");
 	m_unsavedChanges = false;
 	remove_calculator_object(m_pjobFile);
@@ -197,4 +199,20 @@ void PJobFileEditor::on_actionDelete_runs_triggered(){
 	if(QMessageBox::Yes == QMessageBox::question(this, "PJobEditor: delete runs?", "Really delete all run directories?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No))
 		m_pjobFile->remove_all_runs();
 	m_pjobFileWidget->refresh();
+}
+
+void PJobFileEditor::on_actionSave_without_runs_triggered(){
+    QString fileName = QFileDialog::getSaveFileName(this,
+            tr("Select destination for PJOB file without runs"), "", tr("PJOB Files (*.pjob)"));
+    if(fileName=="") return;
+    QFile file(fileName);
+    if(file.exists() && !file.remove()){
+        QMessageBox::critical(this, "PJOB Editor", "Could not delete file "+fileName+"!",QMessageBox::Ok);
+        return;
+    }
+    file.open(QIODevice::WriteOnly);
+    QByteArray *arr = m_pjobFile->raw_without_results();
+    file.write(*arr);
+    delete arr;
+    file.close();
 }

@@ -20,6 +20,7 @@ private slots:
 	void on_actionSave_triggered();
 	void on_actionClose_triggered();
 	void on_actionDelete_runs_triggered();
+        void on_actionSave_without_runs_triggered();
 
 	void pjobTempChanged();
 
