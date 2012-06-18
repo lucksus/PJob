@@ -10,7 +10,6 @@ include(../src.pri)
 
 # Input
 HEADERS +=  \
-	PJobFileRepository.h \
 	Results.h \
 	Settings.h \
 	LatinHypercubeDesign.h \
@@ -28,7 +27,6 @@ HEADERS +=  \
     PJobRunnerSessionThread.h \
     Workspace.h
 SOURCES += \
-	PJobFileRepository.cpp \
 	Results.cpp \
 	Settings.cpp \
 	LatinHypercubeDesign.cpp \

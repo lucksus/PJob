@@ -124,16 +124,14 @@ QScriptValue userInput(QScriptContext *context, QScriptEngine *engine){
 }
 
 QScriptValue readParametersFromPJOBFile(QScriptContext *context, QScriptEngine *engine){
-	QString pjobFile = context->argument(0).toString();
 	QList<PJobFileParameterDefinition> params ;
 	try{
-		PJobFile* pjob = PJobFileRepository::getInstance().forFile(pjobFile);
+                PJobFile* pjob = Workspace::getInstace().getPJobFile();
 		params = pjob->parameterDefinitions();
 	}catch(PJobFileError e){
 		context->throwError(e.msg());
 		return QScriptValue();
 	}
-	PJobFileRepository::getInstance().decreaseCounter(pjobFile);
 	QScriptValue result = engine->newObject();
 	PJobFileParameterDefinition param;
 	foreach(param,params){
