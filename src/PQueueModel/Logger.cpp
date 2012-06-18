@@ -32,7 +32,7 @@ void Logger::jobStateChanged(Job* job, Job::State state){
 }
 
 void Logger::jobResults(QHash< QHash<QString,double>, QHash<QString,double> > values, QString phoFile){
-	log(QString("GOT RESULTS: from PHO-File: %1").arg(phoFile));
+        log(QString("GOT RESULTS: File: %1").arg(phoFile));
 	QHash<QString,double> parameters;
 	foreach(parameters, values.keys()){
 		QString parameter;
