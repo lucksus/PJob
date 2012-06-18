@@ -11,7 +11,7 @@
 #include <limits>
 
 //***************Unser CSV-Format***************//
-//Unsere Dateien beginnen mit einem HEADER der Länge n+1, 
+//Unsere Dateien beginnen mit einem HEADER der LÃ¤nge n+1, 
 //wobei n gleich der Anzahl an verschiedenen .pjob-Dateien entspricht
 //Im Anschluss werden die Jeweiligen Parametervariationen der Dateien eingetragen.
 //
@@ -19,17 +19,17 @@
 //
 //Wenn die Results zweier oder mehrerer unterschiedlicher .pjob-Dateien den gleichen Namen haben,
 //werden sie in einer einzigen Zeile zusammengefasst. Das hat den Vorteil, dass man beispielsweise
-//ähnliche Simulationen leichter miteinander vergleichen kann!
+//Ã¤hnliche Simulationen leichter miteinander vergleichen kann!
 //
-//Die Trennzeichen jeweiligen für Zeilen und Spalten sind dabei dynamisch zuweisbar!
+//Die Trennzeichen jeweiligen fÃ¼r Zeilen und Spalten sind dabei dynamisch zuweisbar!
 //Diese lassen sich mittels der Variablen m_seperators definieren.
-//Standardmäßig verwenden wir Tabluator (hier durch <=> gekennzeichnet)
-//für Spalten- und Zeilenumbruch "\n" für Zeilenwechsel
+//StandardmÃ¤ÃŸig verwenden wir Tabluator (hier durch <=> gekennzeichnet)
+//fÃ¼r Spalten- und Zeilenumbruch "\n" fÃ¼r Zeilenwechsel
 //
 //Man beachte die Trennung von Parametern und Results durch ZWEI Tabulatoren in den ersten n Zeilen
 //(NICHT in Zeile n+1 !!!)
 //
-//Leerzeichen und Tabulatoren zu Beginn der Zeilen wurden hier nur der Lesbarkeit halber hinzugefügt!
+//Leerzeichen und Tabulatoren zu Beginn der Zeilen wurden hier nur der Lesbarkeit halber hinzugefÃ¼gt!
 
 //		%C:/datei_1.pjob <=> param_d1_1 <=> param_d1_2<=> <=> result_d1_1 <=> result_d1_2
 //		%C:/datei_i.pjob <=> param_di_1 <=> <=> result_di_1 <=> result_di_2 <=> result_di_3
@@ -41,7 +41,7 @@
 //		...usw...
 //		...usw...
 
-//Das Ende der Datei enthält keine Leerzeile!
+//Das Ende der Datei enthÃ¤lt keine Leerzeile!
 //**********************************************//
 class ResultLoaderAndSaver
 {
