@@ -6,7 +6,6 @@
 #include "Scripter.h"
 #include "UserInputMediator.h"
 #include <QtCore/QFileInfo>
-#include "PJobFileRepository.h"
 #include <assert.h>
 
 QScriptValue getSetScriptProgress(QScriptContext *ctx, QScriptEngine *eng){
