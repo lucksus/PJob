@@ -227,3 +227,7 @@ unsigned int Workspace::number_of_enqueued_sessions(){
     }
     return count;
 }
+
+void Workspace::save_pjobfile(){
+    m_pjob_file->save();
+}

@@ -29,8 +29,8 @@ public slots:
 	void stop();
 	bool isRunning();
 	void import_results_from_pjobfile(QString file);
-
 	void abort_progress(const QString& what);
+        void save_pjobfile();
 
 
 signals:

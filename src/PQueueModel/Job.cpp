@@ -71,8 +71,8 @@ void Job::process_finished_run(QString runDirectory){
 		failed();
 		return;
 	}
-	
-	//Wenn wir bis hier kommen, ist PHOTOSS durchgelaufen und es liegen alle Resultdateien vor..
+
+        if(Settings::getInstance().autoSaveToPjob()) m_workspace->save_pjobfile();
 
 	try{
                 QHash< QHash<QString,double>, QHash<QString,double> > r = m_workspace->getPJobFile()->getResultsForRun(runDirectory);

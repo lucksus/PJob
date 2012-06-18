@@ -16,6 +16,7 @@
 #include <QtNetwork/QHostInfo>
 #include "pjobrunnerpool.h"
 #include "JobOutputWidget.h"
+#include <QRadioButton>
 
 MainWindow::MainWindow(void)
     : m_pjob_file(0)
