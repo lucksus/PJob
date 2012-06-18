@@ -59,6 +59,7 @@ private slots:
 	void on_jobDeleteButton_clicked();
 	void on_startButton_clicked();
 	void on_stopButton_clicked();
+        void on_actionOpen_triggered();
 	void on_actionEdit_triggered();
 	void on_actionExport_To_CSV_triggered();
 	void on_actionImport_From_CSV_triggered();

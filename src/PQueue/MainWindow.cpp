@@ -115,6 +115,12 @@ MainWindow::MainWindow(void)
         PJobRunnerPool::instance().start_search_local_network();
 }
 
+void MainWindow::on_actionOpen_triggered(){
+    QString filename = QFileDialog::getOpenFileName(this, "Open PJOB file", "", "PJOB files (*.pjob)");
+    if(filename.isEmpty()) return;
+    open_pjob_file(filename);
+}
+
 void MainWindow::open_pjob_file(QString filename){
     if(m_pjob_file) delete m_pjob_file;
     m_pjob_file = new PJobFile(filename);
