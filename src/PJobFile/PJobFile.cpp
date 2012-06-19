@@ -553,7 +553,7 @@ void PJobFile::checkIfRunIsProperlyFinished(QString run){
 	if(m_data->content().contains(run+"/backup_log.txt"))
 		throw QString(m_data->readFile(run+"/backup_log.txt"));
 	foreach(PJobResultFile file, readResultDefinitions()){
-		if( ! m_data->content().contains(run+"/"+file.filename()))
+                if( ! m_data->content().contains("Runs/"+run+"/"+file.filename()))
 			throw QString("Result file "+file.filename()+" is missing!");
 	}
 }
