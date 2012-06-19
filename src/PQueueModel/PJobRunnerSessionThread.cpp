@@ -21,6 +21,7 @@ void PJobRunnerSessionThread::run(){
     m_enqueued = false;
     Job* job = m_workspace->startNextQueuedJob();
     if(!job) return;
+    connect(session.get(), SIGNAL(debug_out(QString)), job, SLOT(got_connection_debug(QString)));
     job->submited();
     PJobFile* pjob_file = m_workspace->getPJobFile();
     if(!pjob_file) return;
@@ -50,6 +51,7 @@ void PJobRunnerSessionThread::run(){
     }else job->failed();
     disconnect(session.get(), SIGNAL(job_std_out(QString)), job, SLOT(got_std_out(QString)));
     disconnect(session.get(), SIGNAL(job_error_out(QString)), job, SLOT(got_err_out(QString)));
+    disconnect(session.get(), SIGNAL(debug_out(QString)), job, SLOT(got_connection_debug(QString)));
 }
 
 bool PJobRunnerSessionThread::is_enqueued(){

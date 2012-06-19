@@ -31,6 +31,8 @@ public:
 
         Workspace* workspace() const;
         QString std_out() const;
+        QString err_out() const;
+        QString connection_debug() const;
 
 signals:
         void stateChanged(Job*, Job::State);
@@ -39,6 +41,7 @@ signals:
         void problemReadingResults(Job*, QString);
         void std_out(QString);
         void err_out(QString);
+        void connection_debug(QString);
 
 private slots:
 	void submited();
@@ -48,6 +51,7 @@ private slots:
 	void process_finished_run(QString runDirectory);
         void got_std_out(QString);
         void got_err_out(QString);
+        void got_connection_debug(QString);
 
 private:
         Workspace* m_workspace;
@@ -55,6 +59,7 @@ private:
 	State m_state;
         QString m_std_out;
         QString m_err_out;
+        QString m_connection_debug;
 	
 	QMutex m_mutex;
 	QWaitCondition m_waitConditionJobState;

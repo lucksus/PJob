@@ -110,6 +110,22 @@ void Job::got_err_out(QString s){
     emit err_out(s);
 }
 
+void Job::got_connection_debug(QString s){
+    m_connection_debug.append(s);
+    emit connection_debug(s);
+}
+
+
+
 QString Job::std_out() const{
     return m_std_out;
 }
+
+QString Job::err_out() const{
+    return m_err_out;
+}
+
+QString Job::connection_debug() const{
+    return m_connection_debug;
+}
+

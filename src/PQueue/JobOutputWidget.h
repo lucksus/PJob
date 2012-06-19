@@ -20,6 +20,7 @@ public:
 private slots:
     void std_out(QString);
     void err_out(QString);
+    void connection_debug(QString);
 
 private:
     Ui::JobOutputWidget *ui;
