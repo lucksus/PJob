@@ -274,8 +274,10 @@ void Session::run_job(){
         output("Process std output:");
         output("-------------------");
         do{
-            output(process.readAllStandardOutput());
+            QByteArray out = process.readAllStandardOutput();
+            if(!out.isEmpty()) output(out);
         }while(!process.waitForFinished(100) && process.isOpen());
+        output(process.readAllStandardOutput());
 
 
         switch(process.exitStatus()){

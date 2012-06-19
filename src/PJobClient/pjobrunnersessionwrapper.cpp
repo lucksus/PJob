@@ -140,6 +140,7 @@ bool PJobRunnerSessionWrapper::wait_for_job_finished(){
     while(!want_exit && m_socket.state() == QTcpSocket::ConnectedState){
         if(!m_socket.waitForReadyRead(10)) continue;
         QString line = m_socket.readAll();
+        while(line.endsWith('\n') || line.endsWith('\r') || line.endsWith('\c')) line.chop(1);
         received(line);
         emit job_std_out(line);
         if(line.contains("Process exited normally.")){ ok = true; want_exit = true; }
