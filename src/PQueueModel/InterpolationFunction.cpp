@@ -151,8 +151,9 @@ void InterpolationFunction::calculateAlphas(vector<vector<double> > points, vect
 		int nrhs=1;
 		int lwork=m*n;
 		double* work2 = new double[m*n + m*n];
+                int lwork2=2*m*n;
 
-                dgels_("N",&m,&n,&nrhs,AT,&m,b,&m,work2,&lwork,&info);
+                dgels_("N",&m,&n,&nrhs,AT,&m,b,&m,work2,&lwork2,&info);
 		//---------------------------------------------------------------------------
 		//---------------------------------------------------------------------------
 		//---------------------------------------------------------------------------
