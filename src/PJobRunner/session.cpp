@@ -283,7 +283,7 @@ void Session::run_job(){
         switch(process.exitStatus()){
         case QProcess::NormalExit:
             output("Process exited normally.");
-            m_pjob_file->import_run_directory(resources_directory);
+            m_pjob_file->import_run_directory(resources_directory, parameters_as_pjobfileparameters());
             output("Created files imported into run directory.");
             break;
         case QProcess::CrashExit:
@@ -389,4 +389,15 @@ unsigned int Session::max_process_count(){
 unsigned int Session::process_count(){
     PJobRunnerService* service = dynamic_cast<PJobRunnerService*>(QtServiceBase::instance());
     return service->ticket_dispatcher()->running_processes();
+}
+
+QList<PJobFileParameter> Session::parameters_as_pjobfileparameters(){
+    QList<PJobFileParameter> list;
+    foreach(QString parameter_name, m_parameters.keys()){
+        PJobFileParameter p;
+        p.setName(parameter_name);
+        p.setValue(m_parameters[parameter_name]);
+        list.push_back(p);
+    }
+    return list;
 }

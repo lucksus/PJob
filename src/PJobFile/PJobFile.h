@@ -60,7 +60,7 @@ public:
 
     void export_application(QString application_name, QString path);
     void export_resources(QString path);
-    void import_run_directory(QString path);
+    void import_run_directory(QString path, const QList<PJobFileParameter>&);
 
     //! Reads all result files (all files in all run directories) with header from underlying file format and concatenates them into one QByteArray
     QByteArray* get_result_files_raw();

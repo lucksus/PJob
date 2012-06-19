@@ -460,7 +460,7 @@ QHash< QHash<QString,double>, QHash<QString,double> > PJobFile::getResultsForRun
 		if(resultFile.type() == PJobResultFile::SINGLE_VALUE)
 		{
 			//Wert auslesen (stets nur 1 vorhanden) der entsprechenden Parametercombination und hinzufügen
-			QByteArray parsed = m_data->readFile(run + '/' + resultFile.filename()).simplified();
+                        QByteArray parsed = m_data->readFile("Runs/" + run + '/' + resultFile.filename()).simplified();
 			QString name = resultFile.results().first().name();
 			if(resultFile.results().first().unit() != "")
 			name += "[" + resultFile.results().first().unit() + "]";
@@ -585,7 +585,7 @@ void PJobFile::export_resources(QString path){
     m_data->extract(path, QString("Resources"));
 }
 
-void PJobFile::import_run_directory(QString path){
+void PJobFile::import_run_directory(QString path, const QList<PJobFileParameter>& parameters){
     QString run_directory = "run_" + QDateTime::currentDateTime().toString("yyyyMMdd_hhmm_ss_zzz");
 
     QDirIterator it(path, QDirIterator::Subdirectories);
@@ -609,6 +609,7 @@ void PJobFile::import_run_directory(QString path){
         }
         m_data->appendFile(file_content, "Runs/"+run_directory+"/"+file_relative_path);
     }
+    writeParameterCombinationForRun(parameters, run_directory);
 }
 
 QByteArray* PJobFile::get_result_files_raw(){

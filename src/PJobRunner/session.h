@@ -60,6 +60,7 @@ private:
     DataPushConnection* m_data_push_connection;
 
     QStringList create_commandline_arguments_for_app(const PJobFileApplication&);
+    QList<PJobFileParameter> parameters_as_pjobfileparameters();
 
     bool m_has_turn;
     bool m_has_running_process;
