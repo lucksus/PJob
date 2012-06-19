@@ -326,7 +326,7 @@ QByteArray PJobFileFormat::readFile(QString relativePath)
 {
     //Leeres QByteArray zurückgeben, falls Datei nicht existiert ~~throw something?
     if(!this->contains(relativePath))
-        return NULL;
+        throw ReadFileError(QString("File %1 does not exist in PJob file %2.").arg(relativePath).arg(m_path));
 
     //Position und Größe der Datei holen
     intPair info = m_map.find(relativePath).value();
