@@ -115,12 +115,14 @@ bool PJobRunnerSessionWrapper::download_results(QByteArray& data){
 }
 
 bool PJobRunnerSessionWrapper::set_parameter(const QString& name, const double& value){
-    return false;
+    send(QString("set_parameter(\"%1\",%2);\n").arg(name).arg(value));
+    if(!m_socket.waitForReadyRead(10000))return false;
+    return true;
 }
 
 bool PJobRunnerSessionWrapper::run_job(){
     send("open_pjob_from_received_data()\n");
-    if(!m_socket.waitForReadyRead(10000))exit(0);
+    if(!m_socket.waitForReadyRead(10000))return false;
     send("run_job()\n");
     if(!m_socket.waitForReadyRead(10000)) return false;
 

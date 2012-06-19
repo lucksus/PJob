@@ -98,7 +98,7 @@ void Session::open_local_pjob_file(QString filename){
     QtServiceBase::instance()->logMessage(QString("Opened local pjob file %1 for peer %2.").arg(filename).arg(m_socket->peerAddress().toString()), QtServiceBase::Information);
     m_application = m_pjob_file->defaultApplication();
     foreach(PJobFileParameterDefinition d, m_pjob_file->parameterDefinitions()){
-        m_parameters[d.name()] = d.defaultValue();
+        if(m_parameters.count(d.name()) < 1) m_parameters[d.name()] = d.defaultValue();
     }
 }
 
@@ -140,7 +140,7 @@ void Session::open_pjob_from_received_data(){
     }
     m_application = m_pjob_file->defaultApplication();
     foreach(PJobFileParameterDefinition d, m_pjob_file->parameterDefinitions()){
-        m_parameters[d.name()] = d.defaultValue();
+        if(m_parameters.count(d.name()) < 1) m_parameters[d.name()] = d.defaultValue();
     }
     output("pjob file opened from received data.");
     QtServiceBase::instance()->logMessage(QString("Opened received pjob for peer %1.").arg(m_socket->peerAddress().toString()));
