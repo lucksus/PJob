@@ -125,6 +125,7 @@ void MainWindow::open_pjob_file(QString filename){
     if(m_pjob_file) delete m_pjob_file;
     m_pjob_file = new PJobFile(filename);
     pjobFile_changed();
+    mostRecentlyUsedPJOBFilesAdd(filename);
 }
 
 
