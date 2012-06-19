@@ -164,6 +164,11 @@ void Workspace::import_results_from_pjobfile(QString filename)
 			//=> überspringen
 			continue;
 		}
+                catch(ReadFileError e)
+                {
+                        //s.o.
+                        continue;
+                }
 
 		//...und weiterleiten
 		m_results.newValues(result,file.pjobFile());

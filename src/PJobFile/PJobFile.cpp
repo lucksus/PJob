@@ -460,7 +460,8 @@ QHash< QHash<QString,double>, QHash<QString,double> > PJobFile::getResultsForRun
 		if(resultFile.type() == PJobResultFile::SINGLE_VALUE)
 		{
 			//Wert auslesen (stets nur 1 vorhanden) der entsprechenden Parametercombination und hinzufügen
-                        QByteArray parsed = m_data->readFile("Runs/" + run + '/' + resultFile.filename()).simplified();
+                        if(!run.startsWith("Runs/")) run = "Runs/" + run;
+                        QByteArray parsed = m_data->readFile(run + '/' + resultFile.filename()).simplified();
 			QString name = resultFile.results().first().name();
 			if(resultFile.results().first().unit() != "")
 			name += "[" + resultFile.results().first().unit() + "]";
