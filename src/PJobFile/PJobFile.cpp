@@ -13,7 +13,7 @@
 #include <QtCore/QDirIterator>
 
 PJobFile::PJobFile(QString pjobFile)
-: m_saveAutomatically(false)
+    : m_saveAutomatically(false), m_mutex(QMutex::Recursive)
 {
 	QFileInfo fileInfo(pjobFile);
 	m_pjobFile = fileInfo.absoluteFilePath();
@@ -30,7 +30,7 @@ PJobFile::PJobFile(QString pjobFile)
 }
 
 PJobFile::PJobFile(const QByteArray& data)
-: m_saveAutomatically(false)
+: m_saveAutomatically(false), m_mutex(QMutex::Recursive)
 {
     m_data = new PJobFileFormat(data);
 }
@@ -42,6 +42,7 @@ PJobFile::~PJobFile(){
 }
 
 void PJobFile::addResource(QString path){
+    QMutexLocker locker(&m_mutex);
 	try
 	{
 		m_data->appendFolder(path,"Resources/");
@@ -57,6 +58,7 @@ void PJobFile::addResource(QString path){
 }
 
 void PJobFile::addResource(const QByteArray& content, const QString& internal_file_name){
+    QMutexLocker locker(&m_mutex);
 	m_data->appendFile(content, QString("Resources/%1").arg(internal_file_name));
 	if(m_saveAutomatically)
 		this->save();
@@ -64,6 +66,7 @@ void PJobFile::addResource(const QByteArray& content, const QString& internal_fi
 }
 
 QStringList PJobFile::runDirectoryEntries() const{
+    QMutexLocker locker(&m_mutex);
 	QStringList runDirs;
 	foreach(QString entry ,m_data->content())
 	{
@@ -74,20 +77,24 @@ QStringList PJobFile::runDirectoryEntries() const{
 }
 
 QString PJobFile::latestRunDirectory() const{
+    QMutexLocker locker(&m_mutex);
 	QStringList runs = this->runDirectoryEntries();
 	if(runs.empty()) throw QString("No run directory found.");
 	return (runs.last()).section("/",0,1);
 }
 
 QString PJobFile::pjobFile() const{
+    QMutexLocker locker(&m_mutex);
 	return m_pjobFile;
 }
 
 QString PJobFile::mainPscript() const{
+    QMutexLocker locker(&m_mutex);
 	return QString(m_data->readFile("Resources/main.pscript"));
 }
 
 void PJobFile::setMainPscript(QString script){
+    QMutexLocker locker(&m_mutex);
 	QByteArray a;
 	a.append(script);
 	try{
@@ -108,6 +115,7 @@ PJobFileFormat* PJobFile::getPJobFile(){
 }
 
 void PJobFile::create(){
+    QMutexLocker locker(&m_mutex);
 	writeResultDefinitions(QList<PJobResultFile>());
 	writeParameterDefinitions(QList<PJobFileParameterDefinition>());
     writeApplications(QList<PJobFileApplication>());
@@ -124,10 +132,12 @@ void PJobFile::create(){
 }
 
 QList<PJobFileParameterDefinition> PJobFile::parameterDefinitions() const{
+    QMutexLocker locker(&m_mutex);
 	return PJobFileXMLFunctions::readParameterDefinitions(m_data->readFile("parameterdefinitions.xml"));
 }
 
 void PJobFile::addParameterDefinition(const PJobFileParameterDefinition& def){
+    QMutexLocker locker(&m_mutex);
 	QByteArray xmlFile = PJobFileXMLFunctions::addParameterDefinition(def, m_data->readFile("parameterdefinitions.xml"));
 	try
 	{
@@ -143,6 +153,7 @@ void PJobFile::addParameterDefinition(const PJobFileParameterDefinition& def){
 }
 
 void PJobFile::removeParameterDefinition(QString parameterName){
+    QMutexLocker locker(&m_mutex);
 	QByteArray xmlFile = PJobFileXMLFunctions::removeParameterDefinition(parameterName, m_data->readFile("parameterdefinitions.xml"));
 	try
 	{
@@ -158,6 +169,7 @@ void PJobFile::removeParameterDefinition(QString parameterName){
 }
 
 void PJobFile::writeParameterDefinitions(QList<PJobFileParameterDefinition> definitions){
+    QMutexLocker locker(&m_mutex);
 	try
 	{
 		m_data->appendFile(PJobFileXMLFunctions::writeParameterDefinitions(definitions), "parameterdefinitions.xml");
@@ -172,11 +184,13 @@ void PJobFile::writeParameterDefinitions(QList<PJobFileParameterDefinition> defi
 }
 
 QList<PJobFileParameter> PJobFile::readParameterCombinationForRun( QString run ){
+    QMutexLocker locker(&m_mutex);
 	QFileInfo fileInfo(run);
 	return PJobFileXMLFunctions::readParameterCombination(m_data->readFile("Runs/" + fileInfo.fileName() + "/parametercombination.xml"));
 }
 
 void PJobFile::writeParameterCombinationForRun( QList<PJobFileParameter> parameters, QString run ){
+    QMutexLocker locker(&m_mutex);
 	QString xmlPath = QString("Runs/%1/parametercombination.xml").arg(run);
 	try
 	{
@@ -191,10 +205,12 @@ void PJobFile::writeParameterCombinationForRun( QList<PJobFileParameter> paramet
 }
 
 QList<PJobResultFile> PJobFile::readResultDefinitions(){
+    QMutexLocker locker(&m_mutex);
 	return PJobFileXMLFunctions::readResultDefinitions(m_data->readFile("resultdefinitions.xml"));
 }
 
 void PJobFile::writeResultDefinitions(QList<PJobResultFile> resultFiles){
+    QMutexLocker locker(&m_mutex);
 	try
 	{
 		m_data->appendFile(PJobFileXMLFunctions::writeResultDefinitions(resultFiles), "resultdefinitions.xml");
@@ -209,10 +225,12 @@ void PJobFile::writeResultDefinitions(QList<PJobResultFile> resultFiles){
 }
 
 QList<PJobFileApplication> PJobFile::applications() const{
+    QMutexLocker locker(&m_mutex);
     return PJobFileXMLFunctions::readApplications(m_data->readFile("binaries.xml"));
 }
 
 PJobFileApplication PJobFile::applicationByName(QString name) const{
+    QMutexLocker locker(&m_mutex);
     QList<PJobFileApplication> apps = applications();
     PJobFileApplication app;
     foreach(app, apps){
@@ -223,12 +241,14 @@ PJobFileApplication PJobFile::applicationByName(QString name) const{
 }
 
 void PJobFile::addApplication(const PJobFileApplication& app){
+    QMutexLocker locker(&m_mutex);
     QList<PJobFileApplication> apps = applications();
     apps.append(app);
     writeApplications(apps);
 }
 
 void PJobFile::removeApplication(const QString& name){
+    QMutexLocker locker(&m_mutex);
     QList<PJobFileApplication> apps = applications();
     int i=0;
     foreach(const PJobFileApplication& app, apps){
@@ -247,6 +267,7 @@ void PJobFile::removeApplication(const QString& name){
 }
 
 void PJobFile::renameApplication(const QString& old_name, const QString& new_name){
+    QMutexLocker locker(&m_mutex);
     QList<PJobFileApplication> apps = applications();
     for(int i=0;i<apps.size();i++){
         if(apps[i].name == old_name) apps[i].name = new_name;
@@ -265,36 +286,35 @@ void PJobFile::renameApplication(const QString& old_name, const QString& new_nam
 }
 
 void PJobFile::writeApplications(const QList<PJobFileApplication>& binaries){
+    QMutexLocker locker(&m_mutex);
     m_data->appendFile(PJobFileXMLFunctions::writeApplications(binaries), "binaries.xml");
     if(m_saveAutomatically) save();
     emit changed();
 }
 
 QString PJobFile::defaultApplication(){
+    QMutexLocker locker(&m_mutex);
     return m_data->readFile("default_binary");
 }
 
 void PJobFile::setDefaultApplication(const QString& name){
+    QMutexLocker locker(&m_mutex);
     m_data->appendFile(name.toAscii(), "default_binary");
     emit changed();
 }
 
 void PJobFile::save(){
-	try
-	{
-		m_data->flush();
-	}
-	catch (WriteFileError e)
-	{
-		//do something
-	}
+    QMutexLocker locker(&m_mutex);
+    m_data->flush();
 }
 
 void PJobFile::setSaveAutomatically(bool s){
+    QMutexLocker locker(&m_mutex);
 	m_saveAutomatically = s;
 }
 
 QList<PJobFileParameter> PJobFile::makeParameterCombinationValid(const QList<PJobFileParameter>& parametercombination) const{
+    QMutexLocker locker(&m_mutex);
 	QList<PJobFileParameter> result;
 	QList<PJobFileParameterDefinition> parameterdefinitions = parameterDefinitions();
 	PJobFileParameterDefinition def;
@@ -372,7 +392,6 @@ pair< QStringList, QStringList > PJobFile::tellParametersAndResultsApart(QString
 }
 
 QHash<QString,double> PJobFile::readValues(istream& input, QStringList header){
-	
 	//Kommentare ignorieren:
 	char c;
 	input.get(c);
@@ -439,6 +458,7 @@ QList< QHash< QString, double > > PJobFile::resultsFromFile(istream& input){
 }
 
 QHash< QHash<QString,double>, QHash<QString,double> > PJobFile::getResultsForRun(QString run){
+    QMutexLocker locker(&m_mutex);
 	QHash< QHash<QString,double>, QHash<QString,double> > returnTmp;
 	QList<PJobFileParameter> parameters = readParameterCombinationForRun(run);
 	QHash<QString, PJobFileParameter> variationParmeters;
@@ -522,6 +542,7 @@ QHash< QHash<QString,double>, QHash<QString,double> > PJobFile::getResultsForRun
 }
 
 QList< QHash< QString, double > > PJobFile::readResultFilePHOTOSS_CSV(QString resultFile){
+    QMutexLocker locker(&m_mutex);
 	if(!m_data->contains(resultFile))
 		throw QString("Result file %1 does not exist").arg(resultFile);
         istringstream sstream(m_data->readFile(resultFile).data());
@@ -531,6 +552,7 @@ QList< QHash< QString, double > > PJobFile::readResultFilePHOTOSS_CSV(QString re
 
 void PJobFile::copyWithoutRuns(QString path)
 {
+    QMutexLocker locker(&m_mutex);
         //Es wird zunächst eine leere .pjob-Datei im Zielverzeichnis erzeugt:
 	PJobFileFormat copy(path);
         //Kopie ohne runs erzeugen..
@@ -543,6 +565,7 @@ void PJobFile::copyWithoutRuns(QString path)
 
 void PJobFile::mergeRunsFrom(const PJobFile& otherPJob)
 {
+    QMutexLocker locker(&m_mutex);
 	foreach(QString run,otherPJob.runDirectoryEntries())
 	{
 		QByteArray neuer_run = otherPJob.m_data->readRaw(run);
@@ -551,6 +574,7 @@ void PJobFile::mergeRunsFrom(const PJobFile& otherPJob)
 }
 
 void PJobFile::checkIfRunIsProperlyFinished(QString run){
+    QMutexLocker locker(&m_mutex);
 	if(m_data->content().contains(run+"/backup_log.txt"))
 		throw QString(m_data->readFile(run+"/backup_log.txt"));
 	foreach(PJobResultFile file, readResultDefinitions()){
@@ -560,6 +584,7 @@ void PJobFile::checkIfRunIsProperlyFinished(QString run){
 }
 
 void PJobFile::remove_all_runs(){
+    QMutexLocker locker(&m_mutex);
 	QString what = "Removing all run directories...";
 	QStringList runs = runDirectoryEntries();
 	m_progresses_to_abort.remove(what);
@@ -573,20 +598,24 @@ void PJobFile::remove_all_runs(){
 }
 
 void PJobFile::abort_progress(const QString &p){
+    QMutexLocker locker(&m_mutex);
 	m_progresses_to_abort.insert(p);
 }
 
 
 
 void PJobFile::export_application(QString application_name, QString path){
+    QMutexLocker locker(&m_mutex);
     m_data->extract(path, QString("Binaries/%1/").arg(application_name));
 }
 
 void PJobFile::export_resources(QString path){
+    QMutexLocker locker(&m_mutex);
     m_data->extract(path, QString("Resources"));
 }
 
 void PJobFile::import_run_directory(QString path, const QList<PJobFileParameter>& parameters){
+    QMutexLocker locker(&m_mutex);
     QString run_directory = "run_" + QDateTime::currentDateTime().toString("yyyyMMdd_hhmm_ss_zzz");
 
     QDirIterator it(path, QDirIterator::Subdirectories);
@@ -614,6 +643,7 @@ void PJobFile::import_run_directory(QString path, const QList<PJobFileParameter>
 }
 
 QByteArray* PJobFile::get_result_files_raw(){
+    QMutexLocker locker(&m_mutex);
     QByteArray* arr = new QByteArray;
     foreach(QString file, m_data->content()){
         if(file.startsWith("Runs"))
@@ -623,6 +653,7 @@ QByteArray* PJobFile::get_result_files_raw(){
 }
 
 QByteArray* PJobFile::raw_without_results(){
+    QMutexLocker locker(&m_mutex);
     PJobFileFormat new_file;
     foreach(QString s, m_data->content())
     {
@@ -635,6 +666,7 @@ QByteArray* PJobFile::raw_without_results(){
 }
 
 void PJobFile::add_raw_files(const QByteArray& data){
+    QMutexLocker locker(&m_mutex);
     m_data->appendRaw(data);
 }
 

@@ -10,6 +10,8 @@
 #include "PJobFileApplication.h"
 #include <iostream>
 #include <QtCore/QSet>
+#include <QMutex>
+
 using namespace std;
 
 class PJobFile : public QObject{
@@ -86,6 +88,7 @@ protected:
 
 private:
     void create();
+    mutable QMutex m_mutex;
 
     //funktionieren z.Z. nicht!
     QList< QHash< QString, double > > readResultFilePHOTOSS_CSV(QString resultFile);
