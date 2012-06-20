@@ -121,8 +121,21 @@ bool PJobRunnerSessionWrapper::set_parameter(const QString& name, const double& 
 }
 
 bool PJobRunnerSessionWrapper::run_job(){
-    send("open_pjob_from_received_data()\n");
-    if(!m_socket.waitForReadyRead(10000))return false;
+    QString line;
+    unsigned int i=0;
+    do{
+        if(i>=10){
+            emit debug_out("Failed to open PJob file after 10 retries. Giving up...");
+            return false;
+        }
+        if(line.isEmpty() || line.contains("Can't open pjob file!"))
+            send("open_pjob_from_received_data()\n");
+        if(!m_socket.waitForReadyRead(10000))return false;
+        line = m_socket.readAll();
+        received(line);
+        i++;
+    }while(!line.contains("pjob file opened from received data.") && m_socket.state() == QTcpSocket::ConnectedState);
+
     send("run_job()\n");
     if(!m_socket.waitForReadyRead(10000)) return false;
 
