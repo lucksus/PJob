@@ -7,6 +7,7 @@
 #include <QtScript/QScriptValueIterator>
 #include <QtScript/QScriptContext>
 #include <QtCore/QHash>
+#include <QScrollArea>
 
 class FilenameWidget : public QWidget{
 Q_OBJECT
@@ -32,6 +33,8 @@ private:
 	QHash<QString, QWidget*> m_widgets;
 	QScriptEngine* m_engine;
 	QPushButton* m_button;
+        QScrollArea m_scroll_area;
+        QDialog m_inner_dialog;
 
 	QWidget* createFilenameWidget(QScriptValue);
 	QWidget* createStringWidget(QScriptValue);

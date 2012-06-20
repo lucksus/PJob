@@ -88,29 +88,21 @@ function merge_objects(obj1,obj2){
     return obj3;
 }
 
-//1. Determine PJOB file to use for variation:
-var pjobFile;
-if(proxy.filename) pjobFile = proxy.filename;
-else pjobFile = get_pjobfile_from_user();
-if(!isExistingFile(pjobFile)) throw "no such file '"+pjobFile+"'!";
-
-print("Doing parameter variation with " + pjobFile + "\n");
-
-//2. Read parameters from PJOB file:
-var parameters_info = readParametersFromPJOBFile(pjobFile);
+//1. Read parameters from PJOB file:
+var parameters_info = getPJobFileParameters();
 var parameters_array = new Array;
 for(x in parameters_info) parameters_array[parameters_array.length] = x;
 
 print("Parameters found in PJOB file: " + parameters_array + "\n");
 var parameters_already_set = parameters_that_already_have_variation_values();
 if(parameters_already_set.length > 0) print("Parameters set via command line parameters: " + parameters_already_set + "\n");
-//3. Get variation limits from user
+//2. Get variation limits from user
 var remaining_parameters = array_minus(parameters_array, parameters_already_set);
 print("Remaining parameters to set limits for: " + remaining_parameters + "\n");
 var parameters = get_variation_values_from_user(remaining_parameters, parameters_info);
 if(proxy.params) parameters = merge_objects(parameters,proxy.params);
 
-//4. Create parameter combinations as array of hashes
+//3. Create parameter combinations as array of hashes
 //combinations = [{length:100, power:3}, {length:200,power:4},...]
 print("Creating parameter combinations...");
 var combinations = new Array();
@@ -140,10 +132,10 @@ while(!done){
 }
 print("done!\n");
 
-//5. Create job instances
+//4. Create job instances
 print("Adding jobs to queue...");
 for(var i in combinations){
-	var job = new PhotossJob(pjobFile,combinations[i]);
+	var job = new Job(combinations[i]);
 	PQueue.addJob(job);
 }
 print("done!\n");

@@ -19,12 +19,11 @@ QScriptValue getSetScriptProgress(QScriptContext *ctx, QScriptEngine *eng){
 	return result;
 }
 
-QScriptValue PhotossJobConstructor(QScriptContext *context, QScriptEngine *engine){
-    assert(false);
-        QStringHash arg1 = engine->fromScriptValue<QStringHash>(context->argument(0));
-        //Job* pj = new Job(arg1);
-        //return engine->newQObject(pj);
-        return QScriptValue();
+QScriptValue JobConstructor(QScriptContext *context, QScriptEngine *engine){
+    QStringHash parameter_combination = engine->fromScriptValue<QStringHash>(context->argument(0));
+    Job* pj = new Job(parameter_combination, &Workspace::getInstace());
+    return engine->newQObject(pj);
+    return QScriptValue();
 }
 
 QScriptValue InterpolationFunctionConstructor(QScriptContext *context, QScriptEngine *engine){
@@ -126,6 +125,10 @@ QScriptValue readParametersFromPJOBFile(QScriptContext *context, QScriptEngine *
 	QList<PJobFileParameterDefinition> params ;
 	try{
                 PJobFile* pjob = Workspace::getInstace().getPJobFile();
+                if(!pjob){
+                    context->throwError("No PJob file opened!");
+                    return QScriptValue();
+                }
 		params = pjob->parameterDefinitions();
 	}catch(PJobFileError e){
 		context->throwError(e.msg());
@@ -166,9 +169,9 @@ void addFunctionsToEngine(QScriptEngine* engine){
 	scriptObject.setProperty("progress",engine->newFunction(getSetScriptProgress), QScriptValue::PropertyGetter|QScriptValue::PropertySetter);
 	engine->globalObject().setProperty("Script",scriptObject);
 
-	QScriptValue photossJobCtor = engine->newFunction(PhotossJobConstructor);
-	QScriptValue photossJobMetaObject = engine->newQMetaObject(&QObject::staticMetaObject, photossJobCtor);
-	engine->globalObject().setProperty("PhotossJob", photossJobMetaObject);
+        QScriptValue jobCtor = engine->newFunction(JobConstructor);
+        QScriptValue jobMetaObject = engine->newQMetaObject(&QObject::staticMetaObject, jobCtor);
+        engine->globalObject().setProperty("Job", jobMetaObject);
 
 	QScriptValue interpolantCtor = engine->newFunction(InterpolationFunctionConstructor);
 	QScriptValue interpolantMetaObject = engine->newQMetaObject(&QObject::staticMetaObject, interpolantCtor);
@@ -188,7 +191,7 @@ void addFunctionsToEngine(QScriptEngine* engine){
 
 	QScriptValue readVariablesFromPJOBFileFunction = engine->newFunction(readParametersFromPJOBFile);
 	QScriptValue readVariablesFromPJOBFileFunctionMetaObject = engine->newQMetaObject(&QObject::staticMetaObject, readVariablesFromPJOBFileFunction);
-	engine->globalObject().setProperty("readParametersFromPJOBFile", readVariablesFromPJOBFileFunctionMetaObject);
+        engine->globalObject().setProperty("getPJobFileParameters", readVariablesFromPJOBFileFunctionMetaObject);
 
 	QScriptValue isExistingFileFunction = engine->newFunction(isExistingFile);
 	QScriptValue isExistingFileFunctionMetaObject = engine->newQMetaObject(&QObject::staticMetaObject, isExistingFileFunction);

@@ -98,7 +98,10 @@ QWidget* ScriptedUserInputDialog::createBooleanWidget(QScriptValue value, QLayou
 ScriptedUserInputDialog::ScriptedUserInputDialog(QScriptContext *context, QScriptEngine *engine)
 : m_engine(engine){
 	setWindowTitle("Script requires input");
+        m_scroll_area.setBackgroundRole(QPalette::Light);
 	setLayout(new QVBoxLayout);
+        layout()->addWidget(&m_scroll_area);
+        m_inner_dialog.setLayout(new QVBoxLayout);
 
 	QScriptValue params = context->argument(0);
 	QScriptValueIterator it(params);
@@ -125,14 +128,17 @@ ScriptedUserInputDialog::ScriptedUserInputDialog(QScriptContext *context, QScrip
 		}
 		frame->layout()->addWidget(widget);
 		m_widgets[it.name()] = widget;
-		layout()->addWidget(frame);
+                m_inner_dialog.layout()->addWidget(frame);
 	}
 
 	m_button = new QPushButton;
 	m_button->setText("Ok");
 	connect(m_button,SIGNAL(pressed()),this,SLOT(accept()));
-	layout()->addWidget(m_button);
+        m_inner_dialog.layout()->addWidget(m_button);
 	//resize(400, 500);
+
+        m_scroll_area.setWidgetResizable(true);
+        m_scroll_area.setWidget(&m_inner_dialog);
 }
 
 QScriptValue ScriptedUserInputDialog::getValues(){
