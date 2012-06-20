@@ -330,7 +330,9 @@ void MainWindow::jobOutput(QString s){
     Job* job = dynamic_cast<Job*>(sender_object);
     if(!job) return;
     QListWidgetItem* item = itemForJob(job);
-    item->setText(job->description() + ": " + s);
+    QStringList lines = s.split("\n");
+    while(lines.size() > 3) lines.pop_front();
+    item->setText(lines.join("\n"));
 }
 
 void MainWindow::on_startButton_clicked(){
