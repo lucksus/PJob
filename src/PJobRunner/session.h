@@ -24,6 +24,7 @@ public:
     void give_turn();
     void finish_turn();
     QHostAddress peer();
+    void update();
 
 public slots:
     QString platform();
@@ -62,7 +63,7 @@ private:
     QStringList create_commandline_arguments_for_app(const PJobFileApplication&);
     QList<PJobFileParameter> parameters_as_pjobfileparameters();
 
-    bool m_has_turn;
+    bool m_has_turn, m_got_turn;
     bool m_has_running_process;
     QTimer m_turn_timeout;
 };

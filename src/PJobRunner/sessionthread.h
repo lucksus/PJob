@@ -9,14 +9,13 @@ class SessionThread : public QThread
 {
     Q_OBJECT
 public:
-    SessionThread(QTcpSocket* connection, QObject* parent);
+    SessionThread(int socket_descriptor);
 
 protected:
     virtual void run();
 
 private:
-    QTcpSocket* m_connection;
-    QHostAddress m_peer_adress;
+    int m_socket_descriptor;
 };
 
 #endif // SESSIONTHREAD_H

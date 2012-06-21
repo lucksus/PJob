@@ -11,7 +11,7 @@
 #include "pjobrunnerservice.h"
 #include <QtNetwork/QHostInfo>
 
-Session::Session(QTcpSocket* socket) : m_pjob_file(0), m_script_engine(0), m_wants_shutdown(false), m_socket(socket), m_data_to_send(0), m_data_receive_connection(0), m_data_push_connection(0), m_has_turn(false), m_has_running_process(false)
+Session::Session(QTcpSocket* socket) : m_pjob_file(0), m_script_engine(0), m_wants_shutdown(false), m_socket(socket), m_data_to_send(0), m_data_receive_connection(0), m_data_push_connection(0), m_has_turn(false), m_got_turn(false), m_has_running_process(false)
 {
     QDir temp = QDir::temp();
     QString random = QDateTime::currentDateTime().toString("yyyyMMdd_hhmm_ss_zzz");;
@@ -65,15 +65,23 @@ QString Session::platform(){
 }
 
 void Session::give_turn(){
-    m_has_turn = true;
-    output("It's your turn now! Go!");
-    m_turn_timeout.start(6000);
+    m_got_turn = true;
 }
 
 void Session::finish_turn(){
     output("Your turn has ended.");
     m_has_turn = false;
     dynamic_cast<PJobRunnerService*>(QtServiceBase::instance())->ticket_dispatcher()->finished_turn(this);
+}
+
+void Session::update(){
+    QCoreApplication::processEvents();
+    if(m_got_turn){
+        m_got_turn = false;
+        m_has_turn = true;
+        output("It's your turn now! Go!");
+        m_turn_timeout.start(6000);
+    }
 }
 
 void Session::turn_timeout(){

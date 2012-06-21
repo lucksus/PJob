@@ -22,7 +22,6 @@ TicketDispatcher* PJobRunnerService::ticket_dispatcher(){
 void PJobRunnerService::start(){
     m_ticket_dispatcher = new TicketDispatcher;
     TcpServer::instance().set_active(true);
-    TcpServer::instance().start();
 }
 
 void PJobRunnerService::stop(){
