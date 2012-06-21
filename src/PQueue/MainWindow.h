@@ -50,8 +50,8 @@ private:
         PJobFile* m_pjob_file;
 
 private slots:
-        void open_pjob_file(QString);
-	void on_addParameterButton_clicked();
+    void open_pjob_file(QString);
+    void on_addParameterButton_clicked();
 	void on_delParameterButton_clicked();
 	void on_addJobButton_clicked();
 	void on_jobUpButton_clicked();
@@ -59,7 +59,7 @@ private slots:
 	void on_jobDeleteButton_clicked();
 	void on_startButton_clicked();
 	void on_stopButton_clicked();
-        void on_actionOpen_triggered();
+    void on_actionOpen_triggered();
 	void on_actionEdit_triggered();
 	void on_actionExport_To_CSV_triggered();
 	void on_actionImport_From_CSV_triggered();
@@ -69,13 +69,14 @@ private slots:
 	void on_actionLoad_script_from_file_triggered();
 	void on_runScriptButton_clicked();
 	void on_stopScriptButton_clicked();
-        void on_jobsWidget_itemDoubleClicked(QListWidgetItem*);
+    void on_jobsWidget_itemDoubleClicked(QListWidgetItem*);
+    void on_startScanButton_clicked();
 
 	void jobCreated(Job* j, unsigned int position);
 	void jobRemoved(Job* j);
 	void jobMoved(Job* j, unsigned int position);
 	void jobStateChanged(Job* j, Job::State state);
-        void jobOutput(QString);
+    void jobOutput(QString);
 	void started();
 	void stopped();
 	void newValue();
@@ -110,6 +111,7 @@ private slots:
         void probing_host(QHostAddress);
         void lookedUp(const QHostInfo& host);
         void pjob_runner_search_finished();
+        void pjob_runner_search_started();
 
         void pjobFile_changed();
 

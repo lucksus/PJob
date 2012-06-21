@@ -111,8 +111,12 @@ MainWindow::MainWindow(void)
         connect(&PJobRunnerPool::instance(), SIGNAL(found_new_pjob_runner(QHostAddress)), this, SLOT(found_new_pjob_runner(QHostAddress)));
         connect(&PJobRunnerPool::instance(), SIGNAL(lost_pjob_runner(QHostAddress)), this, SLOT(lost_pjob_runner(QHostAddress)));
         connect(&PJobRunnerPool::instance(), SIGNAL(probing_host(QHostAddress)), this, SLOT(probing_host(QHostAddress)));
-        connect(&PJobRunnerPool::instance(), SIGNAL(search_local_network_finished()), this, SLOT(pjob_runner_search_finished()));
-        PJobRunnerPool::instance().start_search_local_network();
+        connect(&PJobRunnerPool::instance(), SIGNAL(network_scan_finished()), this, SLOT(pjob_runner_search_finished()));
+        connect(&PJobRunnerPool::instance(), SIGNAL(network_scan_started()), this, SLOT(pjob_runner_search_started()));
+
+        foreach(QNetworkInterface i, QNetworkInterface::allInterfaces()){
+            ui.networkInterfaceComboBox->addItem(i.humanReadableName());
+        }
 }
 
 void MainWindow::on_actionOpen_triggered(){
@@ -783,6 +787,11 @@ void MainWindow::probing_host(QHostAddress host){
 
 void MainWindow::pjob_runner_search_finished(){
     ui.poolStatusLabel->setText(QString("Search finished."));
+    ui.startScanButton->setText("Start scan");
+}
+
+void MainWindow::pjob_runner_search_started(){
+    ui.startScanButton->setText("Stop scan");
 }
 
 void MainWindow::on_jobsWidget_itemDoubleClicked(QListWidgetItem* item){
@@ -796,4 +805,17 @@ void MainWindow::on_jobsWidget_itemDoubleClicked(QListWidgetItem* item){
     JobOutputWidget *w = new JobOutputWidget(job,0);
     m_job_output_widgets.append(w);
     w->show();
+}
+
+void MainWindow::on_startScanButton_clicked(){
+    if(PJobRunnerPool::instance().is_scanning()){
+        PJobRunnerPool::instance().stop_search_network();
+        return;
+    }
+    QString interface_name = ui.networkInterfaceComboBox->currentText();
+    if(interface_name.isEmpty()) return;
+    foreach(QNetworkInterface i, QNetworkInterface::allInterfaces()){
+        if(i.humanReadableName() == interface_name)
+            PJobRunnerPool::instance().start_search_network(i);
+    }
 }

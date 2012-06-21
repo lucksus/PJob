@@ -17,10 +17,17 @@ QList<QHostAddress> PJobRunnerPool::known_pjob_runners() const{
     return m_known_pjob_runners;
 }
 
-void PJobRunnerPool::start_search_local_network(){
+void PJobRunnerPool::start_search_network(const QNetworkInterface& i){
     m_backup_list = m_known_pjob_runners;
-    if(!m_scanner.isRunning())
+    if(!m_scanner.isRunning()){
+        m_scanner.set_network_interface(i);
+        emit network_scan_started();
         m_scanner.start();
+    }
+}
+
+void PJobRunnerPool::stop_search_network(){
+    m_scanner.stop_scan();
 }
 
 void PJobRunnerPool::found_pjob_runner(PJobRunnerSessionWrapper* session){
@@ -39,7 +46,7 @@ void PJobRunnerPool::search_finished(){
         if(!m_known_pjob_runners.contains(host))
             emit lost_pjob_runner(host);
     }
-    emit search_local_network_finished();
+    emit network_scan_finished();
 }
 
 void PJobRunnerPool::scanner_is_probing(QHostAddress host){
@@ -63,6 +70,11 @@ unsigned int PJobRunnerPool::max_thread_count() const{
     }
     return count;
 }
+
+bool PJobRunnerPool::is_scanning(){
+    return m_scanner.isRunning();
+}
+
 
 
 unsigned int PJobRunnerPool::thread_count(QHostAddress host) const{

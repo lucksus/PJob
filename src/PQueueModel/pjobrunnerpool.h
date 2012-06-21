@@ -17,9 +17,12 @@ public:
     //! Calculates the number of threads of the entire pool
     unsigned int max_thread_count() const;
 
+    bool is_scanning();
+
 
 public slots:
-    void start_search_local_network();
+    void start_search_network(const QNetworkInterface&);
+    void stop_search_network();
     QString hostname(QHostAddress) const;
     QString platform(QHostAddress) const;
 
@@ -27,7 +30,8 @@ signals:
     void found_new_pjob_runner(QHostAddress);
     void lost_pjob_runner(QHostAddress);
     void probing_host(QHostAddress);
-    void search_local_network_finished();
+    void network_scan_finished();
+    void network_scan_started();
 
 private slots:
     void found_pjob_runner(PJobRunnerSessionWrapper*);
