@@ -13,7 +13,11 @@
 #include "dataconnectionserver.h"
 #include <assert.h>
 
-Session::Session(QTcpSocket* socket) : m_pjob_file(0), m_script_engine(0), m_wants_shutdown(false), m_socket(socket), m_data_receive_connection(0), m_data_push_connection(0), m_has_turn(false), m_got_turn(false), m_has_running_process(false)
+Session::Session(QTcpSocket* socket) :
+    m_pjob_file(0), m_script_engine(0), m_wants_shutdown(false), m_socket(socket),
+    m_data_receive_connection(0), m_data_push_connection(0), m_has_turn(false),
+    m_got_turn(false), m_has_running_process(false),
+    m_renew_turn(false)
 {
     QDir temp = QDir::temp();
     QString random = QDateTime::currentDateTime().toString("yyyyMMdd_hhmm_ss_zzz");;
@@ -71,6 +75,10 @@ void Session::give_turn(){
 }
 
 void Session::finish_turn(){
+    if(m_renew_turn){
+        m_renew_turn = false;
+        m_turn_timeout.setSingleShot(6000);
+    }
     output("Your turn has ended.");
     m_has_turn = false;
     dynamic_cast<PJobRunnerService*>(QtServiceBase::instance())->ticket_dispatcher()->finished_turn(this);
@@ -82,7 +90,7 @@ void Session::update(){
         m_got_turn = false;
         m_has_turn = true;
         output("It's your turn now! Go!");
-        m_turn_timeout.start(6000);
+        m_turn_timeout.setSingleShot(6000);
     }
 }
 
@@ -142,6 +150,7 @@ quint32 Session::prepare_pull_connection_for_results(){
 }
 
 void Session::open_pjob_from_received_data(){
+    m_renew_turn = true;
     if(m_received_data.size() <= 0){
         output("No data received! Can't open pjob file!");
         return;
@@ -165,6 +174,7 @@ void Session::set_temp_dir(QString path){
 }
 
 void Session::set_parameter(QString name, double value){
+    m_renew_turn = true;
     m_parameters[name] = value;
 }
 

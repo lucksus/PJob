@@ -69,6 +69,7 @@ private:
     bool m_has_turn, m_got_turn;
     bool m_has_running_process;
     QTimer m_turn_timeout;
+    bool m_renew_turn;
 };
 
 #endif // CONTROLLER_H
