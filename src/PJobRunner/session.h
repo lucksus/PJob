@@ -47,6 +47,7 @@ public slots:
 
 private slots:
     void turn_timeout();
+    void fetch_received_data_from_connection_server();
 
 private:
     PJobFile *m_pjob_file;
@@ -56,12 +57,14 @@ private:
     QString m_application;
     bool m_wants_shutdown;
     QTcpSocket* m_socket;
-    QByteArray m_received_data, *m_data_to_send;
+    QByteArray m_received_data;
     DataReceiveConnection* m_data_receive_connection;
     DataPushConnection* m_data_push_connection;
 
     QStringList create_commandline_arguments_for_app(const PJobFileApplication&);
     QList<PJobFileParameter> parameters_as_pjobfileparameters();
+
+
 
     bool m_has_turn, m_got_turn;
     bool m_has_running_process;

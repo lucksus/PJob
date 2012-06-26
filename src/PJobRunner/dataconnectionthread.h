@@ -2,38 +2,29 @@
 #define DATACONNECTIONTHREAD_H
 
 #include <QThread>
-class QTcpServer;
-class DataConnection : public QThread
+
+class DataReceiveThread : public QThread
 {
 public:
-    explicit DataConnection(QByteArray& data_destination, QObject *parent = 0);
-    ~DataConnection();
-    quint32 open_data_port();
-protected:
-    QByteArray& m_data;
-    QTcpServer* m_server;
-    bool m_want_exit;
-    static quint32 s_port;
-};
-
-
-class DataReceiveConnection : public DataConnection
-{
-public:
-    explicit DataReceiveConnection(QByteArray& data_destination, QObject *parent = 0);
-    bool data_received();
+    explicit DataReceiveThread(unsigned int socket_descriptor);
+    QByteArray* data() const;
 protected:
     void run();
 
 private:
-    bool m_data_received;
+    QByteArray* m_data;
+    unsigned int m_socket_descriptor;
 };
 
-class DataPushConnection : public DataConnection{
+class DataPushThread : public QThread
+{
 public:
-    explicit DataPushConnection(QByteArray& data_destination, QObject *parent = 0);
+    explicit DataPushThread(unsigned int socket_descriptor, QByteArray* data);
 protected:
     void run();
+private:
+    QByteArray* m_data;
+    unsigned int m_socket_descriptor;
 };
 
 #endif // DATACONNECTIONTHREAD_H

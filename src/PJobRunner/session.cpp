@@ -10,8 +10,10 @@
 #include <QHostAddress>
 #include "pjobrunnerservice.h"
 #include <QtNetwork/QHostInfo>
+#include "dataconnectionserver.h"
+#include <assert.h>
 
-Session::Session(QTcpSocket* socket) : m_pjob_file(0), m_script_engine(0), m_wants_shutdown(false), m_socket(socket), m_data_to_send(0), m_data_receive_connection(0), m_data_push_connection(0), m_has_turn(false), m_got_turn(false), m_has_running_process(false)
+Session::Session(QTcpSocket* socket) : m_pjob_file(0), m_script_engine(0), m_wants_shutdown(false), m_socket(socket), m_data_receive_connection(0), m_data_push_connection(0), m_has_turn(false), m_got_turn(false), m_has_running_process(false)
 {
     QDir temp = QDir::temp();
     QString random = QDateTime::currentDateTime().toString("yyyyMMdd_hhmm_ss_zzz");;
@@ -113,11 +115,19 @@ void Session::open_local_pjob_file(QString filename){
 quint32 Session::prepare_push_connection(){
     if(m_data_receive_connection) delete m_data_receive_connection;
     m_received_data.clear();
-    m_data_receive_connection = new DataReceiveConnection(m_received_data,this);
-    quint32 port = m_data_receive_connection->open_data_port();
-    m_data_receive_connection->start();
+    DataConnectionServer* server = new DataConnectionServer;
+    connect(server, SIGNAL(transmission_finished()), this, SLOT(fetch_received_data_from_connection_server()));
+    quint32 port = server->receive_data();
     QtServiceBase::instance()->logMessage(QString("Prepared push connection on port %1 for peer %2.").arg(port).arg(m_socket->peerAddress().toString()), QtServiceBase::Information);
     return port;
+}
+
+void Session::fetch_received_data_from_connection_server(){
+    assert(dynamic_cast<DataConnectionServer*>(sender()));
+    DataConnectionServer* server = dynamic_cast<DataConnectionServer*>(sender());
+    if(!server) return;
+    m_received_data = *(server->received_data());
+    server->deleteLater();
 }
 
 quint32 Session::prepare_pull_connection_for_results(){
@@ -125,18 +135,14 @@ quint32 Session::prepare_pull_connection_for_results(){
         output("Can't prepare pull connection! No PJob file openend!");
         return 0;
     }
-    if(m_data_push_connection) delete m_data_push_connection;
-    if(m_data_to_send) delete m_data_to_send;
-    m_data_to_send = m_pjob_file->get_result_files_raw();
-    m_data_push_connection = new DataPushConnection(*m_data_to_send,this);
-    quint32 port = m_data_push_connection->open_data_port();
-    m_data_push_connection->start();
+    DataConnectionServer* server = new DataConnectionServer;
+    quint32 port = server->serve_data(m_pjob_file->get_result_files_raw());;
     QtServiceBase::instance()->logMessage(QString("Prepared pull connection on port %1 for peer %2.").arg(port).arg(m_socket->peerAddress().toString()), QtServiceBase::Information);
     return port;
 }
 
 void Session::open_pjob_from_received_data(){
-    if(!m_data_receive_connection || !m_data_receive_connection->data_received()){
+    if(m_received_data.size() <= 0){
         output("No data received! Can't open pjob file!");
         return;
     }

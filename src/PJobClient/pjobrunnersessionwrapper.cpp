@@ -1,6 +1,9 @@
 #include "pjobrunnersessionwrapper.h"
 #include <QtCore/QRegExp>
 #include <iostream>
+#include <QtCore/QThread>
+#include <QtCore/QWaitCondition>
+#include <QtCore/QMutex>
 
 PJobRunnerSessionWrapper::PJobRunnerSessionWrapper(QHostAddress hostname, long timeout)
     : m_peer(hostname)
@@ -128,6 +131,11 @@ bool PJobRunnerSessionWrapper::run_job(){
             emit debug_out("Failed to open PJob file after 10 retries. Giving up...");
             return false;
         }
+        if(i>0){
+            QWaitCondition sleep;
+            QMutex mutex;
+            sleep.wait(&mutex, 1000);
+        }
         if(line.isEmpty() || line.contains("Can't open pjob file!"))
             send("open_pjob_from_received_data()\n");
         if(!m_socket.waitForReadyRead(10000))return false;
@@ -155,7 +163,7 @@ bool PJobRunnerSessionWrapper::wait_for_job_finished(){
     while(!want_exit && m_socket.state() == QTcpSocket::ConnectedState){
         if(!m_socket.waitForReadyRead(10)) continue;
         QString line = m_socket.readAll();
-        while(line.endsWith('\n') || line.endsWith('\r') || line.endsWith('\c')) line.chop(1);
+        while(line.endsWith('\n') || line.endsWith('\r')) line.chop(1);
         received(line);
         emit job_std_out(line);
         if(line.contains("Process exited normally.")){ ok = true; want_exit = true; }
