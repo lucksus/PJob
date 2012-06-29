@@ -3,6 +3,20 @@
 #include <QtNetwork/QHostAddress>
 #include <QtNetwork/QTcpSocket>
 
+class LostConnectionException{
+public:
+    LostConnectionException(std::string peer_name="", std::string m="") : m_message(m), m_peer_name(peer_name){}
+    virtual const char* what() const throw(){
+        std::string message = "Lost connection";
+        if(!m_peer_name.empty()) message += std::string(" to ") + m_peer_name;
+        if(!m_message.empty()) message += std::string(": ") + m_message;
+        return message.c_str();
+    }
+
+private:
+    std::string m_message, m_peer_name;
+};
+
 class PJobRunnerSessionWrapper : public QObject
 {
 Q_OBJECT

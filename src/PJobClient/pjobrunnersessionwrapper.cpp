@@ -4,6 +4,7 @@
 #include <QtCore/QThread>
 #include <QtCore/QWaitCondition>
 #include <QtCore/QMutex>
+unsigned int s_standard_timeout = 20000;
 
 PJobRunnerSessionWrapper::PJobRunnerSessionWrapper(QHostAddress hostname, long timeout)
     : m_peer(hostname)
@@ -12,8 +13,8 @@ PJobRunnerSessionWrapper::PJobRunnerSessionWrapper(QHostAddress hostname, long t
     m_socket.connectToHost(hostname, 23023);
     if(!m_socket.waitForConnected(timeout)) return;
     send("hello\n");
-    if(!m_socket.waitForBytesWritten(10000)) return;
-    if(!m_socket.waitForReadyRead(10000)) return;
+    if(!m_socket.waitForBytesWritten(s_standard_timeout)) return;
+    if(!m_socket.waitForReadyRead(s_standard_timeout)) return;
     QString hello_string;
     do{
         hello_string.append(m_socket.readAll());
@@ -58,7 +59,7 @@ QString PJobRunnerSessionWrapper::hostname(){
 
 bool PJobRunnerSessionWrapper::upload_pjobfile(const QByteArray& content){
     send("prepare_push_connection()\n");
-    if(!m_socket.waitForReadyRead(10000))return false;
+    if(!m_socket.waitForReadyRead(s_standard_timeout))throw LostConnectionException(m_socket.peerName().toStdString(), "waiting for prepare_push_connection() reply.");
     QString line = m_socket.readLine();
     received(line);
     bool ok;
@@ -68,7 +69,7 @@ bool PJobRunnerSessionWrapper::upload_pjobfile(const QByteArray& content){
     emit debug_out(QString("Opening data connection to port %1... ").arg(port));
     QTcpSocket push_connection;
     push_connection.connectToHost(m_socket.peerAddress(), port);
-    if(!push_connection.waitForConnected(10000))return false;
+    if(!push_connection.waitForConnected(s_standard_timeout))throw LostConnectionException(push_connection.peerName().toStdString(), QString("Could not connect to port %1 for uploading.").arg(port).toStdString());
 
     qint64 bytes_send = 0;
     qint64 all_bytes = content.size();
@@ -83,14 +84,14 @@ bool PJobRunnerSessionWrapper::upload_pjobfile(const QByteArray& content){
         push_connection.waitForBytesWritten();
     }
     push_connection.close();
-    push_connection.waitForDisconnected(10000);
+    push_connection.waitForDisconnected(s_standard_timeout);
     emit debug_out(QString("%1 bytes uploaded!").arg(content.size()));
     return true;
 }
 
 bool PJobRunnerSessionWrapper::download_results(QByteArray& data){
     send("prepare_pull_connection_for_results()\n");
-    if(!m_socket.waitForReadyRead(10000)) exit(0);
+    if(!m_socket.waitForReadyRead(s_standard_timeout))throw LostConnectionException(m_socket.peerName().toStdString(), "waiting for prepare_pull_connection_for_results() reply.");
     QString line = m_socket.readLine();
     received(line);
     QString all = m_socket.readAll();
@@ -101,8 +102,8 @@ bool PJobRunnerSessionWrapper::download_results(QByteArray& data){
     emit debug_out(QString("Pulling from port %1...").arg(port));
     QTcpSocket pull_connection;
     pull_connection.connectToHost(m_socket.peerAddress(), port);
-    if(!pull_connection.waitForConnected(10000)) exit(0);
-    if(!pull_connection.waitForReadyRead(10000)) exit(0);
+    if(!pull_connection.waitForConnected(s_standard_timeout)) throw LostConnectionException(pull_connection.peerName().toStdString(), QString("Could not connect to port %1 for downloading.").arg(port).toStdString());;
+    if(!pull_connection.waitForReadyRead(s_standard_timeout)) throw LostConnectionException(pull_connection.peerName().toStdString(), QString("Got nothing when waiting for data to download from port %1.").arg(port).toStdString());;
 
     while(true){
         if(pull_connection.state() == QTcpSocket::UnconnectedState){
@@ -119,7 +120,7 @@ bool PJobRunnerSessionWrapper::download_results(QByteArray& data){
 
 bool PJobRunnerSessionWrapper::set_parameter(const QString& name, const double& value){
     send(QString("set_parameter(\"%1\",%2);\n").arg(name).arg(value));
-    if(!m_socket.waitForReadyRead(10000))return false;
+    if(!m_socket.waitForReadyRead(s_standard_timeout))throw LostConnectionException(m_socket.peerName().toStdString(), QString("waiting for set_parameter() reply.").toStdString());
     return true;
 }
 
@@ -138,14 +139,14 @@ bool PJobRunnerSessionWrapper::run_job(){
         }
         if(line.isEmpty() || line.contains("Can't open pjob file!"))
             send("open_pjob_from_received_data()\n");
-        if(!m_socket.waitForReadyRead(10000))return false;
+        m_socket.waitForReadyRead(s_standard_timeout);
         line = m_socket.readAll();
         received(line);
         i++;
     }while(!line.contains("pjob file opened from received data.") && m_socket.state() == QTcpSocket::ConnectedState);
 
     send("run_job()\n");
-    if(!m_socket.waitForReadyRead(10000)) return false;
+    if(!m_socket.waitForReadyRead(s_standard_timeout)) LostConnectionException(m_socket.peerName().toStdString(), "waiting for run_job() reply.");
 
     while(m_socket.waitForReadyRead(1000) && m_socket.state() == QTcpSocket::ConnectedState){
         QString line = m_socket.readAll();
@@ -181,7 +182,7 @@ QHostAddress PJobRunnerSessionWrapper::peer(){
 
 bool PJobRunnerSessionWrapper::enqueue(){
     send("enqueue();\n");
-    if(!m_socket.waitForReadyRead(10000)) return false;
+    if(!m_socket.waitForReadyRead(s_standard_timeout)) return false;
     QString line = m_socket.readAll();
     received(line);
     if(line.contains("Successfully added to queue.")) return true;
@@ -203,7 +204,7 @@ bool PJobRunnerSessionWrapper::wait_till_its_your_turn(){
 
 int PJobRunnerSessionWrapper::max_process_count(){
     send("max_process_count();\n");
-    if(!m_socket.waitForReadyRead(10000)) throw QString("connection timeout");
+    if(!m_socket.waitForReadyRead(s_standard_timeout)) throw LostConnectionException(m_socket.peerName().toStdString(), "waiting for max_process_count() reply.");
     bool ok;
     QString line = m_socket.readAll();
     received(line);
@@ -214,7 +215,7 @@ int PJobRunnerSessionWrapper::max_process_count(){
 
 int PJobRunnerSessionWrapper::process_count(){
     send("process_count();\n");
-    if(!m_socket.waitForReadyRead(10000)) throw QString("connection timeout");
+    if(!m_socket.waitForReadyRead(s_standard_timeout)) throw LostConnectionException(m_socket.peerName().toStdString(), "waiting for process_count) reply.");
     bool ok;
     QString line = m_socket.readAll();
     received(line);
