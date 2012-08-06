@@ -20,7 +20,16 @@ void SessionThread::run(){
     while(connection.state() == QAbstractSocket::ConnectedState){
         while(connection.state() == QAbstractSocket::ConnectedState && !connection.waitForReadyRead(10)) session->update();
         QByteArray line = connection.readAll();
-        if(!line.isEmpty()) session->script_engine().evaluate(line);
+        try{
+            if(!line.isEmpty()) session->script_engine().evaluate(line);
+        }catch(QString str){
+            session->output(str);
+            PJobRunnerService::instance()->log(str, PJobRunnerService::Error);
+        }catch(PJobFileError e){
+            session->output(e.msg());
+            PJobRunnerService::instance()->log(e.msg(), PJobRunnerService::Error);
+        }
+
         if(session->wants_shutdown())
             connection.disconnectFromHost();
     }
