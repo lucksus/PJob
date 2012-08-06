@@ -278,12 +278,16 @@ void Session::run_job(){
 
     output(QString("Clearing temporary directory %1").arg(temp_dir));
     removeDir(temp_dir);
+    output("Done.");
 
     QString resources_directory = QString("%1/Resources/").arg(temp_dir);
+    output(QString("Extracting application %1 to %2.").arg(app.name).arg(temp_dir));
     m_pjob_file->export_application(app.name, temp_dir);
+    output(QString("Extracting resources to %2.").arg(temp_dir));
     m_pjob_file->export_resources(temp_dir);
     QString executable = temp_dir + "/" + app.name + "/" + app.executable;
-    QFile::setPermissions(executable, QFile::ExeUser);
+    output(QString("Setting permissions for executable \"%1\"").arg(executable));
+    QFile::setPermissions(executable, QFile::ExeOther);
     QProcess process;
     process.setWorkingDirectory(resources_directory);
     output(QString("Starting process: %1").arg(executable));
