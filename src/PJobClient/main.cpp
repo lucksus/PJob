@@ -8,6 +8,7 @@
 #include "pjobrunnernetworkscanner.h"
 #include <QtNetwork/QHostAddress>
 #include <QtNetwork/QHostInfo>
+#include <assert.h>
 
 void usage(){
     std::cout << "Usage: PJobClient <host> <pjob file>" << std::endl;
@@ -17,7 +18,8 @@ void usage(){
 int main(int argc, char *argv[])
 {
     if(argc == 2 && QString(argv[1]) == "scan"){
-        PJobRunnerNetworkScanner::do_blocking_scan();
+        assert(false);
+        //PJobRunnerNetworkScanner::do_blocking_scan();
         return 0;
     }
 
