@@ -62,6 +62,7 @@ void PJobRunnerService::log(QString message,const MessageType &type){
     }
     message.append("\n");
     m_log_file.write(message.toStdString().c_str());
+    m_log_file.flush();
 }
 
 PJobRunnerService* PJobRunnerService::instance(){
