@@ -2,6 +2,7 @@
 #define PJOBRUNNERSERVICE_H
 #include "qtservice.h"
 #include "ticketdispatcher.h"
+#include <QFile>
 
 using namespace std;
 class Session;
@@ -11,6 +12,8 @@ friend class ProcessCounter;
 public:
     PJobRunnerService(int argc, char** argv);
     TicketDispatcher* ticket_dispatcher();
+    void log(QString message,const MessageType& type = Information);
+    static PJobRunnerService* instance();
 
 protected:
     void start();
@@ -21,6 +24,7 @@ protected:
 
 private:
     TicketDispatcher* m_ticket_dispatcher;
+    QFile m_log_file;
 };
 
 #endif // PJOBRUNNERSERVICE_H

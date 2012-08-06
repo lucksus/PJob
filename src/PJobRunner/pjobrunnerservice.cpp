@@ -22,10 +22,15 @@ TicketDispatcher* PJobRunnerService::ticket_dispatcher(){
 void PJobRunnerService::start(){
     m_ticket_dispatcher = new TicketDispatcher;
     TcpServer::instance().set_active(true);
+    m_log_file.setFileName(QCoreApplication::applicationDirPath()+"/log.txt");
+    m_log_file.open(QIODevice::WriteOnly | QIODevice::Append);
 }
 
 void PJobRunnerService::stop(){
     TcpServer::instance().set_active(false);
+    if(m_ticket_dispatcher) delete m_ticket_dispatcher;
+    m_ticket_dispatcher = 0;
+    m_log_file.close();
 }
 
 void PJobRunnerService::pause(){
@@ -39,3 +44,28 @@ void PJobRunnerService::resume(){
 void PJobRunnerService::processCommand(int code){
 
 }
+
+void PJobRunnerService::log(QString message,const MessageType &type){
+    switch(type){
+    case Success:
+        message.prepend("SUCCESS: ");
+        break;
+    case Error:
+        message.prepend("ERROR: ");
+        break;
+    case Warning:
+        message.prepend("WARNING: ");
+        break;
+    case Information:
+    default:
+        break;
+    }
+    message.append("\n");
+    m_log_file.write(message.toStdString().c_str());
+}
+
+PJobRunnerService* PJobRunnerService::instance(){
+    return dynamic_cast<PJobRunnerService*>(QtServiceBase::instance());
+}
+
+
