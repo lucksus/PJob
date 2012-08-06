@@ -4,7 +4,7 @@
 #include <QtCore/QThread>
 #include <QtCore/QWaitCondition>
 #include <QtCore/QMutex>
-unsigned int s_standard_timeout = 20000;
+unsigned int s_standard_timeout = 60000;
 
 PJobRunnerSessionWrapper::PJobRunnerSessionWrapper(QHostAddress hostname, long timeout)
     : m_peer(hostname)
@@ -111,7 +111,7 @@ bool PJobRunnerSessionWrapper::download_results(QByteArray& data){
                 data.append(pull_connection.readAll());
             break;
         }
-        if(pull_connection.waitForReadyRead(10)){
+        if(pull_connection.waitForReadyRead(100)){
             data.append(pull_connection.readAll());
         }
     }
@@ -148,7 +148,7 @@ bool PJobRunnerSessionWrapper::run_job(){
     send("run_job()\n");
     if(!m_socket.waitForReadyRead(s_standard_timeout)) LostConnectionException(m_socket.peerName().toStdString(), "waiting for run_job() reply.");
 
-    while(m_socket.waitForReadyRead(1000) && m_socket.state() == QTcpSocket::ConnectedState){
+    while(m_socket.waitForReadyRead(s_standard_timeout) && m_socket.state() == QTcpSocket::ConnectedState){
         QString line = m_socket.readAll();
         received(line);
         if(line.contains("Starting process:")) return true;
@@ -170,7 +170,7 @@ bool PJobRunnerSessionWrapper::wait_for_job_finished(){
         if(line.contains("Process exited normally.")){ ok = true; want_exit = true; }
         if(line.contains("Process crashed!")) want_exit = true;
     }
-    while(m_socket.waitForReadyRead(1000)){
+    while(m_socket.waitForReadyRead(s_standard_timeout)){
         received(m_socket.readAll());
     }
     return ok;
