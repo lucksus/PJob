@@ -10,7 +10,14 @@ int main(int argc, char *argv[])
 {
     PJobRunnerService service(argc,argv);
     Session::global_instance().set_temp_dir(QDir::temp().absolutePath() + "/PJobRunner_temp");
-    return service.exec();
+    try{
+        return service.exec();
+    }catch(std::exception e){
+        QString message = QString("Exception in main() caught: %1").arg(e.what());
+        PJobRunnerService::instance()->log(message);
+    }catch(...){
+        PJobRunnerService::instance()->log("Unhandled exception in main() caught!");
+    }
 
 
 /*
