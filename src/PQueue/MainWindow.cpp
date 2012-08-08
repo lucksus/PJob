@@ -757,7 +757,7 @@ void MainWindow::found_new_pjob_runner(QHostAddress host){
 
     QString hostname = PJobRunnerPool::instance().hostname(host);
     QString os = PJobRunnerPool::instance().platform(host);
-    unsigned int thread_count = PJobRunnerPool::instance().thread_count(host);
+    unsigned int thread_count = PJobRunnerPool::instance().max_thread_count_for_host(host);
     QListWidgetItem* item = new QListWidgetItem();
     item->setData(Qt::DecorationRole, QColor("lime"));
     item->setData(Qt::DisplayRole, QString("%1 (%2) with %4 threads(s) running %3").arg(hostname).arg(host.toString()).arg(os).arg(thread_count));
@@ -772,7 +772,7 @@ void MainWindow::lookedUp(const QHostInfo& host){
     assert(m_pjob_runner_items.contains(address));
     QString hostname = PJobRunnerPool::instance().hostname(address);
     QString os = PJobRunnerPool::instance().platform(address);
-    unsigned int thread_count = PJobRunnerPool::instance().thread_count(address);
+    unsigned int thread_count = PJobRunnerPool::instance().max_thread_count_for_host(address);
     m_pjob_runner_items[address]->setData(Qt::DisplayRole, QString("%1 (%2) with %4 threads(s) running %3").arg(hostname).arg(address.toString()).arg(os).arg(thread_count));
 }
 

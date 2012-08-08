@@ -14,6 +14,9 @@
 #include <algorithm>
 #include "Workspace.h"
 
+Job::Job(){
+    QObject::moveToThread(Workspace::getInstace().thread());
+}
 
 Job::Job(QHash<QString,QString> parameters, Workspace* workspace)
 :m_workspace(workspace), m_parameters(parameters)
@@ -44,21 +47,25 @@ QHash<QString,QString> Job::parameters(){
 
 void Job::submited(){
 	m_state = SUBMITED;
+    m_waitConditionJobState.wakeAll();
 	emit stateChanged(this,m_state);
 }
 
 void Job::started(){
 	m_state = RUNNING;
+    m_waitConditionJobState.wakeAll();
 	emit stateChanged(this,m_state);
 }
 
 void Job::failed(){
 	m_state = FAILED;
+    m_waitConditionJobState.wakeAll();
 	emit stateChanged(this,m_state);
 }
 
 void Job::finished(){
 	m_state = FINISHED;
+    m_waitConditionJobState.wakeAll();
 	emit stateChanged(this,m_state);
 }
 
@@ -95,6 +102,20 @@ void Job::waitUntilFinished(){
 		m_waitConditionJobState.wait(&m_mutex);
 		m_mutex.unlock();
 	};
+}
+
+void Job::waitUntilRunning(){
+    while(m_state != RUNNING && m_state != FAILED && m_state != FINISHED){
+        m_mutex.lock();
+        m_waitConditionJobState.wait(&m_mutex);
+        m_mutex.unlock();
+    };
+}
+
+void Job::requeue(){
+    if(m_state != FAILED) return;
+    m_state = QUEUED;
+    emit stateChanged(this, QUEUED);
 }
 
 

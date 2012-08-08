@@ -77,11 +77,28 @@ bool PJobRunnerPool::is_scanning(){
 
 
 
-unsigned int PJobRunnerPool::thread_count(QHostAddress host) const{
+unsigned int PJobRunnerPool::max_thread_count_for_host(QHostAddress host) const{
     QHash<QHostAddress, PJobRunnerSessionWrapper*>::const_iterator it = m_info_sessions.find(host);
     if(it == m_info_sessions.end()){
         PJobRunnerSessionWrapper session(host);
         return session.max_process_count();
     }
     return it.value()->max_process_count();
+}
+
+unsigned int PJobRunnerPool::thread_count_for_host(QHostAddress host) const{
+    QHash<QHostAddress, PJobRunnerSessionWrapper*>::const_iterator it = m_info_sessions.find(host);
+    if(it == m_info_sessions.end()){
+        PJobRunnerSessionWrapper session(host);
+        return session.process_count();
+    }
+    return it.value()->process_count();
+}
+
+unsigned int PJobRunnerPool::thread_count() const{
+    unsigned int count=0;
+    foreach(QHostAddress host, known_pjob_runners()){
+        count += thread_count_for_host(host);
+    }
+    return count;
 }

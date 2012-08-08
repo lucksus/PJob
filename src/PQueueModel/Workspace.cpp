@@ -96,17 +96,25 @@ void Workspace::stop(){
 
 void Workspace::jobStateChanged(Job* job, Job::State state){
 	switch(state){
-                case Job::FINISHED:
+        case Job::FINISHED:
 			jobFinished(job);
 			break;
-                case Job::SUBMITED:
+        case Job::SUBMITED:
 			jobSubmited(job);
 			break;
-                case Job::RUNNING:
+        case Job::RUNNING:
 			jobStarted(job);
 			break;
-                case Job::QUEUED:
+        case Job::QUEUED:
+            m_jobsFailed.removeOne(job);
+            m_jobsFinished.removeOne(job);
+            m_jobsQueued.push_back(job);
 			break;
+    case Job::FAILED:
+            m_jobsRunning.removeOne(job);
+            m_jobsSubmited.removeOne(job);
+            m_jobsQueued.removeOne(job);
+            m_jobsFailed.push_back(job);
 	}
 }
 
@@ -206,7 +214,7 @@ void Workspace::populate_session_threads(){
     clear_session_threads();
     unsigned int jobs = m_jobsQueued.size();
     foreach(QHostAddress host, PJobRunnerPool::instance().known_pjob_runners()){
-        unsigned int thread_count = PJobRunnerPool::instance().thread_count(host);
+        unsigned int thread_count = PJobRunnerPool::instance().max_thread_count_for_host(host);
         for(unsigned int i=0; i<thread_count; i++){
             PJobRunnerSessionThread* thread = new PJobRunnerSessionThread(host, this);
             connect(thread, SIGNAL(finished()), this, SLOT(session_finished()), Qt::QueuedConnection);
@@ -235,4 +243,21 @@ unsigned int Workspace::number_of_enqueued_sessions(){
 
 void Workspace::save_pjobfile(){
     m_pjob_file->save();
+}
+
+void Workspace::clearFinishedJobs(){
+    foreach(Job* j, m_jobsFinished){
+        //removeJob(j);
+        delete j;
+    }
+
+    m_jobsFinished.clear();
+}
+
+QList<Job*> Workspace::failedJobs(){
+    return m_jobsFailed;
+}
+
+QList<Job*> Workspace::finishedJobs(){
+    return m_jobsFinished;
 }

@@ -12,25 +12,29 @@ class Workspace : public QObject
 Q_OBJECT
 
 public:
-        static Workspace& getInstace(void);
-	Results& getResults();
+    static Workspace& getInstace(void);
+    Results& getResults();
 
-        //! Moves top queued job from m_jobsQueued to m_jobsRunning and returns it
-        Job* startNextQueuedJob();
+    //! Moves top queued job from m_jobsQueued to m_jobsRunning and returns it
+    Job* startNextQueuedJob();
+
 
 
 public slots:
-        void setPJobFile(PJobFile*);
-        PJobFile* getPJobFile();
-        void addJob(Job*);
-        void removeJob(Job*);
-        void setQueuePosition(Job*, unsigned int position);
-        void start();
+    void setPJobFile(PJobFile*);
+    PJobFile* getPJobFile();
+    void addJob(Job*);
+    void removeJob(Job*);
+    void setQueuePosition(Job*, unsigned int position);
+    void start();
 	void stop();
 	bool isRunning();
 	void import_results_from_pjobfile(QString file);
 	void abort_progress(const QString& what);
-        void save_pjobfile();
+    void save_pjobfile();
+    void clearFinishedJobs();
+    QList<Job*> failedJobs();
+    QList<Job*> finishedJobs();
 
 
 signals:
@@ -60,6 +64,7 @@ private:
         QList<Job*> m_jobsFinished;
         QList<Job*> m_jobsQueued;
         QList<Job*> m_jobsSubmited;
+        QList<Job*> m_jobsFailed;
 	bool m_running;
 	unsigned int m_jobsAtOnce;
 

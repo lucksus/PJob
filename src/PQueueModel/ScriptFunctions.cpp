@@ -7,6 +7,7 @@
 #include "UserInputMediator.h"
 #include <QtCore/QFileInfo>
 #include <assert.h>
+#include "pjobrunnerpool.h"
 
 QScriptValue getSetScriptProgress(QScriptContext *ctx, QScriptEngine *eng){
 	QScriptValue result;
@@ -32,6 +33,26 @@ QScriptValue InterpolationFunctionConstructor(QScriptContext *context, QScriptEn
 	//qscriptvalue_cast< QStringHash > (context->argument(1)); 
 	InterpolationFunction* i = new InterpolationFunction(arg1,arg2); 
 	return engine->newQObject(i, QScriptEngine::ScriptOwnership);
+}
+
+QScriptValue toScriptValueQListJobs(QScriptEngine *engine, const QList<Job*> &list)
+{
+    QScriptValue obj = engine->newArray();
+    unsigned int index = 0;
+    foreach(Job* j, list){
+        obj.setProperty(index, engine->newQObject(j));
+        index++;
+    }
+    return obj;
+}
+
+void fromScriptValueQListJobs(const QScriptValue &obj, QList<Job*> &list)
+{
+    QScriptValueIterator it(obj);
+    while (it.hasNext()) {
+        it.next();
+        list.append(qobject_cast<Job*>(it.value().toQObject()));
+    }
 }
 
 QScriptValue toScriptValueQStringHash(QScriptEngine *engine, const QStringHash &hash)
@@ -164,6 +185,8 @@ void addFunctionsToEngine(QScriptEngine* engine){
 
 	QScriptValue controller = engine->newQObject(&Workspace::getInstace());
 	engine->globalObject().setProperty("PQueue", controller);
+    QScriptValue pool = engine->newQObject(&PJobRunnerPool::instance());
+    engine->globalObject().setProperty("Pool", pool);
 
 	QScriptValue scriptObject = engine->newObject();
 	scriptObject.setProperty("progress",engine->newFunction(getSetScriptProgress), QScriptValue::PropertyGetter|QScriptValue::PropertySetter);
@@ -201,6 +224,8 @@ void addFunctionsToEngine(QScriptEngine* engine){
 	QScriptValue exportResultsFunctionMetaObject = engine->newQMetaObject(&QObject::staticMetaObject, exportResultsFunction);
 	engine->globalObject().setProperty("exportResults", exportResultsFunctionMetaObject);
 
+    qRegisterMetaType<QList<Job*> >("QList<Job*>");
 	qScriptRegisterMetaType(engine, toScriptValueQStringHash, fromScriptValueQStringHash);
 	qScriptRegisterMetaType(engine, toScriptValueQDoubleHash, fromScriptValueQDoubleHash);
+    qScriptRegisterMetaType(engine, toScriptValueQListJobs, fromScriptValueQListJobs);
 }

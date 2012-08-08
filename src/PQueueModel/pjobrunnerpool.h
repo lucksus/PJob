@@ -11,12 +11,6 @@ public:
     //! Gives a List of all hosts of this pool running a pjob runner
     QList<QHostAddress> known_pjob_runners() const;
 
-    //! Returns number of threads for given pjob runner
-    unsigned int thread_count(QHostAddress) const;
-
-    //! Calculates the number of threads of the entire pool
-    unsigned int max_thread_count() const;
-
     bool is_scanning();
 
 
@@ -25,6 +19,17 @@ public slots:
     void stop_search_network();
     QString hostname(QHostAddress) const;
     QString platform(QHostAddress) const;
+
+    //! Returns number of cores for given pjob runner
+    unsigned int max_thread_count_for_host(QHostAddress) const;
+
+    //! Returns number of running threads for given pjob runner
+    unsigned int thread_count_for_host(QHostAddress) const;
+
+    //! Calculates the number of threads of the entire pool
+    unsigned int max_thread_count() const;
+
+    unsigned int thread_count() const;
 
 signals:
     void found_new_pjob_runner(QHostAddress);
