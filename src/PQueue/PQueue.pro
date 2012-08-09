@@ -28,10 +28,12 @@ build_pass:CONFIG(debug, debug|release) {
 unix:LIBS += -llapack -lblas
 
 win32{
-    QMAKE_POST_LINK='copy findRegion.js  $$DESTDIR & copy parametervariation.js $$DESTDIR'
+    COPY = copy
 }else{
-    QMAKE_POST_LINK='cp findRegion.js  $$DESTDIR & cp parametervariation.js $$DESTDIR'
+    COPY = cp
 }
+
+QMAKE_POST_LINK='$$COPY findRegion.js  $$DESTDIR & $$COPY parametervariation.js $$DESTDIR & $$COPY parametervariation_lean.js $$DESTDIR'
 
 # Input
 HEADERS += MainWindow.h \
