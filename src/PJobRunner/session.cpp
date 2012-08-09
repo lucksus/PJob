@@ -334,7 +334,7 @@ void Session::run_job(){
         m_pjob_file->save();
     }else{
         output("-----------------------------");
-        output("ERORR!");
+        output("ERROR!");
         output("Process could not be started!");
         output("Problem within pjob file?");
         output("-----------------------------");

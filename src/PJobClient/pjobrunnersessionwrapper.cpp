@@ -139,9 +139,12 @@ bool PJobRunnerSessionWrapper::run_job(){
         }
         if(line.isEmpty() || line.contains("Can't open pjob file!"))
             send("open_pjob_from_received_data()\n");
-        m_socket.waitForReadyRead(s_standard_timeout);
-        line = m_socket.readAll();
-        received(line);
+        line = m_socket.readLine();
+        if(line.isEmpty()){
+            m_socket.waitForReadyRead(s_standard_timeout);
+        }else{
+            received(line);
+        }
         i++;
     }while(!line.contains("pjob file opened from received data.") && m_socket.state() == QTcpSocket::ConnectedState);
 
@@ -149,11 +152,18 @@ bool PJobRunnerSessionWrapper::run_job(){
     if(!m_socket.waitForReadyRead(s_standard_timeout)) LostConnectionException(m_socket.peerName().toStdString(), "waiting for run_job() reply.");
 
     while(m_socket.waitForReadyRead(s_standard_timeout) && m_socket.state() == QTcpSocket::ConnectedState){
-        QString line = m_socket.readAll();
+        QString line = m_socket.readLine();
         received(line);
-        if(line.contains("Starting process:")) return true;
-        if(line.contains("Starting process:")) return true;
-        if(line.contains("Can't")) return false;
+        if(line.contains("Starting process:"))
+            return true;
+        if(line.contains("Starting process:"))
+            return true;
+        if(line.contains("Can't"))
+            return false;
+        if(line.contains("ERROR!"))
+            return false;
+        if(line.contains("Process could not be started!"))
+            return false;
     }
     return false;
 }
@@ -162,15 +172,21 @@ bool PJobRunnerSessionWrapper::wait_for_job_finished(){
     bool ok=false;
     bool want_exit=false;
     while(!want_exit && m_socket.state() == QTcpSocket::ConnectedState){
-        if(!m_socket.waitForReadyRead(10)) continue;
         QString line = m_socket.readAll();
+        if(line.isEmpty()){
+            m_socket.waitForReadyRead(10);
+            continue;
+        }
+
         while(line.endsWith('\n') || line.endsWith('\r')) line.chop(1);
         received(line);
         emit job_std_out(line);
         if(line.contains("Process exited normally.")){ ok = true; want_exit = true; }
         if(line.contains("Process crashed!")) want_exit = true;
+        if(line.contains("ERROR!")) want_exit = true;
+        if(line.contains("Process could not be started!")) want_exit = true;
     }
-    while(m_socket.waitForReadyRead(s_standard_timeout)){
+    while(m_socket.waitForReadyRead(s_standard_timeout/60)){
         received(m_socket.readAll());
     }
     return ok;
