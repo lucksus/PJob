@@ -105,10 +105,11 @@ void Job::waitUntilFinished(){
 }
 
 void Job::waitUntilRunning(){
-    while(m_state != RUNNING && m_state != FAILED && m_state != FINISHED){
-        m_mutex.lock();
-        m_waitConditionJobState.wait(&m_mutex);
-        m_mutex.unlock();
+    while((m_state != RUNNING) && (m_state != FAILED) && (m_state != FINISHED)){
+        //m_mutex.lock();
+        //m_waitConditionJobState.wait(&m_mutex);
+        //m_mutex.unlock();
+        sleep(1);
     };
 }
 
