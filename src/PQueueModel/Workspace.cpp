@@ -248,6 +248,7 @@ void Workspace::save_pjobfile(){
 void Workspace::clearFinishedJobs(){
     foreach(Job* j, m_jobsFinished){
         //removeJob(j);
+        emit jobRemoved(j);
         delete j;
     }
 
