@@ -4,6 +4,7 @@
 #include "Results.h"
 #include "PJobFile.h"
 #include "Job.h"
+#include <QTimer>
 
 using namespace std;
 class PJobRunnerSessionThread;
@@ -50,12 +51,14 @@ signals:
 private slots:
         void jobStateChanged(Job*, Job::State);
         void session_finished();
+        void delete_jobs();
 
 private:
         Workspace(void);
         ~Workspace(void);
 
         QMutex m_mutex;
+        QTimer m_job_deleter_timer;
 
         PJobFile* m_pjob_file;
 
@@ -65,6 +68,7 @@ private:
         QList<Job*> m_jobsQueued;
         QList<Job*> m_jobsSubmited;
         QList<Job*> m_jobsFailed;
+        QList<Job*> m_jobsToDelete;
 	bool m_running;
 	unsigned int m_jobsAtOnce;
 

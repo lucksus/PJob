@@ -19,6 +19,8 @@ Workspace::Workspace(void)
 	connect(&m_results, SIGNAL(newValueSet(QString , QString , QHash<QString,double> , double )),
 		&Logger::getInstance(), SLOT(newValueSet(QString , QString , QHash<QString,double> , double )));
 	Scripter::getInstance();
+        connect(&m_job_deleter_timer, SIGNAL(timeout()), this, SLOT(delete_jobs()));
+        m_job_deleter_timer.start(500);
         qRegisterMetaType<Job::State>("Job::State");
 }
 
@@ -246,13 +248,8 @@ void Workspace::save_pjobfile(){
 }
 
 void Workspace::clearFinishedJobs(){
-    foreach(Job* j, m_jobsFinished){
-        //removeJob(j);
-        emit jobRemoved(j);
-        delete j;
-    }
-
-    m_jobsFinished.clear();
+    while(m_jobsFinished.size() > 0)
+        m_jobsToDelete.append(m_jobsFinished.takeFirst());
 }
 
 QList<Job*> Workspace::failedJobs(){
@@ -261,4 +258,23 @@ QList<Job*> Workspace::failedJobs(){
 
 QList<Job*> Workspace::finishedJobs(){
     return m_jobsFinished;
+}
+
+void Workspace::delete_jobs(){
+    QList<Job*> jobs_remained;
+    QList<Job*> seen_jobs;
+    while(m_jobsToDelete.size() > 0){
+        Job *j = m_jobsToDelete.takeFirst();
+        if(seen_jobs.contains(j)) continue;
+        seen_jobs.append(j);
+        if(! j->m_mutex_deletable.tryLock(5)){
+            jobs_remained.append(j);
+            continue;
+        }
+        removeJob(j);
+        j->m_mutex_deletable.unlock();
+        delete j;
+    }
+
+    m_jobsToDelete = jobs_remained;
 }

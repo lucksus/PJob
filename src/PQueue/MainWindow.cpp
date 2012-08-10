@@ -270,10 +270,11 @@ void MainWindow::jobRemoved(Job* job){
 			delete item;
 		}
 	}
-        JobOutputWidget* widget;
+        JobOutputWidget* widget=0;
         foreach(JobOutputWidget* w, m_job_output_widgets){
             if(w->job() == job) widget = w;
         }
+        if(widget == 0) return;
         m_job_output_widgets.removeOne(widget);
         delete widget;
 }
