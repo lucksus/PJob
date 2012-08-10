@@ -87,12 +87,20 @@ unsigned int PJobRunnerPool::max_thread_count_for_host(QHostAddress host) const{
 }
 
 unsigned int PJobRunnerPool::thread_count_for_host(QHostAddress host) const{
-    QHash<QHostAddress, PJobRunnerSessionWrapper*>::const_iterator it = m_info_sessions.find(host);
-    if(it == m_info_sessions.end()){
-        PJobRunnerSessionWrapper session(host);
-        return session.process_count();
+    unsigned int retries = 0;
+    while(retries < 3){
+        try{
+            QHash<QHostAddress, PJobRunnerSessionWrapper*>::const_iterator it = m_info_sessions.find(host);
+            if(it == m_info_sessions.end()){
+                PJobRunnerSessionWrapper session(host);
+                return session.process_count();
+            }
+            return it.value()->process_count();
+        }catch(LostConnectionException e){
+            retries++;
+        }
     }
-    return it.value()->process_count();
+    return 0;
 }
 
 unsigned int PJobRunnerPool::thread_count() const{
