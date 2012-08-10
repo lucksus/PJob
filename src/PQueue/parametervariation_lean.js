@@ -154,10 +154,11 @@ function sleep(milliseconds) {
 //4. Create job instances
 print("Doing parametervariation with " + combination_count() + " combinations...");
 PQueue.clearFinishedJobs();
-PQueue.start();
 var job_count = 0;
-while(job_count < combination_count()){
+while(job_count < combination_count() || !done){
 	Script.progress = job_count / combination_count() * 100;
+	PQueue.stop();
+	PQueue.start();
 	job_count += PQueue.finishedJobs().length;
 	print("job_count: "+job_count+"\n");
 	PQueue.clearFinishedJobs();
@@ -184,9 +185,10 @@ while(job_count < combination_count()){
 		jobs.push(job);
 	}
 	for(var i in jobs){
-		jobs[i].waitUntilRunning();
+		try{
+			jobs[i].waitUntilRunning();
+		}catch(e){};
 	}
-	
 }
 Script.progress = 100;
 print("done!\n");
