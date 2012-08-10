@@ -287,7 +287,7 @@ void Session::run_job(){
     m_pjob_file->export_resources(temp_dir);
     QString executable = temp_dir + "/" + app.name + "/" + app.executable;
     output(QString("Setting permissions for executable \"%1\"").arg(executable));
-    QFile::setPermissions(executable, QFile::ExeOther);
+    QFile::setPermissions(executable, QFile::ReadOwner|QFile::WriteOwner|QFile::ExeOwner|QFile::ExeUser|QFile::ExeGroup|QFile::ExeOther);
     QProcess process;
     process.setWorkingDirectory(resources_directory);
     output(QString("Starting process: %1").arg(executable));
