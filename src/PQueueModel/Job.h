@@ -8,10 +8,12 @@
 #include <QtCore/QProcess>
 #include <fstream>
 #include <QtCore/QMetaType>
+#include <QtNetwork/QHostAddress>
 
 using namespace std;
 
 class Workspace;
+class PJobRunnerSessionWrapper;
 class Job : public QObject
 {
 Q_OBJECT
@@ -48,6 +50,9 @@ public:
     QString err_out() const;
     QString connection_debug() const;
 
+    QHostAddress peer() const;
+    State state() const {return m_state;}
+
 signals:
     void stateChanged(Job*, Job::State);
 	void results(QHash< QHash<QString,double>, QHash<QString,double> > values, QString phoFile);
@@ -69,14 +74,15 @@ private slots:
 
 private:
     Workspace* m_workspace;
-	QHash<QString, QString> m_parameters;
-	State m_state;
+    QHash<QString, QString> m_parameters;
+    State m_state;
     QString m_std_out;
     QString m_err_out;
     QString m_connection_debug;
-	
-	QMutex m_mutex;
-	QWaitCondition m_waitConditionJobState;
+    PJobRunnerSessionWrapper* m_session;
+
+public:
+    QMutex m_mutex_deletable;
 };
 
 Q_DECLARE_METATYPE(Job*);

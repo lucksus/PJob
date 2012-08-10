@@ -13,6 +13,7 @@
 #include <iostream>
 #include <algorithm>
 #include "Workspace.h"
+#include "pjobrunnersessionwrapper.h"
 
 Job::Job(){
     QObject::moveToThread(Workspace::getInstace().thread());
@@ -47,25 +48,21 @@ QHash<QString,QString> Job::parameters(){
 
 void Job::submited(){
 	m_state = SUBMITED;
-    m_waitConditionJobState.wakeAll();
 	emit stateChanged(this,m_state);
 }
 
 void Job::started(){
 	m_state = RUNNING;
-    m_waitConditionJobState.wakeAll();
 	emit stateChanged(this,m_state);
 }
 
 void Job::failed(){
 	m_state = FAILED;
-    m_waitConditionJobState.wakeAll();
 	emit stateChanged(this,m_state);
 }
 
 void Job::finished(){
 	m_state = FINISHED;
-    m_waitConditionJobState.wakeAll();
 	emit stateChanged(this,m_state);
 }
 
@@ -89,26 +86,16 @@ void Job::process_finished_run(QString runDirectory){
 		emit problemReadingResults(this, s);
 	}
 	finished();
-
-	//Because of this we have to make sure
-	//this slot is always called from the main (=GUI) thread
-	//which is (hopefully) never blocked.
-	m_waitConditionJobState.wakeAll();
 }
 
 void Job::waitUntilFinished(){
-	while(m_state != FINISHED){
-		m_mutex.lock();
-		m_waitConditionJobState.wait(&m_mutex);
-		m_mutex.unlock();
-	};
+    while(m_state != FINISHED){
+        sleep(1);
+    };
 }
 
 void Job::waitUntilRunning(){
     while((m_state != RUNNING) && (m_state != FAILED) && (m_state != FINISHED)){
-        //m_mutex.lock();
-        //m_waitConditionJobState.wait(&m_mutex);
-        //m_mutex.unlock();
         sleep(1);
     };
 }
@@ -149,5 +136,10 @@ QString Job::err_out() const{
 
 QString Job::connection_debug() const{
     return m_connection_debug;
+}
+
+QHostAddress Job::peer() const{
+    if(m_state != RUNNING) throw QString("Job not running!");
+    return m_session->peer();
 }
 

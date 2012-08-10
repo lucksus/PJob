@@ -21,6 +21,8 @@ void PJobRunnerSessionThread::run(){
     m_enqueued = false;
     Job* job = m_workspace->startNextQueuedJob();
     if(!job) return;
+    QMutexLocker lock(&job->m_mutex_deletable);
+    job->m_session = session.get();
     connect(session.get(), SIGNAL(debug_out(QString)), job, SLOT(got_connection_debug(QString)));
     job->submited();
     PJobFile* pjob_file = m_workspace->getPJobFile();
@@ -41,6 +43,7 @@ void PJobRunnerSessionThread::run(){
     delete raw;
     if(!ok){
         job->failed();
+        job->m_session = 0;
         return;
     }
 
@@ -71,6 +74,7 @@ void PJobRunnerSessionThread::run(){
         job->got_connection_debug(e.what());
     }
 
+    job->m_session = 0;
     disconnect(session.get(), SIGNAL(job_std_out(QString)), job, SLOT(got_std_out(QString)));
     disconnect(session.get(), SIGNAL(job_error_out(QString)), job, SLOT(got_err_out(QString)));
     disconnect(session.get(), SIGNAL(debug_out(QString)), job, SLOT(got_connection_debug(QString)));

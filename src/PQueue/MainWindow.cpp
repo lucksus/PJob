@@ -336,8 +336,11 @@ void MainWindow::jobOutput(QString s){
     if(!job) return;
     QListWidgetItem* item = itemForJob(job);
     QStringList lines = s.split("\n");
-    while(lines.size() > 3) lines.pop_front();
-    item->setText(lines.join("\n"));
+    while(lines.size() > 2) lines.pop_front();
+    QString host;
+    if(job->state() == Job::RUNNING)
+        host = QString("%1: ").arg(PJobRunnerPool::instance().hostname(job->peer()));
+    item->setText(host + lines.join("\n"));
 }
 
 void MainWindow::on_startButton_clicked(){

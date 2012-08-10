@@ -4,7 +4,7 @@
 #include <QtCore/QThread>
 #include <QtCore/QWaitCondition>
 #include <QtCore/QMutex>
-unsigned int s_standard_timeout = 60000;
+unsigned int s_standard_timeout = 6000;
 
 PJobRunnerSessionWrapper::PJobRunnerSessionWrapper(QHostAddress hostname, long timeout)
     : m_peer(hostname)
@@ -80,8 +80,11 @@ bool PJobRunnerSessionWrapper::upload_pjobfile(const QByteArray& content){
         qint64 bytes_written = push_connection.write(data, std::min(transfer_unit_size,all_bytes-bytes_send));
         data += bytes_written;
         bytes_send += bytes_written;
-        push_connection.flush();
-        push_connection.waitForBytesWritten();
+        do{
+            if(push_connection.flush()) break;
+            if(push_connection.waitForBytesWritten(s_standard_timeout)) break;
+        }while(push_connection.isOpen());
+        if(! push_connection.isOpen()) return false;
     }
     push_connection.close();
     push_connection.waitForDisconnected(s_standard_timeout);
