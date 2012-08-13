@@ -4,6 +4,7 @@
 #include <QtCore/QThread>
 #include <QtCore/QWaitCondition>
 #include <QtCore/QMutex>
+
 unsigned int s_standard_timeout = 6000;
 
 PJobRunnerSessionWrapper::PJobRunnerSessionWrapper(QHostAddress hostname, long timeout)
@@ -74,17 +75,18 @@ bool PJobRunnerSessionWrapper::upload_pjobfile(const QByteArray& content){
     qint64 bytes_send = 0;
     qint64 all_bytes = content.size();
     const char* data = content.data();
-    qint64 transfer_unit_size = 1024;
+    qint64 transfer_unit_size = 100*1024;
 
-    while(bytes_send != all_bytes){
+    while(bytes_send != all_bytes && push_connection.state() == QTcpSocket::ConnectedState){
+        push_connection.flush();
         qint64 bytes_written = push_connection.write(data, std::min(transfer_unit_size,all_bytes-bytes_send));
         data += bytes_written;
         bytes_send += bytes_written;
-        do{
-            if(push_connection.flush()) break;
-            if(push_connection.waitForBytesWritten(s_standard_timeout)) break;
-        }while(push_connection.isOpen());
-        if(! push_connection.isOpen()) return false;
+        push_connection.waitForBytesWritten(s_standard_timeout);
+    }
+    if(bytes_send != all_bytes){
+        emit debug_out(QString("Uploading pjobfile failed! Only %1 bytes out of %1 uploaded.").arg(bytes_send).arg(all_bytes));
+        return false;
     }
     push_connection.close();
     push_connection.waitForDisconnected(s_standard_timeout);
@@ -138,10 +140,11 @@ bool PJobRunnerSessionWrapper::run_job(){
         if(i>0){
             QWaitCondition sleep;
             QMutex mutex;
-            sleep.wait(&mutex, 1000);
+            sleep.wait(&mutex, 500*(rand()%10));
         }
-        if(line.isEmpty() || line.contains("Can't open pjob file!"))
+        if(line.isEmpty() || line.contains("Can't open pjob file!")){
             send("open_pjob_from_received_data()\n");
+        }
         line = m_socket.readLine();
         if(line.isEmpty()){
             m_socket.waitForReadyRead(s_standard_timeout);
