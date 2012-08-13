@@ -311,6 +311,7 @@ void MainWindow::updateButtons(){
 
 void MainWindow::jobStateChanged(Job* j, Job::State state){
 	QListWidgetItem* item = itemForJob(j);
+        if(!item) return;
 	switch(state){
 		case Job::FINISHED:
 			item->setData(Qt::DecorationRole, QColor("lime"));
