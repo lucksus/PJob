@@ -1,5 +1,6 @@
 #include "pjobrunnerpool.h"
 #include <assert.h>
+#include <iostream>
 
 PJobRunnerPool::PJobRunnerPool()
 {
@@ -66,7 +67,11 @@ QString PJobRunnerPool::platform(QHostAddress host) const{
 unsigned int PJobRunnerPool::max_thread_count() const{
     unsigned int count = 0;
     foreach(PJobRunnerSessionWrapper* info_session, m_info_sessions.values()){
-        count += info_session->max_process_count();
+        try{
+            count += info_session->max_process_count();
+        }catch(...){
+            std::cout << "Ups!" << std::endl;
+        }
     }
     return count;
 }
@@ -80,8 +85,12 @@ bool PJobRunnerPool::is_scanning(){
 unsigned int PJobRunnerPool::max_thread_count_for_host(QHostAddress host) const{
     QHash<QHostAddress, PJobRunnerSessionWrapper*>::const_iterator it = m_info_sessions.find(host);
     if(it == m_info_sessions.end()){
-        PJobRunnerSessionWrapper session(host);
-        return session.max_process_count();
+        try{
+            PJobRunnerSessionWrapper session(host);
+            return session.max_process_count();
+        }catch(...){
+            std::cout << "Ups2!" << std::endl;
+        }
     }
     return it.value()->max_process_count();
 }
