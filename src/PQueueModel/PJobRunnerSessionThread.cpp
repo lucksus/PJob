@@ -19,7 +19,7 @@ void PJobRunnerSessionThread::run(){
     m_enqueued = true;
     session->wait_till_its_your_turn();
     m_enqueued = false;
-    Job* job = m_workspace->startNextQueuedJob();
+    Job* job = m_workspace->get_next_queued_job_and_move_to_running();
     if(!job) return;
     QMutexLocker lock(&job->m_mutex_deletable);
     job->m_session = session.get();
@@ -34,7 +34,7 @@ void PJobRunnerSessionThread::run(){
     do{
         try{
             tries++;
-            session->upload_pjobfile(*raw);
+            ok = session->upload_pjobfile(*raw);
         }catch(LostConnectionException e){
             ok=false;
             job->got_connection_debug(e.what());

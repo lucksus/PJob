@@ -9,19 +9,20 @@
 Workspace::Workspace(void)
 : m_pjob_file(0), m_running(false)
 {
-	qRegisterMetaType< QHash<QString,double> >("QHash<QString,double>");
-	qRegisterMetaType<QHash< QHash<QString,double>, QHash<QString,double> > >("QHash< QHash<QString,double>, QHash<QString,double> >");
-        connect(this, SIGNAL(jobAdded(Job*,unsigned int)), &Logger::getInstance(), SLOT(jobAdded(Job*,unsigned int)));
-        connect(this, SIGNAL(jobRemoved(Job*)), &Logger::getInstance(), SLOT(jobRemoved(Job*)));
-        connect(this, SIGNAL(jobMoved(Job*,unsigned int)), &Logger::getInstance(), SLOT(jobMoved(Job*,unsigned int)));
-	connect(this, SIGNAL(started()), &Logger::getInstance(), SLOT(started()));
-	connect(this, SIGNAL(stopped()), &Logger::getInstance(), SLOT(stopped()));
-	connect(&m_results, SIGNAL(newValueSet(QString , QString , QHash<QString,double> , double )),
-		&Logger::getInstance(), SLOT(newValueSet(QString , QString , QHash<QString,double> , double )));
-	Scripter::getInstance();
-        connect(&m_job_deleter_timer, SIGNAL(timeout()), this, SLOT(delete_jobs()));
-        m_job_deleter_timer.start(500);
-        qRegisterMetaType<Job::State>("Job::State");
+    qRegisterMetaType< QHash<QString,double> >("QHash<QString,double>");
+    qRegisterMetaType<QHash< QHash<QString,double>, QHash<QString,double> > >("QHash< QHash<QString,double>, QHash<QString,double> >");
+    connect(this, SIGNAL(jobAdded(Job*,unsigned int)), &Logger::getInstance(), SLOT(jobAdded(Job*,unsigned int)));
+    connect(this, SIGNAL(jobRemoved(Job*)), &Logger::getInstance(), SLOT(jobRemoved(Job*)));
+    connect(this, SIGNAL(jobMoved(Job*,unsigned int)), &Logger::getInstance(), SLOT(jobMoved(Job*,unsigned int)));
+    connect(this, SIGNAL(started()), &Logger::getInstance(), SLOT(started()));
+    connect(this, SIGNAL(stopped()), &Logger::getInstance(), SLOT(stopped()));
+    connect(&m_results, SIGNAL(newValueSet(QString , QString , QHash<QString,double> , double )), &Logger::getInstance(), SLOT(newValueSet(QString , QString , QHash<QString,double> , double )));
+    Scripter::getInstance();
+    connect(&m_job_deleter_timer, SIGNAL(timeout()), this, SLOT(delete_jobs()));
+    connect(&m_session_thread_update_timer, SIGNAL(timeout()), this, SLOT(session_threads_update()));
+    m_job_deleter_timer.start(500);
+    m_session_thread_update_timer.start(500);
+    qRegisterMetaType<Job::State>("Job::State");
 }
 
 Workspace::~Workspace(void)
@@ -30,8 +31,8 @@ Workspace::~Workspace(void)
 
 Workspace& Workspace::getInstace(void)
 {
-        static Workspace p;
-	return p;
+    static Workspace p;
+    return p;
 }
 
 Results& Workspace::getResults(){
@@ -81,16 +82,25 @@ void Workspace::setQueuePosition(Job* j, unsigned int position){
 }
 
 void Workspace::start(){
-    populate_session_threads();
-    foreach(PJobRunnerSessionThread* thread, m_session_threads){
-        thread->start();
-    }
-
+    if(m_running) return;
     m_running = true;
+    populate_session_threads();
+    session_threads_update();
     emit started();
 }
 
+void Workspace::session_threads_update(){
+    if(m_running){
+        foreach(PJobRunnerSessionThread* thread, m_session_threads){
+            if(!thread->isRunning()) thread->start();
+        }
+    }else{
+        clear_session_threads();
+    }
+}
+
 void Workspace::stop(){
+    if(!m_running) return;
 	m_running = false;
 	emit stopped();
 }
@@ -195,7 +205,7 @@ void Workspace::abort_progress(const QString& what){
 	m_progresses_to_abort.insert(what);
 }
 
-Job* Workspace::startNextQueuedJob(){
+Job* Workspace::get_next_queued_job_and_move_to_running(){
     QMutexLocker locker(&m_mutex);
     if(m_jobsQueued.isEmpty()) return 0;
     Job* job = m_jobsQueued.takeFirst();

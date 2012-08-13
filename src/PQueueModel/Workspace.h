@@ -17,7 +17,7 @@ public:
     Results& getResults();
 
     //! Moves top queued job from m_jobsQueued to m_jobsRunning and returns it
-    Job* startNextQueuedJob();
+    Job* get_next_queued_job_and_move_to_running();
 
 
 
@@ -36,6 +36,7 @@ public slots:
     void clearFinishedJobs();
     QList<Job*> failedJobs();
     QList<Job*> finishedJobs();
+    void session_threads_update();
 
 
 signals:
@@ -59,6 +60,7 @@ private:
 
         QMutex m_mutex;
         QTimer m_job_deleter_timer;
+        QTimer m_session_thread_update_timer;
 
         PJobFile* m_pjob_file;
 

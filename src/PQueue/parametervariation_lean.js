@@ -155,10 +155,9 @@ function sleep(milliseconds) {
 print("Doing parametervariation with " + combination_count() + " combinations...");
 PQueue.clearFinishedJobs();
 var job_count = 0;
+PQueue.start();
 while(job_count < combination_count() || !done){
 	Script.progress = job_count / combination_count() * 100;
-	PQueue.stop();
-	PQueue.start();
 	job_count += PQueue.finishedJobs().length;
 	print("job_count: "+job_count+"\n");
 	PQueue.clearFinishedJobs();
@@ -190,5 +189,6 @@ while(job_count < combination_count() || !done){
 		}catch(e){};
 	}
 }
+PQueue.stop();
 Script.progress = 100;
 print("done!\n");
