@@ -2,6 +2,7 @@
 #define DATACONNECTIONSERVER_H
 
 #include <QTcpServer>
+#include <QMutex>
 
 class DataConnectionServer : public QTcpServer
 {
@@ -24,6 +25,7 @@ private:
     QThread* m_worker_thread;
     QByteArray *m_data;
     static quint32 s_port;
+    static QMutex m_port_mutex;
     enum Mode{Serve, Receive};
     Mode m_mode;
     bool m_has_received_data;

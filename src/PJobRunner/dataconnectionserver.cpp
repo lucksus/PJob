@@ -3,6 +3,7 @@
 #include <assert.h>
 
 quint32 DataConnectionServer::s_port = 23023;
+QMutex DataConnectionServer::m_port_mutex;
 
 DataConnectionServer::DataConnectionServer(QObject *parent) :
     QTcpServer(parent), m_worker_thread(0), m_data(0), m_has_received_data(false)
@@ -10,6 +11,7 @@ DataConnectionServer::DataConnectionServer(QObject *parent) :
 }
 
 quint32 DataConnectionServer::open_data_port(){
+   QMutexLocker locker(&m_port_mutex);
    quint32 port = s_port + 1;
    while(!listen(QHostAddress::Any, port) && port < 32000) port++;
    if(!isListening()) throw QString("No free port found!");
@@ -20,7 +22,7 @@ quint32 DataConnectionServer::open_data_port(){
 unsigned int DataConnectionServer::serve_data(const QByteArray& data){
     QByteArray *ptr = new QByteArray(data);
     try{
-        serve_data(ptr);
+        return serve_data(ptr);
     }catch(QString s){
         delete ptr;
         throw(s);
