@@ -14,6 +14,7 @@
 #include <algorithm>
 #include "Workspace.h"
 #include "pjobrunnersessionwrapper.h"
+#include <QThread>
 
 Job::Job(){
     QObject::moveToThread(Workspace::getInstace().thread());
@@ -90,13 +91,19 @@ void Job::process_finished_run(QString runDirectory){
 
 void Job::waitUntilFinished(){
     while(m_state != FINISHED){
-        sleep(1);
+        QMutex dummy;
+        dummy.lock();
+        QWaitCondition w;
+        w.wait(&dummy,500);
     };
 }
 
 void Job::waitUntilRunning(){
     while((m_state != RUNNING) && (m_state != FAILED) && (m_state != FINISHED)){
-        sleep(1);
+        QMutex dummy;
+        dummy.lock();
+        QWaitCondition w;
+        w.wait(&dummy,500);
     };
 }
 
