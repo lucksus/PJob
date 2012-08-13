@@ -64,7 +64,7 @@ void PJobRunnerService::log(QString message,const MessageType &type){
     }
     message.append("\n");
     message.prepend(QTime::currentTime().toString("hh:mm:ss: "));
-    message.prepend(QDate::currentDate().toString("yyyymmdd_"));
+    message.prepend(QDate::currentDate().toString("yyyyMMdd_"));
     m_log_file.write(message.toStdString().c_str());
     m_log_file.flush();
 }
