@@ -64,12 +64,14 @@ private:
     QStringList create_commandline_arguments_for_app(const PJobFileApplication&);
     QList<PJobFileParameter> parameters_as_pjobfileparameters();
 
+    QMutex m_mutex_received_data;
 
 
     bool m_has_turn, m_got_turn;
     bool m_has_running_process;
     QTimer m_turn_timeout;
     bool m_renew_turn;
+    bool m_data_received;
 };
 
 #endif // CONTROLLER_H

@@ -134,6 +134,7 @@ void Session::fetch_received_data_from_connection_server(){
     assert(dynamic_cast<DataConnectionServer*>(sender()));
     DataConnectionServer* server = dynamic_cast<DataConnectionServer*>(sender());
     if(!server) return;
+    QMutexLocker locker(&m_mutex_received_data);
     m_received_data = *(server->received_data());
     server->deleteLater();
 }
@@ -151,6 +152,7 @@ quint32 Session::prepare_pull_connection_for_results(){
 
 void Session::open_pjob_from_received_data(){
     m_renew_turn = true;
+    QMutexLocker locker(&m_mutex_received_data);
     if(m_received_data.size() <= 0){
         output("No data received! Can't open pjob file!");
         return;
