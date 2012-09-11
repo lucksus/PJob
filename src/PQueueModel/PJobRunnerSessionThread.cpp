@@ -63,10 +63,14 @@ void PJobRunnerSessionThread::run(){
                 //Job is finished. Get results.
                 QByteArray results;
                 session->download_results(results);
-                QString run_name = PJobFile::name_of_first_run_in_raw_bytes(results);
-                pjob_file->add_raw_files(results);
-                job->process_finished_run(run_name);
-                job->finished();
+                try{
+                    QString run_name = PJobFile::name_of_first_run_in_raw_bytes(results);
+                    pjob_file->add_raw_files(results);
+                    job->process_finished_run(run_name);
+                    job->finished();
+                }catch(QString s){
+                    job->failed();
+                }
             }
         }else job->failed();
     }catch(LostConnectionException e){
