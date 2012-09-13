@@ -4,7 +4,8 @@ DEPENDPATH += . ../PJobFile
 INCLUDEPATH += . ../PJobFile
 CONFIG += console
 CONFIG += debug_and_release
-LIBS += -L../../lib #-lboost_program_options
+LIBS += -L../../lib
+unix: LIBS += -lboost_program_options
 DESTDIR = ../../bin
 
 include(../src.pri)

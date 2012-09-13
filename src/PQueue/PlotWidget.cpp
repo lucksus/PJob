@@ -9,6 +9,9 @@
 #ifdef Q_OS_WIN
 #include <gl/glu.h>
 #endif
+#ifdef Q_OS_UNIX
+#include <GL/glu.h>
+#endif
 
 PlotWidget::PlotWidget(void)
 : m_cameraAngleXRotation(28), m_cameraAngleYRotation(40), m_cameraDistance(200), m_mousedown(false), m_haveDisplayList(false)

@@ -8,6 +8,9 @@
 #ifdef Q_OS_WIN
 #include <gl/glu.h>
 #endif
+#ifdef Q_OS_UNIX
+#include <GL/glu.h>
+#endif
 
 using namespace std;
 
