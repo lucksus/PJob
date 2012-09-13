@@ -5,6 +5,7 @@
 #include "Scripter.h"
 #include "pjobrunnerpool.h"
 #include "PJobRunnerSessionThread.h"
+#include <QDateTime>
 
 Workspace::Workspace(void)
 : m_pjob_file(0), m_running(false)
@@ -41,6 +42,8 @@ Results& Workspace::getResults(){
 
 void Workspace::setPJobFile(PJobFile* p){
     m_pjob_file = p;
+    QFileInfo info(p->pjobFile());
+    m_pjob_file_signature = QString("%1__%2").arg(QDateTime::currentDateTime().toString("yyyyMMdd_hhmm_ss_zzz")).arg(info.baseName());
     emit pjobFileChanged(p);
 }
 
@@ -287,4 +290,8 @@ void Workspace::delete_jobs(){
     }
 
     m_jobsToDelete = jobs_remained;
+}
+
+QString Workspace::pjob_file_signature(){
+    return m_pjob_file_signature;
 }

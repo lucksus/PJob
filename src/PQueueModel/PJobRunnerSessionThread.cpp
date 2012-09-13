@@ -27,24 +27,33 @@ void PJobRunnerSessionThread::run(){
     job->submited();
     PJobFile* pjob_file = m_workspace->getPJobFile();
     if(!pjob_file) return;
-    QByteArray* raw = pjob_file->raw_without_results();
 
-    unsigned int tries=0;
-    bool ok=true;
-    do{
-        try{
-            tries++;
-            ok = session->upload_pjobfile(*raw);
-        }catch(LostConnectionException e){
-            ok=false;
-            job->got_connection_debug(e.what());
+    if(!session->open_pjob_from_user_file(m_workspace->pjob_file_signature())){
+        QByteArray* raw = pjob_file->raw_without_results();
+        unsigned int tries=0;
+        bool ok=true;
+        do{
+            try{
+                tries++;
+                ok = session->upload_pjobfile(*raw);
+            }catch(LostConnectionException e){
+                ok=false;
+                job->got_connection_debug(e.what());
+            }
+        }while(!ok && tries <10);
+        delete raw;
+        if(!ok){
+            job->failed();
+            job->m_session = 0;
+            return;
         }
-    }while(!ok && tries <10);
-    delete raw;
-    if(!ok){
-        job->failed();
-        job->m_session = 0;
-        return;
+        ok = false;
+        tries = 0;
+        do{
+            msleep(200);
+            ok = session->save_user_file(m_workspace->pjob_file_signature());
+            tries++;
+        }while(!ok && tries < 10);
     }
 
     try{

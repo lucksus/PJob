@@ -34,6 +34,9 @@ public:
     bool set_parameter(const QString& name, const double& value);
     bool run_job();
     bool wait_for_job_finished();
+    bool open_pjob_from_uploaded_data();
+    bool open_pjob_from_user_file(QString name);
+    bool save_user_file(QString name);
 
     QHostAddress peer();
 
@@ -57,8 +60,8 @@ private:
     QHostAddress m_peer;
     bool m_debug_mode;
 
-    void send(const QString&);
-    void received(const QString&);
+    void send(QString);
+    void received(QString);
 };
 
 #endif // PJOBRUNNERSESSIONWRAPPER_H

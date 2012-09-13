@@ -431,3 +431,43 @@ QList<PJobFileParameter> Session::parameters_as_pjobfileparameters(){
     }
     return list;
 }
+
+void Session::save_received_data(QString name){
+    m_renew_turn = true;
+    QMutexLocker locker(&m_mutex_received_data);
+    if(m_received_data.size() <= 0){
+        output("No data received! Can't save!");
+        return;
+    }
+
+    try{
+        PJobRunnerService::instance()->save_user_file(name, m_received_data);
+    }catch(QString s){
+        output(s);
+        return;
+    }
+
+    PJobRunnerService::instance()->log(QString("User file \"%2\" saved for peer %1.").arg(m_socket->peerAddress().toString()).arg(name));
+    output(QString("Received data successfully saved under \"%1\"!").arg(name));
+}
+
+void Session::open_pjob_from_saved_file(QString name){
+    if(! PJobRunnerService::instance()->user_file_exists(name)){
+        output(QString("Can't open pjob from previously saved file! No file named \"%1\" found!").arg(name));
+        return;
+    }
+    output("File found. Opening PJob...");
+    try{
+        m_pjob_file = new PJobFile(PJobRunnerService::instance()->read_user_file(name));
+    }catch(PJobFileError &e){
+        m_pjob_file = 0;
+        output(e.msg());
+    }
+    m_application = m_pjob_file->defaultApplication();
+    foreach(PJobFileParameterDefinition d, m_pjob_file->parameterDefinitions()){
+        if(m_parameters.count(d.name()) < 1) m_parameters[d.name()] = d.defaultValue();
+    }
+    output("pjob file opened from user file.");
+    PJobRunnerService::instance()->log(QString("Opened pjob from user file %2 for peer %1.").arg(m_socket->peerAddress().toString()).arg(name));
+    PJobRunnerService::instance()->user_file_used(name);
+}

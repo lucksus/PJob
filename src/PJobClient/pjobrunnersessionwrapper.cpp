@@ -129,7 +129,7 @@ bool PJobRunnerSessionWrapper::set_parameter(const QString& name, const double& 
     return true;
 }
 
-bool PJobRunnerSessionWrapper::run_job(){
+bool PJobRunnerSessionWrapper::open_pjob_from_uploaded_data(){
     QString line;
     unsigned int i=0;
     do{
@@ -153,7 +153,10 @@ bool PJobRunnerSessionWrapper::run_job(){
         }
         i++;
     }while(!line.contains("pjob file opened from received data.") && m_socket.state() == QTcpSocket::ConnectedState);
+    return true;
+}
 
+bool PJobRunnerSessionWrapper::run_job(){
     send("run_job()\n");
     if(!m_socket.waitForReadyRead(s_standard_timeout)) LostConnectionException(m_socket.peerName().toStdString(), "waiting for run_job() reply.");
 
@@ -237,7 +240,7 @@ int PJobRunnerSessionWrapper::max_process_count(){
 
 int PJobRunnerSessionWrapper::process_count(){
     send("process_count();\n");
-    if(!m_socket.waitForReadyRead(s_standard_timeout)) throw LostConnectionException(m_socket.peerName().toStdString(), "waiting for process_count) reply.");
+    if(!m_socket.waitForReadyRead(s_standard_timeout)) throw LostConnectionException(m_socket.peerName().toStdString(), "waiting for process_count() reply.");
     bool ok;
     QString line = m_socket.readAll();
     received(line);
@@ -250,11 +253,29 @@ void PJobRunnerSessionWrapper::set_debug(bool b){
     m_debug_mode = b;
 }
 
-void PJobRunnerSessionWrapper::send(const QString& data){
+void PJobRunnerSessionWrapper::send(QString data){
     m_socket.write(data.toUtf8());
-    if(m_debug_mode) emit debug_out(QString("to %2 >>> %1").arg(data).arg(m_peer.toString()));
+    if(!data.endsWith("\n")) data.append("\n");
+    if(m_debug_mode) emit debug_out(QString(">>> %1").arg(data).arg(m_peer.toString()));
 }
 
-void PJobRunnerSessionWrapper::received(const QString& data){
-    if(m_debug_mode) emit debug_out(QString("from %2 <<< %1").arg(data).arg(m_peer.toString()));
+void PJobRunnerSessionWrapper::received(QString data){
+    if(!data.endsWith("\n")) data.append("\n");
+    if(m_debug_mode) emit debug_out(QString("%1").arg(data).arg(m_peer.toString()));
+}
+
+bool PJobRunnerSessionWrapper::open_pjob_from_user_file(QString name){
+    send(QString("open_pjob_from_saved_file(\"%1\");").arg(name));
+    if(!m_socket.waitForReadyRead(s_standard_timeout)) throw LostConnectionException(m_socket.peerName().toStdString(), "waiting for open_pjob_from_saved_file() reply.");
+    QString line = m_socket.readAll();
+    received(line);
+    return line.contains("File found. Opening PJob");
+}
+
+bool PJobRunnerSessionWrapper::save_user_file(QString name){
+    send(QString("save_received_data(\"%1\")").arg(name));
+    if(!m_socket.waitForReadyRead(s_standard_timeout)) throw LostConnectionException(m_socket.peerName().toStdString(), "waiting for save_received_data() reply.");
+    QString line = m_socket.readAll();
+    received(line);
+    return line.contains("Received data successfully saved");
 }

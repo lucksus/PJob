@@ -42,6 +42,8 @@ public slots:
     QStringList run_directories();
     unsigned int max_process_count();
     unsigned int process_count();
+    void save_received_data(QString name);
+    void open_pjob_from_saved_file(QString name);
 
     void output(const QString& msg);
 

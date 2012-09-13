@@ -37,6 +37,7 @@ public slots:
     QList<Job*> failedJobs();
     QList<Job*> finishedJobs();
     void session_threads_update();
+    QString pjob_file_signature();
 
 
 signals:
@@ -63,6 +64,7 @@ private:
         QTimer m_session_thread_update_timer;
 
         PJobFile* m_pjob_file;
+        QString m_pjob_file_signature;
 
 	Results m_results;
         QList<Job*> m_jobsRunning;

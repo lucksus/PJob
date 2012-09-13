@@ -4,10 +4,21 @@
 #include <QtServiceBase>
 #include "pjobrunnerservice.h"
 #include <exception>
+#ifdef Q_OS_UNIX
+#include <signal.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#endif
 
 SessionThread::SessionThread(int socket_descriptor) :
     m_socket_descriptor(socket_descriptor)
 {
+#ifdef Q_OS_UNIX
+    // We expect write failures to occur but we want to handle them where
+    // the error occurs rather than in a SIGPIPE handler.
+    signal(SIGPIPE, SIG_IGN);
+    //from: http://stackoverflow.com/questions/108183/how-to-prevent-sigpipes-or-handle-them-properly
+#endif
 }
 
 void SessionThread::run(){
