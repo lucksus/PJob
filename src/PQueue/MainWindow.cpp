@@ -19,7 +19,7 @@
 #include <QRadioButton>
 
 MainWindow::MainWindow(void)
-    : m_pjob_file(0)
+    : m_pjob_file(0), m_jobs_mutex(QMutex::Recursive)
 {
 	ui.setupUi(this);
 
@@ -262,24 +262,28 @@ void MainWindow::jobCreated(Job* j, unsigned int){
 }
 
 void MainWindow::jobRemoved(Job* job){
+    QMutexLocker locker(&m_jobs_mutex);
 	for(int row=0;row<ui.jobsWidget->count();++row){
 		QListWidgetItem* item = ui.jobsWidget->item(row);
 		Job* j = m_jobs[item];
 		if(j == job){
+            m_jobs.remove(item);
 			ui.jobsWidget->removeItemWidget(item);
 			delete item;
 		}
 	}
-        JobOutputWidget* widget=0;
-        foreach(JobOutputWidget* w, m_job_output_widgets){
-            if(w->job() == job) widget = w;
-        }
-        if(widget == 0) return;
-        m_job_output_widgets.removeOne(widget);
-        delete widget;
+
+    JobOutputWidget* widget=0;
+    foreach(JobOutputWidget* w, m_job_output_widgets){
+        if(w->job() == job) widget = w;
+    }
+    if(widget == 0) return;
+    m_job_output_widgets.removeOne(widget);
+    delete widget;
 }
 
 QListWidgetItem* MainWindow::itemForJob(Job* j){
+    QMutexLocker locker(&m_jobs_mutex);
 	QListWidgetItem* item;
 	foreach(item, m_jobs.keys()){
 		if(m_jobs[item] == j){
@@ -310,6 +314,7 @@ void MainWindow::updateButtons(){
 }
 
 void MainWindow::jobStateChanged(Job* j, Job::State state){
+    QMutexLocker locker(&m_jobs_mutex);
 	QListWidgetItem* item = itemForJob(j);
         if(!item) return;
 	switch(state){

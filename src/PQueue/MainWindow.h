@@ -26,6 +26,7 @@ public:
 private:
 	Ui::MainWindow ui;
 	QHash<QListWidgetItem*,Job*> m_jobs;
+    QMutex m_jobs_mutex;
 
 	QHash<QString,QTreeWidgetItem*> m_phoFileItemsNavigator;
 	QHash<QTreeWidgetItem*, QHash<QString,QTreeWidgetItem*> > m_resultItemsNavigator;
