@@ -35,8 +35,10 @@ void SessionThread::run(){
             PJobRunnerService::instance()->log(e.what(), PJobRunnerService::Error);
         }catch(...){
             QString message = "Unhandled exception caught! Closing Session...";
-            session->output(message);
             PJobRunnerService::instance()->log(message, PJobRunnerService::Error);
+            try{
+                session->output(message);
+            }catch(...){}
             error = true;
         }
 
