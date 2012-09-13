@@ -17,7 +17,7 @@ void PJobRunnerSessionThread::run(){
     connect(session.get(), SIGNAL(debug_out(QString)), &Logger::getInstance(), SLOT(debug(QString)));
     session->enqueue();
     m_enqueued = true;
-    session->wait_till_its_your_turn();
+    if(!session->wait_till_its_your_turn()) return;
     m_enqueued = false;
     Job* job = m_workspace->get_next_queued_job_and_move_to_running();
     if(!job) return;

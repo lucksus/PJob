@@ -180,7 +180,7 @@ bool PJobRunnerSessionWrapper::wait_for_job_finished(){
     while(!want_exit && m_socket.state() == QTcpSocket::ConnectedState){
         QString line = m_socket.readAll();
         if(line.isEmpty()){
-            m_socket.waitForReadyRead(10);
+            m_socket.waitForReadyRead(200);
             continue;
         }
 
@@ -213,7 +213,7 @@ bool PJobRunnerSessionWrapper::enqueue(){
 
 bool PJobRunnerSessionWrapper::wait_till_its_your_turn(){
     QString buffer;
-    while(m_socket.isReadable()){
+    while(m_socket.isReadable() && m_socket.state() == QAbstractSocket::ConnectedState){
         if(m_socket.waitForReadyRead(5000)){
             QByteArray read = m_socket.readAll();
             buffer.append(read);
