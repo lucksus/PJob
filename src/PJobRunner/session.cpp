@@ -29,7 +29,32 @@ Session::Session(QTcpSocket* socket) :
     connect(&m_turn_timeout, SIGNAL(timeout()), this, SLOT(turn_timeout()));
 }
 
+bool removeDir(const QString &dirName)
+{
+    bool result = true;
+    QDir dir(dirName);
+
+    if (dir.exists(dirName)) {
+        Q_FOREACH(QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) {
+            if (info.isDir()) {
+                result = removeDir(info.absoluteFilePath());
+            }
+            else {
+                result = QFile::remove(info.absoluteFilePath());
+            }
+
+            if (!result) {
+                return result;
+            }
+        }
+        result = dir.rmdir(dirName);
+    }
+
+    return result;
+}
+
 Session::~Session(){
+    removeDir(m_temp_dir);
     PJobRunnerService* service = dynamic_cast<PJobRunnerService*>(QtServiceBase::instance());
     if(service){
         TicketDispatcher* ticket_dispatcher = service->ticket_dispatcher();
@@ -182,30 +207,6 @@ void Session::set_parameter(QString name, double value){
 
 void Session::set_application(QString app_name){
     m_application = app_name;
-}
-
-bool removeDir(const QString &dirName)
-{
-    bool result = true;
-    QDir dir(dirName);
-
-    if (dir.exists(dirName)) {
-        Q_FOREACH(QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) {
-            if (info.isDir()) {
-                result = removeDir(info.absoluteFilePath());
-            }
-            else {
-                result = QFile::remove(info.absoluteFilePath());
-            }
-
-            if (!result) {
-                return result;
-            }
-        }
-        result = dir.rmdir(dirName);
-    }
-
-    return result;
 }
 
 void Session::run_job(){
