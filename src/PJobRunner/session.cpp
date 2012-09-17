@@ -422,6 +422,12 @@ unsigned int Session::process_count(){
     return service->ticket_dispatcher()->running_processes();
 }
 
+
+void Session::set_process_count_delta(unsigned int delta){
+    PJobRunnerService* service = dynamic_cast<PJobRunnerService*>(QtServiceBase::instance());
+    return service->ticket_dispatcher()->set_process_count_delta(delta);
+}
+
 QList<PJobFileParameter> Session::parameters_as_pjobfileparameters(){
     QList<PJobFileParameter> list;
     foreach(QString parameter_name, m_parameters.keys()){
@@ -472,3 +478,5 @@ void Session::open_pjob_from_saved_file(QString name){
     PJobRunnerService::instance()->log(QString("Opened pjob from user file %2 for peer %1.").arg(m_socket->peerAddress().toString()).arg(name));
     PJobRunnerService::instance()->user_file_used(name);
 }
+
+
