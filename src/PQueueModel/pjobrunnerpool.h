@@ -31,6 +31,8 @@ public slots:
 
     unsigned int thread_count() const;
 
+    void remove(QHostAddress);
+
 signals:
     void found_new_pjob_runner(QHostAddress);
     void lost_pjob_runner(QHostAddress);

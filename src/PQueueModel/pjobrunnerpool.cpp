@@ -66,9 +66,10 @@ QString PJobRunnerPool::platform(QHostAddress host) const{
 
 unsigned int PJobRunnerPool::max_thread_count() const{
     unsigned int count = 0;
-    foreach(PJobRunnerSessionWrapper* info_session, m_info_sessions.values()){
+    foreach(QHostAddress host, m_known_pjob_runners){
         try{
-            count += info_session->max_process_count();
+            PJobRunnerSessionWrapper session(host);
+            count += session.max_process_count();
         }catch(...){
             std::cout << "Ups!" << std::endl;
         }
@@ -118,4 +119,9 @@ unsigned int PJobRunnerPool::thread_count() const{
         count += thread_count_for_host(host);
     }
     return count;
+}
+
+void PJobRunnerPool::remove(QHostAddress host){
+    m_known_pjob_runners.removeOne(host);
+    m_info_sessions.remove(host);
 }
