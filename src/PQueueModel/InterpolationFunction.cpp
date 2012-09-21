@@ -8,6 +8,7 @@
 #include <limits>
 #include <boost/foreach.hpp>
 
+#ifndef Q_OS_WIN
 //Optimierer: min_a (A*a - y)
 extern "C"{
 	int sgels_(char *trans, int *m, int *n, int * nrhs,
@@ -18,7 +19,7 @@ extern "C"{
 		double *a, int *lda, double *b, int *ldb, 
 		double *work, int *lwork, int *info);
 }
-
+#endif
 
 
 InterpolationFunction::InterpolationFunction(QString pjob_file, QString result)
@@ -152,17 +153,20 @@ void InterpolationFunction::calculateAlphas(vector<vector<double> > points, vect
 		int lwork=m*n;
 		double* work2 = new double[m*n + m*n];
                 int lwork2=2*m*n;
-
+#ifndef Q_OS_WIN
                 dgels_("N",&m,&n,&nrhs,AT,&m,b,&m,work2,&lwork2,&info);
+#endif
 		//---------------------------------------------------------------------------
 		//---------------------------------------------------------------------------
 		//---------------------------------------------------------------------------
 
 		m_alphas.resize(size);
-		for(unsigned int i=0;i<size;++i)
+        for(unsigned int i=0;i<size;++i){
+#ifndef Q_OS_WIN
 			if(0 == info){//Ergebnis nun in b
 				m_alphas[i] = b[i];
-			}else{
+            }else
+#endif
 				m_alphas[i] = 0;
 		}
 

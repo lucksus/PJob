@@ -26,7 +26,7 @@ build_pass:CONFIG(debug, debug|release) {
 }
 
 unix:LIBS += -llapack -lblas -lGL -lGLU
-win32:LIBS += -lclapack
+#win32:LIBS += -lclapack
 
 win32{
     COPY = copy
