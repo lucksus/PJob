@@ -5,7 +5,7 @@
 #include <QtCore/QWaitCondition>
 #include <QtCore/QMutex>
 
-unsigned int s_standard_timeout = 6000;
+unsigned int s_standard_timeout = 60000;
 
 PJobRunnerSessionWrapper::PJobRunnerSessionWrapper(QHostAddress hostname, long timeout)
     : m_peer(hostname)
@@ -35,7 +35,7 @@ PJobRunnerSessionWrapper::PJobRunnerSessionWrapper(QHostAddress hostname, long t
 
 PJobRunnerSessionWrapper::~PJobRunnerSessionWrapper(){
     if(m_socket.state() == QAbstractSocket::ConnectedState){
-        send("exit()");
+        send("exit()\n");
         m_socket.waitForBytesWritten(100);
         m_socket.close();
         m_socket.waitForDisconnected(1000);
@@ -75,7 +75,7 @@ bool PJobRunnerSessionWrapper::upload_pjobfile(const QByteArray& content){
     qint64 bytes_send = 0;
     qint64 all_bytes = content.size();
     const char* data = content.data();
-    qint64 transfer_unit_size = 100*1024;
+    qint64 transfer_unit_size = 1024*1024;
 
     while(bytes_send != all_bytes && push_connection.state() == QTcpSocket::ConnectedState){
         push_connection.flush();
@@ -265,7 +265,7 @@ void PJobRunnerSessionWrapper::received(QString data){
 }
 
 bool PJobRunnerSessionWrapper::open_pjob_from_user_file(QString name){
-    send(QString("open_pjob_from_saved_file(\"%1\");").arg(name));
+    send(QString("open_pjob_from_saved_file(\"%1\");\n").arg(name));
     if(!m_socket.waitForReadyRead(s_standard_timeout)) throw LostConnectionException(m_socket.peerName().toStdString(), "waiting for open_pjob_from_saved_file() reply.");
     QString line = m_socket.readAll();
     received(line);
@@ -273,7 +273,7 @@ bool PJobRunnerSessionWrapper::open_pjob_from_user_file(QString name){
 }
 
 bool PJobRunnerSessionWrapper::save_user_file(QString name){
-    send(QString("save_received_data(\"%1\")").arg(name));
+    send(QString("save_received_data(\"%1\")\n").arg(name));
     if(!m_socket.waitForReadyRead(s_standard_timeout)) throw LostConnectionException(m_socket.peerName().toStdString(), "waiting for save_received_data() reply.");
     QString line = m_socket.readAll();
     received(line);
