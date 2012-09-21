@@ -52,6 +52,7 @@ signals:
     void job_std_out(QString);
     void job_error_out(QString);
     void debug_out(QString);
+    void upload_progress(unsigned int percent);
 
 private:
     QTcpSocket m_socket;

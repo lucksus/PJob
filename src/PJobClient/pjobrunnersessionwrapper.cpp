@@ -5,7 +5,7 @@
 #include <QtCore/QWaitCondition>
 #include <QtCore/QMutex>
 
-unsigned int s_standard_timeout = 60000;
+unsigned int s_standard_timeout = 20000;
 
 PJobRunnerSessionWrapper::PJobRunnerSessionWrapper(QHostAddress hostname, long timeout)
     : m_peer(hostname)
@@ -77,12 +77,13 @@ bool PJobRunnerSessionWrapper::upload_pjobfile(const QByteArray& content){
     const char* data = content.data();
     qint64 transfer_unit_size = 1024*1024;
 
-    while(bytes_send != all_bytes && push_connection.state() == QTcpSocket::ConnectedState){
+    while((bytes_send != all_bytes) && (push_connection.state() == QTcpSocket::ConnectedState)){
         push_connection.flush();
         qint64 bytes_written = push_connection.write(data, std::min(transfer_unit_size,all_bytes-bytes_send));
         data += bytes_written;
         bytes_send += bytes_written;
-        push_connection.waitForBytesWritten(s_standard_timeout);
+        push_connection.waitForBytesWritten(500);
+        emit upload_progress(bytes_send * 100 / all_bytes);
     }
     if(bytes_send != all_bytes){
         emit debug_out(QString("Uploading pjobfile failed! Only %1 bytes out of %1 uploaded.").arg(bytes_send).arg(all_bytes));
@@ -160,20 +161,23 @@ bool PJobRunnerSessionWrapper::run_job(){
     send("run_job()\n");
     if(!m_socket.waitForReadyRead(s_standard_timeout)) LostConnectionException(m_socket.peerName().toStdString(), "waiting for run_job() reply.");
 
-    while(m_socket.waitForReadyRead(s_standard_timeout) && m_socket.state() == QTcpSocket::ConnectedState){
-        QString line = m_socket.readLine();
-        received(line);
-        if(line.contains("Starting process:"))
-            return true;
-        if(line.contains("Starting process:"))
-            return true;
-        if(line.contains("Can't"))
-            return false;
-        if(line.contains("ERROR!"))
-            return false;
-        if(line.contains("Process could not be started!"))
-            return false;
-    }
+    QByteArray buffer;
+    do{
+        buffer.append(m_socket.readAll());
+        foreach(QByteArray line, buffer.split('\n')){
+            received(line);
+            if(line.contains("Starting process:"))
+                return true;
+            if(line.contains("Starting process:"))
+                return true;
+            if(line.contains("Can't"))
+                return false;
+            if(line.contains("ERROR!"))
+                return false;
+            if(line.contains("Process could not be started!"))
+                return false;
+        }
+    }while(m_socket.waitForReadyRead(s_standard_timeout*5) && m_socket.state() == QTcpSocket::ConnectedState);
     return false;
 }
 
