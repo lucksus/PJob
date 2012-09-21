@@ -36,6 +36,8 @@ public slots:
     void clearFinishedJobs();
     QList<Job*> failedJobs();
     QList<Job*> finishedJobs();
+    QList<Job*> submittedJobs();
+    QList<Job*> queuedJobs();
     void session_threads_update();
     QString pjob_file_signature();
     void prepare_runners_with_pjob_file();

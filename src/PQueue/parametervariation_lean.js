@@ -164,7 +164,7 @@ while(job_count < combination_count() || !done){
 	var threads = Pool.max_thread_count() - Pool.thread_count();
 	print("Pool.max_thread_count: "+Pool.max_thread_count()+"\n");
 	print("Pool.thread_count(): "+Pool.thread_count()+"\n");
-	if(threads == 0){
+	if(threads - PQueue.submittedJobs().length - PQueue.queuedJobs().length <= 0){
 		sleep(1000);
 		continue;
 	}
@@ -183,11 +183,11 @@ while(job_count < combination_count() || !done){
 		}
 		jobs.push(job);
 	}
-	for(var i in jobs){
-		try{
-			jobs[i].waitUntilRunning();
-		}catch(e){};
-	}
+	//for(var i in jobs){
+	//	try{
+	//		jobs[i].waitUntilRunning();
+	//	}catch(e){};
+	//}
 }
 PQueue.stop();
 Script.progress = 100;

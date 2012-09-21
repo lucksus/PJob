@@ -314,6 +314,14 @@ QList<Job*> Workspace::finishedJobs(){
     return m_jobsFinished;
 }
 
+QList<Job*> Workspace::submittedJobs(){
+    return m_jobsSubmited;
+}
+
+QList<Job*> Workspace::queuedJobs(){
+    return m_jobsQueued;
+}
+
 void Workspace::delete_jobs(){
     QList<Job*> jobs_remained;
     QList<Job*> seen_jobs;
