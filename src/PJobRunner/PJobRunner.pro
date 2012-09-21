@@ -51,4 +51,9 @@ HEADERS += \
     ticketdispatcher.h \
     dataconnectionserver.h
 
+win32{
+    SOURCES += StackWalker.cpp
+    HEADERS += StackWalker.h
+}
+
 include(qtservice/src/qtservice.pri)
