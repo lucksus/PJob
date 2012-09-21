@@ -165,7 +165,7 @@ while(job_count < combination_count() || !done){
 	print("Pool.max_thread_count: "+Pool.max_thread_count()+"\n");
 	print("Pool.thread_count(): "+Pool.thread_count()+"\n");
 	if(threads - PQueue.submittedJobs().length - PQueue.queuedJobs().length <= 0){
-		sleep(1000);
+		sleep(100);
 		continue;
 	}
 	var failed_jobs = PQueue.failedJobs();
