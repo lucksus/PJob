@@ -278,7 +278,7 @@ bool PJobRunnerSessionWrapper::open_pjob_from_user_file(QString name){
 
 bool PJobRunnerSessionWrapper::save_user_file(QString name){
     send(QString("save_received_data(\"%1\")\n").arg(name));
-    if(!m_socket.waitForReadyRead(s_standard_timeout)) throw LostConnectionException(m_socket.peerName().toStdString(), "waiting for save_received_data() reply.");
+    if(!m_socket.waitForReadyRead(500)) throw LostConnectionException(m_socket.peerName().toStdString(), "waiting for save_received_data() reply.");
     QString line = m_socket.readAll();
     received(line);
     return line.contains("Received data successfully saved");
