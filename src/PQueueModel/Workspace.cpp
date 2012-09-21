@@ -97,18 +97,36 @@ void Workspace::prepare_runners_with_pjob_file(){
     QString progress_title = "Uploading PJob file to pjob runners...";
     emit progress(progress_title, 0);
     unsigned int i = 0;
+    m_prepared_hosts_count = 0;
     foreach(QHostAddress host, PJobRunnerPool::instance().known_pjob_runners()){
         PJobRunnerSessionWrapper session(host);
+        connect(&session, SIGNAL(upload_progress(uint)), this, SLOT(upload_progress(uint)));
         if(! session.open_pjob_from_user_file(m_pjob_file_signature) ){
             QByteArray *raw = getPJobFile()->raw_without_results();
-            while(! (session.upload_pjobfile(*raw) && session.save_user_file(m_pjob_file_signature)) )
-                ;
+            bool ok = false;
+            while(!ok){
+                if(!session.upload_pjobfile(*raw)) continue;
+                while(!ok){
+                    try{
+                        ok = session.save_user_file(m_pjob_file_signature);
+                    }catch(LostConnectionException e){}
+                }
+            }
             delete raw;
         }
-        emit progress(progress_title, i*100.0 / PJobRunnerPool::instance().known_pjob_runners().size());
-        i++;
+        m_prepared_hosts_count++;
     }
     emit progress(progress_title, 100);
+}
+
+void Workspace::upload_progress(unsigned int percent){
+    PJobRunnerSessionWrapper* session = dynamic_cast<PJobRunnerSessionWrapper*>(sender());
+    if(!session) return;
+    QString progress_title = "Uploading PJob file to pjob runners...";
+    unsigned int overall_percent = m_prepared_hosts_count * 100 / PJobRunnerPool::instance().known_pjob_runners().size();
+    unsigned int this_percent = percent*0.99 / PJobRunnerPool::instance().known_pjob_runners().size();
+    emit progress(progress_title, overall_percent + this_percent);
+
 }
 
 void Workspace::session_threads_update(){

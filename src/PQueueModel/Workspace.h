@@ -55,6 +55,7 @@ private slots:
         void jobStateChanged(Job*, Job::State);
         void session_finished();
         void delete_jobs();
+        void upload_progress(unsigned int percent);
 
 private:
         Workspace(void);
@@ -88,5 +89,7 @@ private:
         void populate_session_threads();
         void clear_session_threads();
         unsigned int number_of_enqueued_sessions();
+
+        unsigned int m_prepared_hosts_count;
 };
 
