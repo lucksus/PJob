@@ -87,9 +87,28 @@ void Workspace::setQueuePosition(Job* j, unsigned int position){
 void Workspace::start(){
     if(m_running) return;
     m_running = true;
+    prepare_runners_with_pjob_file();
     populate_session_threads();
     session_threads_update();
     emit started();
+}
+
+void Workspace::prepare_runners_with_pjob_file(){
+    QString progress_title = "Uploading PJob file to pjob runners...";
+    emit progress(progress_title, 0);
+    unsigned int i = 0;
+    foreach(QHostAddress host, PJobRunnerPool::instance().known_pjob_runners()){
+        PJobRunnerSessionWrapper session(host);
+        if(! session.open_pjob_from_user_file(m_pjob_file_signature) ){
+            QByteArray *raw = getPJobFile()->raw_without_results();
+            while(! (session.upload_pjobfile(*raw) && session.save_user_file(m_pjob_file_signature)) )
+                ;
+            delete raw;
+        }
+        emit progress(progress_title, i*100.0 / PJobRunnerPool::instance().known_pjob_runners().size());
+        i++;
+    }
+    emit progress(progress_title, 100);
 }
 
 void Workspace::session_threads_update(){
@@ -229,13 +248,17 @@ void Workspace::populate_session_threads(){
     clear_session_threads();
     unsigned int jobs = m_jobsQueued.size();
     foreach(QHostAddress host, PJobRunnerPool::instance().known_pjob_runners()){
-        unsigned int thread_count = PJobRunnerPool::instance().max_thread_count_for_host(host);
-        for(unsigned int i=0; i<thread_count; i++){
-            PJobRunnerSessionThread* thread = new PJobRunnerSessionThread(host, this);
-            connect(thread, SIGNAL(finished()), this, SLOT(session_finished()), Qt::QueuedConnection);
-            m_session_threads.insert(thread);
-            jobs--;
-            if(jobs <= 0) return;
+        try{
+            unsigned int thread_count = PJobRunnerPool::instance().max_thread_count_for_host(host);
+            for(unsigned int i=0; i<thread_count; i++){
+                PJobRunnerSessionThread* thread = new PJobRunnerSessionThread(host, this);
+                connect(thread, SIGNAL(finished()), this, SLOT(session_finished()), Qt::QueuedConnection);
+                m_session_threads.insert(thread);
+                jobs--;
+                if(jobs <= 0) return;
+            }
+        }catch(LostConnectionException e){
+            PJobRunnerPool::instance().remove(host);
         }
     }
 }
