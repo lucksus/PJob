@@ -29,28 +29,35 @@ void SessionThread::run(){
     }
     PJobRunnerService::instance()->log(QString("Accepted connection from %1. Starting new session..").arg(connection.peerAddress().toString()));
     Session* session = new Session(&connection);
+    QByteArray receive_buffer;
     while(connection.state() == QAbstractSocket::ConnectedState){
         while(connection.state() == QAbstractSocket::ConnectedState && !connection.waitForReadyRead(10)) session->update();
-        QByteArray line = connection.readAll();
         bool error = false;
-        try{
-            if(!line.isEmpty()) session->script_engine().evaluate(line);
-        }catch(QString str){
-            session->output(str);
-            PJobRunnerService::instance()->log(str, PJobRunnerService::Error);
-        }catch(PJobFileError e){
-            session->output(e.msg());
-            PJobRunnerService::instance()->log(e.msg(), PJobRunnerService::Error);
-        }catch(std::exception e){
-            session->output(e.what());
-            PJobRunnerService::instance()->log(e.what(), PJobRunnerService::Error);
-        }catch(...){
-            QString message = "Unhandled exception caught! Closing Session...";
-            PJobRunnerService::instance()->log(message, PJobRunnerService::Error);
-            try{
-                session->output(message);
-            }catch(...){}
-            error = true;
+        receive_buffer.append(connection.readAll());
+        QList<QByteArray> lines = receive_buffer.split('\n');
+        if(lines.size() >= 2){
+            foreach(QByteArray line, lines){
+                try{
+                    if(!line.isEmpty()) session->script_engine().evaluate(line);
+                }catch(QString str){
+                    session->output(str);
+                    PJobRunnerService::instance()->log(str, PJobRunnerService::Error);
+                }catch(PJobFileError e){
+                    session->output(e.msg());
+                    PJobRunnerService::instance()->log(e.msg(), PJobRunnerService::Error);
+                }catch(std::exception e){
+                    session->output(e.what());
+                    PJobRunnerService::instance()->log(e.what(), PJobRunnerService::Error);
+                }catch(...){
+                    QString message = "Unhandled exception caught! Closing Session...";
+                    PJobRunnerService::instance()->log(message, PJobRunnerService::Error);
+                    try{
+                        session->output(message);
+                    }catch(...){}
+                    error = true;
+                }
+            }
+            receive_buffer.clear();
         }
 
         if(session->wants_shutdown() || error)
