@@ -307,6 +307,7 @@ void Session::run_job(){
         do{
             QByteArray out = process.readAllStandardOutput();
             if(!out.isEmpty()) output(out);
+            QCoreApplication::processEvents();
         }while(!process.waitForFinished(100) && process.isOpen());
         output(process.readAllStandardOutput());
 
@@ -377,7 +378,7 @@ QStringList Session::run_directories(){
 void Session::output(const QString& msg){
     if(m_socket && m_socket->state() == QTcpSocket::ConnectedState){
         m_socket->write((msg + "\n").toAscii());
-        m_socket->flush();
+        //m_socket->flush();
     }
 }
 
