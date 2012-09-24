@@ -108,7 +108,10 @@ unsigned int PJobRunnerPool::thread_count_for_host(QHostAddress host) const{
             return it.value()->process_count();
         }catch(LostConnectionException e){
             retries++;
+        }catch(QString s){
+            retries++;
         }
+
     }
     return 0;
 }
