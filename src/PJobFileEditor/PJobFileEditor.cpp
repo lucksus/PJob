@@ -196,9 +196,19 @@ void PJobFileEditor::closeEvent(QCloseEvent *event)
 
 
 void PJobFileEditor::on_actionDelete_runs_triggered(){
-	if(QMessageBox::Yes == QMessageBox::question(this, "PJobEditor: delete runs?", "Really delete all run directories?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No))
-		m_pjobFile->remove_all_runs();
+    if(QMessageBox::Yes != QMessageBox::question(this, "PJobEditor: delete runs?", "Really delete all run directories?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No))
+        return;
+    QByteArray* raw_wo_results = m_pjobFile->raw_without_results();
+    QString path = m_pjobFile->pjobFile();
+    close();
+    if(m_pjobFile != 0) return;
+    QFile file(path);
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) return;
+    file.write(*raw_wo_results);
+    file.close();
+    open(path);
 	m_pjobFileWidget->refresh();
+    delete raw_wo_results;
 }
 
 void PJobFileEditor::on_actionSave_without_runs_triggered(){
