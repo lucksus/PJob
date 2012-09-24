@@ -345,6 +345,7 @@ void Session::run_job(){
     }
     m_has_running_process = false;
     finish_turn();
+    QCoreApplication::processEvents();
 }
 
 QStringList Session::create_commandline_arguments_for_app(const PJobFileApplication& app){
