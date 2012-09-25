@@ -15,7 +15,8 @@ void Timer::timeout(){
 
 
 PJobRunnerService::PJobRunnerService(int argc, char** argv) :
-    QtService<QCoreApplication>(argc,argv,"PJobRunner"), m_ticket_dispatcher(0), m_user_files_mutex(QMutex::Recursive), m_timer(this)
+    QtService<QCoreApplication>(argc,argv,"PJobRunner"), m_ticket_dispatcher(0),
+    m_user_files_mutex(QMutex::Recursive), m_mutex_log_file(QMutex::Recursive), m_timer(this)
 {
     setServiceDescription("PCloud's worker deamon.");
     setStartupType(QtServiceController::AutoStartup);
@@ -74,6 +75,7 @@ void PJobRunnerService::log(QString message,const MessageType &type){
     message.append("\n");
     message.prepend(QTime::currentTime().toString("hh:mm:ss: "));
     message.prepend(QDate::currentDate().toString("yyyyMMdd_"));
+    QMutexLocker l(&m_mutex_log_file);
     m_log_file.write(message.toStdString().c_str());
     m_log_file.flush();
 }

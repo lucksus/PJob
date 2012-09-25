@@ -50,6 +50,7 @@ private:
     QFile m_log_file;
     QMap<QString, QDateTime> m_user_files;
     QMutex m_user_files_mutex;
+    QMutex m_mutex_log_file;
 
     static QDir saved_user_files_dir();
     void clean_old_user_files();
