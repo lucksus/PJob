@@ -131,8 +131,10 @@ void Workspace::upload_progress(unsigned int percent){
 
 void Workspace::session_threads_update(){
     if(m_running){
-        foreach(PJobRunnerSessionThread* thread, m_session_threads){
-            if(!thread->isRunning()) thread->start();
+        foreach(QHostAddress host, m_session_threads.keys()){
+            foreach(PJobRunnerSessionThread* thread, m_session_threads[host]){
+                if(!thread->isRunning()) thread->start();
+            }
         }
     }else{
         clear_session_threads();
@@ -253,27 +255,63 @@ Job* Workspace::get_next_queued_job_and_move_to_running(){
     return job;
 }
 
+unsigned int Workspace::thread_count(){
+    unsigned int session_thread_count = 0;
+    foreach(QHostAddress host, m_session_threads.keys()){
+        session_thread_count += m_session_threads[host].size();
+    }
+    return session_thread_count;
+}
+
+unsigned int Workspace::enqueued_thread_count(){
+    unsigned int count = 0;
+    foreach(QHostAddress host, m_session_threads.keys()){
+        foreach(PJobRunnerSessionThread* thread, m_session_threads[host]){
+            if(thread->is_enqueued()) count++;
+        }
+    }
+    return count;
+}
+
 void Workspace::session_finished(){
     if(!m_running) return;
-    if(m_jobsQueued.size()<=0) return;
-    QObject* object = sender();
-    PJobRunnerSessionThread* thread = dynamic_cast<PJobRunnerSessionThread*>(object);
+    QObject* sender_object = sender();
+    PJobRunnerSessionThread* thread = dynamic_cast<PJobRunnerSessionThread*>(sender_object);
     if(!thread) return;
+    unsigned int max_thread_count = PJobRunnerPool::instance().max_thread_count();
+    unsigned int session_thread_count = thread_count();
+
+    if(max_thread_count < session_thread_count){
+        foreach(QHostAddress host, m_session_threads.keys()){
+            m_session_threads[host].remove(thread);
+        }
+        delete thread;
+        return;
+    }
+    if(max_thread_count > session_thread_count){
+        foreach(QHostAddress host, m_session_threads.keys()){
+            for(unsigned int i=m_session_threads[host].size(); i < PJobRunnerPool::instance().max_thread_count_for_host(host); i++)
+                create_new_session_thread_for_host(host);
+        }
+    }
+
+    if(m_jobsQueued.size()<=0) return;
     thread->start();
+}
+
+void Workspace::create_new_session_thread_for_host(QHostAddress host){
+    PJobRunnerSessionThread* thread = new PJobRunnerSessionThread(host, this);
+    connect(thread, SIGNAL(finished()), this, SLOT(session_finished()), Qt::QueuedConnection);
+    m_session_threads[host].insert(thread);
 }
 
 void Workspace::populate_session_threads(){
     clear_session_threads();
-    unsigned int jobs = m_jobsQueued.size();
     foreach(QHostAddress host, PJobRunnerPool::instance().known_pjob_runners()){
         try{
             unsigned int thread_count = PJobRunnerPool::instance().max_thread_count_for_host(host);
             for(unsigned int i=0; i<thread_count; i++){
-                PJobRunnerSessionThread* thread = new PJobRunnerSessionThread(host, this);
-                connect(thread, SIGNAL(finished()), this, SLOT(session_finished()), Qt::QueuedConnection);
-                m_session_threads.insert(thread);
-                jobs--;
-                if(jobs <= 0) return;
+                create_new_session_thread_for_host(host);
             }
         }catch(LostConnectionException e){
             PJobRunnerPool::instance().remove(host);
@@ -282,18 +320,21 @@ void Workspace::populate_session_threads(){
 }
 
 void Workspace::clear_session_threads(){
-    foreach(PJobRunnerSessionThread* thread, m_session_threads){
-        if(thread->isRunning()) continue;
-        m_session_threads.remove(thread);
-        delete thread;
-    }
+    foreach(QHostAddress host, m_session_threads.keys())
+        foreach(PJobRunnerSessionThread* thread, m_session_threads[host]){
+            if(thread->isRunning()) continue;
+            m_session_threads[host].remove(thread);
+            delete thread;
+            if(m_session_threads[host].isEmpty()) m_session_threads.remove(host);
+        }
 }
 
 unsigned int Workspace::number_of_enqueued_sessions(){
     unsigned int count = 0;
-    foreach(PJobRunnerSessionThread* thread, m_session_threads){
-        if(thread->is_enqueued()) count++;
-    }
+    foreach(QHostAddress host, m_session_threads.keys())
+        foreach(PJobRunnerSessionThread* thread, m_session_threads[host]){
+            if(thread->is_enqueued()) count++;
+        }
     return count;
 }
 

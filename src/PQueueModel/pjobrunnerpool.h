@@ -2,10 +2,39 @@
 #define PJOBRUNNERPOOL_H
 #include "pjobrunnersessionwrapper.h"
 #include "pjobrunnernetworkscanner.h"
+#include <QTimer>
+#include <QMutex>
+#include <QWaitCondition>
+#include <QEventLoop>
+
+class PJobRunnerPool;
+
+class CacheClearer : public QObject{
+Q_OBJECT
+public:
+    CacheClearer(PJobRunnerPool*);
+private slots:
+    void timeout();
+private:
+    PJobRunnerPool* m_pool;
+};
+
+class CacheClearerThread : public QThread{
+Q_OBJECT
+public:
+    CacheClearerThread(PJobRunnerPool*);
+public slots:
+    void clear_cache();
+protected:
+    virtual void run();
+    CacheClearer* m_clearer;
+    PJobRunnerPool* m_pool;
+};
 
 class PJobRunnerPool : public QObject
 {
 Q_OBJECT
+friend class CacheClearer;
 public:
     static PJobRunnerPool& instance();
     //! Gives a List of all hosts of this pool running a pjob runner
@@ -44,12 +73,19 @@ private slots:
     void found_pjob_runner(PJobRunnerSessionWrapper*);
     void search_finished();
     void scanner_is_probing(QHostAddress);
+    void update_cached_values();
 
 private:
     PJobRunnerPool();
     PJobRunnerNetworkScanner m_scanner;
     QList<QHostAddress> m_known_pjob_runners, m_backup_list;
-    QHash<QHostAddress, PJobRunnerSessionWrapper*> m_info_sessions;
+    mutable QHash<QHostAddress, PJobRunnerSessionWrapper*> m_info_sessions;
+    mutable unsigned int m_max_thread_count;
+    mutable QMap<QHostAddress, unsigned int> m_max_thread_count_for_host;
+    mutable QMutex m_cache_mutex;
+    CacheClearerThread m_cache_clearer_thread;
 };
+
+bool operator<(const QHostAddress& h1, const QHostAddress& h2);
 
 #endif // PJOBRUNNERPOOL_H

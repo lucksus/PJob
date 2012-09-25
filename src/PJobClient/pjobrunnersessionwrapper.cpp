@@ -17,9 +17,11 @@ PJobRunnerSessionWrapper::PJobRunnerSessionWrapper(QHostAddress hostname, long t
     if(!m_socket.waitForBytesWritten(s_standard_timeout)) return;
     if(!m_socket.waitForReadyRead(s_standard_timeout)) return;
     QString hello_string;
+    unsigned int i=0;
     do{
         hello_string.append(m_socket.readAll());
-    }while(m_socket.waitForReadyRead(1000) && hello_string.size() < 1024);
+        i++;
+    }while((m_socket.state() == QAbstractSocket::ConnectedState) && m_socket.waitForReadyRead(1000) && (hello_string.size() < 1024) && (i < 10));
     received(hello_string);
 
     if(hello_string.isEmpty()) return;

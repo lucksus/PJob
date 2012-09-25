@@ -27,7 +27,7 @@ void PJobRunnerSessionThread::run(){
     job->submited();
     PJobFile* pjob_file = m_workspace->getPJobFile();
     if(!pjob_file) return;
-
+try{
     if(!session->open_pjob_from_user_file(m_workspace->pjob_file_signature())){
         QByteArray* raw = pjob_file->raw_without_results();
         unsigned int tries=0;
@@ -56,36 +56,36 @@ void PJobRunnerSessionThread::run(){
         }while(!ok && tries < 10);
     }
 
-    try{
-        foreach(QString parameter, job->parameters().keys()){
-            bool ok;
-            double d = job->parameters()[parameter].toDouble(&ok);
-            if(ok) session->set_parameter(parameter, d);
-        }
-        connect(session.get(), SIGNAL(job_std_out(QString)), job, SLOT(got_std_out(QString)));
-        connect(session.get(), SIGNAL(job_error_out(QString)), job, SLOT(got_err_out(QString)));
-        if(session->run_job()){
-            job->started();
-            if(!session->wait_for_job_finished())
-                job->failed();
-            else{
-                //Job is finished. Get results.
-                QByteArray results;
-                session->download_results(results);
-                try{
-                    QString run_name = PJobFile::name_of_first_run_in_raw_bytes(results);
-                    pjob_file->add_raw_files(results);
-                    job->process_finished_run(run_name);
-                    job->finished();
-                }catch(QString s){
-                    job->failed();
-                }
-            }
-        }else job->failed();
-    }catch(LostConnectionException e){
-        job->failed();
-        job->got_connection_debug(e.what());
+
+    foreach(QString parameter, job->parameters().keys()){
+        bool ok;
+        double d = job->parameters()[parameter].toDouble(&ok);
+        if(ok) session->set_parameter(parameter, d);
     }
+    connect(session.get(), SIGNAL(job_std_out(QString)), job, SLOT(got_std_out(QString)));
+    connect(session.get(), SIGNAL(job_error_out(QString)), job, SLOT(got_err_out(QString)));
+    if(session->run_job()){
+        job->started();
+        if(!session->wait_for_job_finished())
+            job->failed();
+        else{
+            //Job is finished. Get results.
+            QByteArray results;
+            session->download_results(results);
+            try{
+                QString run_name = PJobFile::name_of_first_run_in_raw_bytes(results);
+                pjob_file->add_raw_files(results);
+                job->process_finished_run(run_name);
+                job->finished();
+            }catch(QString s){
+                job->failed();
+            }
+        }
+    }else job->failed();
+}catch(LostConnectionException e){
+    job->failed();
+    job->got_connection_debug(e.what());
+}
 
     job->m_session = 0;
     disconnect(session.get(), SIGNAL(job_std_out(QString)), job, SLOT(got_std_out(QString)));

@@ -117,6 +117,9 @@ MainWindow::MainWindow(void)
         foreach(QNetworkInterface i, QNetworkInterface::allInterfaces()){
             ui.networkInterfaceComboBox->addItem(i.humanReadableName());
         }
+
+        connect(&m_statistics_update_timer, SIGNAL(timeout()), this, SLOT(update_statistics()));
+        m_statistics_update_timer.start(500);
 }
 
 void MainWindow::on_actionOpen_triggered(){
@@ -828,4 +831,9 @@ void MainWindow::on_startScanButton_clicked(){
         if(i.humanReadableName() == interface_name)
             PJobRunnerPool::instance().start_search_network(i);
     }
+}
+
+void MainWindow::update_statistics(){
+    ui.threadCountLabel->setText(QString("%1(%2)").arg(Workspace::getInstace().thread_count()).arg(Workspace::getInstace().enqueued_thread_count()));
+    ui.poolSizeLabel->setText(QString("%1").arg(PJobRunnerPool::instance().max_thread_count()));
 }

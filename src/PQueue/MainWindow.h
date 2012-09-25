@@ -10,6 +10,7 @@
 #include "MainWindowWithProgressPopups.h"
 #include <QtNetwork/QHostAddress>
 #include <QtNetwork/QHostInfo>
+#include <QTimer>
 
 class NonEquidistantSlider;
 class PlotWidget;
@@ -116,6 +117,8 @@ private slots:
 
         void pjobFile_changed();
 
+        void update_statistics();
+
 public:
 signals:
 	void needScriptedUserInputDialog(QScriptContext *context, QScriptEngine *engine);
@@ -131,5 +134,7 @@ private:
 	void mostRecentlyUsedPJOBFilesAdd(QString pjobFilePath);
 	void mruToFileMenu();
 
-        QList<JobOutputWidget*> m_job_output_widgets;
+    QList<JobOutputWidget*> m_job_output_widgets;
+
+    QTimer m_statistics_update_timer;
 };

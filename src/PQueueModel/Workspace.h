@@ -18,6 +18,8 @@ public:
 
     //! Moves top queued job from m_jobsQueued to m_jobsRunning and returns it
     Job* get_next_queued_job_and_move_to_running();
+    unsigned int thread_count();
+    unsigned int enqueued_thread_count();
 
 
 
@@ -87,10 +89,12 @@ private:
 
 	QSet<QString> m_progresses_to_abort;
 
-        QSet<PJobRunnerSessionThread*> m_session_threads;
+        //QSet<PJobRunnerSessionThread*> m_session_threads;
+        QMap<QHostAddress, QSet<PJobRunnerSessionThread*> >m_session_threads;
         void populate_session_threads();
         void clear_session_threads();
         unsigned int number_of_enqueued_sessions();
+        void create_new_session_thread_for_host(QHostAddress);
 
         unsigned int m_prepared_hosts_count;
 };
