@@ -51,6 +51,7 @@ public slots:
 private slots:
     void turn_timeout();
     void fetch_received_data_from_connection_server();
+    void process_finished(int);
 
 private:
     PJobFile *m_pjob_file;
@@ -75,6 +76,7 @@ private:
     QTimer m_turn_timeout;
     bool m_renew_turn;
     bool m_data_received;
+    bool m_process_finished;
 };
 
 #endif // CONTROLLER_H

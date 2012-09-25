@@ -12,12 +12,13 @@
 #include <QtNetwork/QHostInfo>
 #include "dataconnectionserver.h"
 #include <assert.h>
+#include <QWaitCondition>
 
 Session::Session(QTcpSocket* socket) :
     m_pjob_file(0), m_script_engine(0), m_wants_shutdown(false), m_socket(socket),
     m_data_receive_connection(0), m_data_push_connection(0), m_has_turn(false),
     m_got_turn(false), m_has_running_process(false),
-    m_renew_turn(false)
+    m_renew_turn(false), m_process_finished(false)
 {
     QDir temp = QDir::temp();
     QString random = QDateTime::currentDateTime().toString("yyyyMMdd_hhmm_ss_zzz");;
@@ -299,6 +300,7 @@ void Session::run_job(){
         output(arg);
     }
 
+    connect(&process, SIGNAL(finished(int)), this, SLOT(process_finished(int)));
     process.start(executable, create_commandline_arguments_for_app(app));
     if(process.waitForStarted(-1)){
         output("-------------------");
@@ -308,7 +310,10 @@ void Session::run_job(){
             QByteArray out = process.readAllStandardOutput();
             if(!out.isEmpty()) output(out);
             QCoreApplication::processEvents();
-        }while(!process.waitForFinished(100) && process.isOpen());
+            QWaitCondition sleep;
+            QMutex mutex;
+            sleep.wait(&mutex, 300);
+        }while(!m_process_finished);
         output(process.readAllStandardOutput());
 
 
@@ -346,6 +351,10 @@ void Session::run_job(){
     m_has_running_process = false;
     finish_turn();
     QCoreApplication::processEvents();
+}
+
+void Session::process_finished(int){
+    m_process_finished = true;
 }
 
 QStringList Session::create_commandline_arguments_for_app(const PJobFileApplication& app){
