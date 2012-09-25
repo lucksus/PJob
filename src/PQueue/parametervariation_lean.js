@@ -156,16 +156,19 @@ print("Doing parametervariation with " + combination_count() + " combinations...
 PQueue.clearFinishedJobs();
 var job_count = 0;
 PQueue.start();
-while(job_count < combination_count() || !done){
-	Script.progress = job_count / combination_count() * 100;
+comb_count = combination_count();
+while(job_count < comb_count || !done){
+	Script.progress = job_count / comb_count * 100;
 	job_count += PQueue.finishedJobs().length;
 	print("job_count: "+job_count+"\n");
 	PQueue.clearFinishedJobs();
-	var threads = Pool.max_thread_count() - Pool.thread_count();
-	print("Pool.max_thread_count: "+Pool.max_thread_count()+"\n");
-	print("Pool.thread_count(): "+Pool.thread_count()+"\n");
+	var max_thread_count = Pool.max_thread_count();
+	var thread_count = Pool.thread_count();
+	var threads = max_thread_count - thread_count;
+	print("Pool.max_thread_count: "+max_thread_count+"\n");
+	print("Pool.thread_count(): "+thread_count+"\n");
 	if(threads - PQueue.submittedJobs().length - PQueue.queuedJobs().length <= 0){
-		sleep(100);
+		//sleep(100);
 		continue;
 	}
 	var failed_jobs = PQueue.failedJobs();
