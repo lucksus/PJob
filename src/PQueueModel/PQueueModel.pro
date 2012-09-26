@@ -25,7 +25,8 @@ HEADERS +=  \
     pjobrunnerpool.h \
     Job.h \
     PJobRunnerSessionThread.h \
-    Workspace.h
+    Workspace.h \
+    ParameterVariation.h
 SOURCES += \
 	Results.cpp \
 	Settings.cpp \
@@ -41,4 +42,5 @@ SOURCES += \
     pjobrunnerpool.cpp \
     Job.cpp \
     PJobRunnerSessionThread.cpp \
-    Workspace.cpp
+    Workspace.cpp \
+    ParameterVariation.cpp
