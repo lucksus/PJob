@@ -25,7 +25,7 @@ build_pass:CONFIG(debug, debug|release) {
     win32: POST_TARGETDEPS += ../../lib/PJobFile.lib ../../lib/PQueueModel.lib ../../lib/CondorC++Adapter.lib ../../lib/PJobClient.lib
 }
 
-unix:LIBS += -llapack -lblas -lGL -lGLU
+!macx:unix:LIBS += -llapack -lblas -lGL -lGLU
 #win32:LIBS += -lclapack
 
 win32{

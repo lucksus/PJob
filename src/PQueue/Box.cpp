@@ -9,7 +9,11 @@
 #include <gl/glu.h>
 #endif
 #ifdef Q_OS_UNIX
+#ifdef Q_OS_MACX
+#include <glu.h>
+#elif
 #include <GL/glu.h>
+#endif
 #endif
 
 using namespace std;
