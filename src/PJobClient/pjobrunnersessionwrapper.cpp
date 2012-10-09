@@ -6,6 +6,7 @@
 #include <QtCore/QMutex>
 
 unsigned int s_standard_timeout = 20000;
+unsigned int s_process_timeout = 1000;
 
 PJobRunnerSessionWrapper::PJobRunnerSessionWrapper(QHostAddress hostname, long timeout)
     : m_peer(hostname)
@@ -235,7 +236,7 @@ bool PJobRunnerSessionWrapper::wait_till_its_your_turn(){
 
 int PJobRunnerSessionWrapper::max_process_count(){
     send("max_process_count();\n");
-    if(!m_socket.waitForReadyRead(s_standard_timeout)) throw LostConnectionException(m_socket.peerName().toStdString(), "waiting for max_process_count() reply.");
+    if(!m_socket.waitForReadyRead(s_process_timeout)) throw LostConnectionException(m_socket.peerName().toStdString(), "waiting for max_process_count() reply.");
     bool ok;
     QString line = m_socket.readAll();
     received(line);
@@ -246,7 +247,7 @@ int PJobRunnerSessionWrapper::max_process_count(){
 
 int PJobRunnerSessionWrapper::process_count(){
     send("process_count();\n");
-    if(!m_socket.waitForReadyRead(s_standard_timeout)) throw LostConnectionException(m_socket.peerName().toStdString(), "waiting for process_count() reply.");
+    if(!m_socket.waitForReadyRead(s_process_timeout)) throw LostConnectionException(m_socket.peerName().toStdString(), "waiting for process_count() reply.");
     bool ok;
     QString line = m_socket.readAll();
     received(line);
