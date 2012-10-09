@@ -83,7 +83,7 @@ QString PJobFile::latestRunDirectory() const{
 	return (runs.last()).section("/",0,1);
 }
 
-QString PJobFile::pjobFile() const{
+QString PJobFile::path() const{
 	return m_pjobFile;
 }
 

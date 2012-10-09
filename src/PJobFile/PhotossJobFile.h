@@ -3,7 +3,7 @@
 
 class PhotossJobFile: public PJobFile{
 public:
-	PhotossJobFile(QString pjobFile);
+	PhotossJobFile(QString path);
 	~PhotossJobFile();
 	QString newRun(QList<PJobFileParameter> parametercombination, QString runDescription);
 

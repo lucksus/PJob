@@ -17,14 +17,14 @@ using namespace std;
 class PJobFile : public QObject{
 Q_OBJECT
 public:
-    PJobFile(QString pjobFile);
+    PJobFile(QString path);
     explicit PJobFile(const QByteArray& data);
     ~PJobFile();
     void addResource(QString path);
     void addResource(const QByteArray& content, const QString& internal_file_name);
     QStringList runDirectoryEntries() const;
     QString latestRunDirectory() const;
-    QString pjobFile() const;
+    QString path() const;
     QString mainPscript() const;
     void setMainPscript(QString script);
     PJobFileFormat* getPJobFile();

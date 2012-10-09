@@ -199,7 +199,7 @@ void PJobFileEditor::on_actionDelete_runs_triggered(){
     if(QMessageBox::Yes != QMessageBox::question(this, "PJobEditor: delete runs?", "Really delete all run directories?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No))
         return;
     QByteArray* raw_wo_results = m_pjobFile->raw_without_results();
-    QString path = m_pjobFile->pjobFile();
+    QString path = m_pjobFile->path();
     close();
     if(m_pjobFile != 0) return;
     QFile file(path);

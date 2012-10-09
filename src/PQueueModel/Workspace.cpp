@@ -48,7 +48,7 @@ void Workspace::setPJobFile(PJobFile* p){
     }
     m_parameter_variation = pv;
 
-    QFileInfo info(p->pjobFile());
+    QFileInfo info(p->path());
     m_pjob_file_signature = QString("%1__%2").arg(QDateTime::currentDateTime().toString("yyyyMMdd_hhmm_ss_zzz")).arg(info.baseName());
     emit pjobFileChanged(p);
 }
@@ -249,7 +249,7 @@ void Workspace::import_results_from_pjobfile(QString filename)
                 }
 
 		//...und weiterleiten
-		m_results.newValues(result,file.pjobFile());
+        m_results.newValues(result,file.path());
 		if(size > 10) emit progress(message,i++*100/size);
 		if(m_progresses_to_abort.contains(message)){
 			m_progresses_to_abort.remove(message);

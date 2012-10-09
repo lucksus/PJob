@@ -98,7 +98,7 @@ QString Logger::toString(Job* j){
 	//	parameters.append(j->parameters()[parameter]);
 	//	parameters.append(" ");
 	//}
-        return QString("Job (%1, %2)").arg(j->workspace()->getPJobFile()->pjobFile()).arg(j->description());
+        return QString("Job (%1, %2)").arg(j->workspace()->getPJobFile()->path()).arg(j->description());
 }
 
 //void Logger::log(std::string s){

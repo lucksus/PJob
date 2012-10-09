@@ -81,8 +81,8 @@ void Job::process_finished_run(QString runDirectory){
 
 	try{
                 QHash< QHash<QString,double>, QHash<QString,double> > r = m_workspace->getPJobFile()->getResultsForRun(runDirectory);
-                emit results(r, m_workspace->getPJobFile()->pjobFile());
-                emit results(this, r, m_workspace->getPJobFile()->pjobFile());
+                emit results(r, m_workspace->getPJobFile()->path());
+                emit results(this, r, m_workspace->getPJobFile()->path());
 	}catch(QString s){
 		emit problemReadingResults(this, s);
 	}
