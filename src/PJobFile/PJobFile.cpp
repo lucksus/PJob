@@ -84,7 +84,6 @@ QString PJobFile::latestRunDirectory() const{
 }
 
 QString PJobFile::pjobFile() const{
-    QMutexLocker locker(&m_mutex);
 	return m_pjobFile;
 }
 

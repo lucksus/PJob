@@ -47,7 +47,8 @@ HEADERS += MainWindow.h \
 	ScriptedUserInputDialog.h \
 	InterpolationFunctionVisualization.h \
 	ResultModel.h \
-    JobOutputWidget.h
+    JobOutputWidget.h \
+    ParameterVariationDialog.h
 FORMS += MainWindow.ui SettingsDialog.ui \
     JobOutputWidget.ui
 SOURCES += main.cpp \
@@ -61,7 +62,8 @@ SOURCES += main.cpp \
 	Drawable.cpp \
 	InterpolationFunctionVisualization.cpp \
 	ResultModel.cpp \
-    JobOutputWidget.cpp
+    JobOutputWidget.cpp \
+    ParameterVariationDialog.cpp
 RESOURCES += MainWindow.qrc \
     Resources/images.qrc
 RC_FILE = windows.rc

@@ -73,6 +73,7 @@ private slots:
 	void on_stopScriptButton_clicked();
     void on_jobsWidget_itemDoubleClicked(QListWidgetItem*);
     void on_startScanButton_clicked();
+    void on_parameterVariationButton_clicked();
 
 	void jobCreated(Job* j, unsigned int position);
 	void jobRemoved(Job* j);

@@ -2,7 +2,7 @@
 #include <QStringList>
 
 ParameterVariation::ParameterVariation()
-    : m_combination_count_cache_set(false)
+    : m_combination_count_cache_set(false), m_current_index(0)
 {
 }
 
@@ -50,7 +50,8 @@ unsigned int ParameterVariation::values_for_parameter(QString parameter_name) co
     if(m_values_for_parameters_cache.contains(parameter_name)) return m_values_for_parameters_cache.find(parameter_name).operator *();
     unsigned int count;
     ParameterBoundaries b = m_bounds.find(parameter_name).operator *();
-    for(count=1; b.min + count*b.step  <  b.step;count++);
+    if(b.step <= 0) return 0;
+    for(count=1; b.min + count*b.step  <=  b.max;count++);
     m_values_for_parameters_cache[parameter_name] = count;
     return count;
 }
@@ -66,4 +67,36 @@ double ParameterVariation::ith_value_for_parameter(QString parameter_name, unsig
     if(!m_bounds.contains(parameter_name)) throw QString("ParameterVariation: No such parameter \"%\"!").arg(parameter_name);
     ParameterBoundaries b = m_bounds.find(parameter_name).operator *();
     return b.min + index*b.step;
+}
+
+
+bool ParameterVariation::index_valid() const{
+    return m_current_index < combination_count();
+}
+
+QHash<QString, double> ParameterVariation::parameter_combination() const{
+    return parameter_combination(m_current_index);
+}
+
+void ParameterVariation::next(){
+    m_current_index++;
+}
+
+ParameterVariation::ParameterBoundaries ParameterVariation::boundaries_for_parameter(QString name) const{
+    return *(m_bounds.find(name));
+}
+
+
+QStringList ParameterVariation::parameter_names() const{
+    return m_bounds.keys();
+}
+
+void ParameterVariation::set_boundaries_for_parameter(QString name, ParameterBoundaries b){
+    m_bounds[name] = b;
+    m_combination_count_cache_set = false;
+    m_values_for_parameters_cache.clear();
+}
+
+void ParameterVariation::reset(){
+    m_current_index = 0;
 }

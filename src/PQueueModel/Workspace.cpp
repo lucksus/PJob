@@ -8,7 +8,7 @@
 #include <QDateTime>
 
 Workspace::Workspace(void)
-: m_pjob_file(0), m_running(false)
+    : m_pjob_file(0), m_job_lists_mutex(QMutex::Recursive), m_running(false), m_parameter_variation_thread(this)
 {
     qRegisterMetaType< QHash<QString,double> >("QHash<QString,double>");
     qRegisterMetaType<QHash< QHash<QString,double>, QHash<QString,double> > >("QHash< QHash<QString,double>, QHash<QString,double> >");
@@ -42,6 +42,12 @@ Results& Workspace::getResults(){
 
 void Workspace::setPJobFile(PJobFile* p){
     m_pjob_file = p;
+    ParameterVariation pv;
+    foreach(PJobFileParameterDefinition def, Workspace::getInstace().getPJobFile()->parameterDefinitions()){
+        pv.add_parameter(def.name(), def.defaultValue(), def.defaultValue(), 1);
+    }
+    m_parameter_variation = pv;
+
     QFileInfo info(p->pjobFile());
     m_pjob_file_signature = QString("%1__%2").arg(QDateTime::currentDateTime().toString("yyyyMMdd_hhmm_ss_zzz")).arg(info.baseName());
     emit pjobFileChanged(p);
@@ -52,7 +58,9 @@ PJobFile* Workspace::getPJobFile(){
 }
 
 void Workspace::addJob(Job* j){
+    m_job_lists_mutex.lock();
 	m_jobsQueued.push_back(j);
+    m_job_lists_mutex.unlock();
         connect(j, SIGNAL(stateChanged(Job*, Job::State)), this, SLOT(jobStateChanged(Job*, Job::State)), Qt::QueuedConnection);
         connect(j, SIGNAL(stateChanged(Job*, Job::State)), &Logger::getInstance(), SLOT(jobStateChanged(Job*, Job::State)), Qt::QueuedConnection);
 	connect(j, SIGNAL(results(QHash< QHash<QString,double>, QHash<QString,double> > , QString )),
@@ -64,10 +72,12 @@ void Workspace::addJob(Job* j){
 }
 
 void Workspace::removeJob(Job* j){
+    m_job_lists_mutex.lock();
 	m_jobsSubmited.removeOne(j);
 	m_jobsRunning.removeOne(j);
 	m_jobsFinished.removeOne(j);
 	m_jobsQueued.removeOne(j);
+    m_job_lists_mutex.unlock();
         disconnect(j, SIGNAL(stateChanged(Job*, Job::State)), this, SLOT(jobStateChanged(Job*, Job::State)));
         disconnect(j, SIGNAL(stateChanged(Job*, Job::State)), &Logger::getInstance(), SLOT(jobStateChanged(Job*, Job::State)));
 	disconnect(j, SIGNAL(results(QHash< QHash<QString,double>, QHash<QString,double> > , QString )),
@@ -78,7 +88,8 @@ void Workspace::removeJob(Job* j){
 }
 
 void Workspace::setQueuePosition(Job* j, unsigned int position){
-        if(static_cast<int>(position) >= m_jobsQueued.size()) position = m_jobsQueued.size()-1;
+    QMutexLocker locker(&m_job_lists_mutex);
+    if(static_cast<int>(position) >= m_jobsQueued.size()) position = m_jobsQueued.size()-1;
 	m_jobsQueued.removeOne(j);
 	m_jobsQueued.insert(position,j);
 	emit jobMoved(j,position);
@@ -144,11 +155,13 @@ void Workspace::session_threads_update(){
 void Workspace::stop(){
     if(!m_running) return;
 	m_running = false;
+    m_parameter_variation_thread.quit();
 	emit stopped();
 }
 
 
 void Workspace::jobStateChanged(Job* job, Job::State state){
+    QMutexLocker locker(&m_job_lists_mutex);
 	switch(state){
         case Job::FINISHED:
 			jobFinished(job);
@@ -173,17 +186,20 @@ void Workspace::jobStateChanged(Job* job, Job::State state){
 }
 
 void Workspace::jobSubmited(Job* j){
+    QMutexLocker locker(&m_job_lists_mutex);
 	m_jobsQueued.removeOne(j);
 	m_jobsSubmited.push_back(j);
 }
 
 void Workspace::jobStarted(Job* j){
+    QMutexLocker locker(&m_job_lists_mutex);
 	m_jobsQueued.removeOne(j);
 	m_jobsSubmited.removeOne(j);
 	m_jobsRunning.push_back(j);
 }
 
 void Workspace::jobFinished(Job* j){
+    QMutexLocker locker(&m_job_lists_mutex);
 	m_jobsRunning.removeOne(j);
 	m_jobsFinished.push_back(j);
 }
@@ -248,7 +264,7 @@ void Workspace::abort_progress(const QString& what){
 }
 
 Job* Workspace::get_next_queued_job_and_move_to_running(){
-    QMutexLocker locker(&m_mutex);
+    QMutexLocker locker(&m_job_lists_mutex);
     if(m_jobsQueued.isEmpty()) return 0;
     Job* job = m_jobsQueued.takeFirst();
     m_jobsRunning.push_back(job);
@@ -343,27 +359,33 @@ void Workspace::save_pjobfile(){
 }
 
 void Workspace::clearFinishedJobs(){
+    QMutexLocker locker(&m_job_lists_mutex);
     while(m_jobsFinished.size() > 0)
         m_jobsToDelete.append(m_jobsFinished.takeFirst());
 }
 
 QList<Job*> Workspace::failedJobs(){
+    QMutexLocker locker(&m_job_lists_mutex);
     return m_jobsFailed;
 }
 
 QList<Job*> Workspace::finishedJobs(){
+    QMutexLocker locker(&m_job_lists_mutex);
     return m_jobsFinished;
 }
 
 QList<Job*> Workspace::submittedJobs(){
+    QMutexLocker locker(&m_job_lists_mutex);
     return m_jobsSubmited;
 }
 
 QList<Job*> Workspace::queuedJobs(){
+    QMutexLocker locker(&m_job_lists_mutex);
     return m_jobsQueued;
 }
 
 void Workspace::delete_jobs(){
+    QMutexLocker locker(&m_job_lists_mutex);
     QList<Job*> jobs_remained;
     QList<Job*> seen_jobs;
     while(m_jobsToDelete.size() > 0){
@@ -384,4 +406,50 @@ void Workspace::delete_jobs(){
 
 QString Workspace::pjob_file_signature(){
     return m_pjob_file_signature;
+}
+
+void Workspace::start_parameter_variation(ParameterVariation pv){
+    m_parameter_variation = pv;
+    m_parameter_variation.reset();
+    start();
+    m_parameter_variation_thread.start();
+}
+
+void Workspace::parameter_variation_update(){
+    clearFinishedJobs();
+    unsigned int max_thread_count = PJobRunnerPool::instance().max_thread_count();
+    unsigned int thread_count = PJobRunnerPool::instance().thread_count();
+    int threads_to_start = max_thread_count - thread_count - submittedJobs().length() - queuedJobs().length();
+    if(threads_to_start  <= 0) return;
+    QList<Job*> failed_jobs = failedJobs();
+    for(unsigned int i=0;i<threads_to_start;i++){
+        Job* job;
+        if(failed_jobs.length() > 0){
+            job = failed_jobs.front();
+            failed_jobs.pop_front();
+            job->requeue();
+        }else{
+            if(!m_parameter_variation.index_valid()) break;
+            QHash<QString,double> parameters = m_parameter_variation.parameter_combination();
+            m_parameter_variation.next();
+            QHash<QString,QString> parameters_string;
+            foreach(QString name, parameters.keys()){
+                parameters_string[name] = QString("%1").arg(parameters[name]);
+            }
+            job = new Job(parameters_string,this);
+            addJob(job);
+        }
+    }
+}
+
+
+ParameterVariation Workspace::parameter_variation() const{
+    return m_parameter_variation;
+}
+
+void Workspace::ParameterVariationThread::run(){
+    QTimer timer;
+    connect(&timer, SIGNAL(timeout()), m_workspace, SLOT(parameter_variation_update()), Qt::DirectConnection);
+    timer.start(1000);
+    exec();
 }

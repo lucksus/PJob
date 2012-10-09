@@ -17,6 +17,7 @@
 #include "pjobrunnerpool.h"
 #include "JobOutputWidget.h"
 #include <QRadioButton>
+#include "ParameterVariationDialog.h"
 
 MainWindow::MainWindow(void)
     : m_pjob_file(0), m_jobs_mutex(QMutex::Recursive)
@@ -188,28 +189,29 @@ void MainWindow::on_delParameterButton_clicked(){
 
 
 void MainWindow::pjobFile_changed(){
-        Workspace::getInstace().setPJobFile(m_pjob_file);
-	ui.parametersWidget->clear();
-	QStringList l1;
-	l1 << "Parametername" << "Parametervalue";
-	ui.parametersWidget->setColumnCount(2);
-	ui.parametersWidget->setHorizontalHeaderLabels(l1);
-	ui.parametersWidget->setRowCount(0);
+    Workspace::getInstace().setPJobFile(m_pjob_file);
+    ui.parametersWidget->clear();
+    QStringList l1;
+    l1 << "Parametername" << "Parametervalue";
+    ui.parametersWidget->setColumnCount(2);
+    ui.parametersWidget->setHorizontalHeaderLabels(l1);
+    ui.parametersWidget->setRowCount(0);
 
-        ui.addJobButton->setEnabled(m_pjob_file != 0);
-        if(!m_pjob_file) return;
-        QList<PJobFileParameterDefinition> params = m_pjob_file->parameterDefinitions();
-	PJobFileParameterDefinition p;
-	foreach(p,params){
-		QTableWidgetItem* nameItem = new QTableWidgetItem();
-		QTableWidgetItem* valueItem = new QTableWidgetItem();
-		nameItem->setText(p.name());
-		valueItem->setText(QString("%1").arg(p.defaultValue()));
+    ui.addJobButton->setEnabled(m_pjob_file != 0);
+    ui.parameterVariationButton->setEnabled(m_pjob_file != 0);
+    if(!m_pjob_file) return;
+    QList<PJobFileParameterDefinition> params = m_pjob_file->parameterDefinitions();
+    PJobFileParameterDefinition p;
+    foreach(p,params){
+        QTableWidgetItem* nameItem = new QTableWidgetItem();
+        QTableWidgetItem* valueItem = new QTableWidgetItem();
+        nameItem->setText(p.name());
+        valueItem->setText(QString("%1").arg(p.defaultValue()));
 
-		int row = ui.parametersWidget->rowCount();
-		ui.parametersWidget->setRowCount(row+1);
-		ui.parametersWidget->setItem(row,0,nameItem);
-		ui.parametersWidget->setItem(row,1,valueItem);
+        int row = ui.parametersWidget->rowCount();
+        ui.parametersWidget->setRowCount(row+1);
+        ui.parametersWidget->setItem(row,0,nameItem);
+        ui.parametersWidget->setItem(row,1,valueItem);
 	}
 }
 
@@ -836,4 +838,11 @@ void MainWindow::on_startScanButton_clicked(){
 void MainWindow::update_statistics(){
     ui.threadCountLabel->setText(QString("%1(%2)").arg(Workspace::getInstace().thread_count()).arg(Workspace::getInstace().enqueued_thread_count()));
     ui.poolSizeLabel->setText(QString("%1").arg(PJobRunnerPool::instance().max_thread_count()));
+}
+
+void MainWindow::on_parameterVariationButton_clicked(){
+    ParameterVariationDialog dialog(Workspace::getInstace().parameter_variation(),this);
+    if(dialog.exec() == QDialog::Accepted){
+        Workspace::getInstace().start_parameter_variation(*dialog.parameter_variation());
+    }
 }
