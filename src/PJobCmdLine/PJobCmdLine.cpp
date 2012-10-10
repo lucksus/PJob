@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
 	std::string filePath, detail, out, create;
 	bool overwrite = false, verbose=false;
 
-	//zul‰ssige Optionen deklarieren
+	//zul√§ssige Optionen deklarieren
 	po::options_description desc("This file provides commandline support for easy pjob-file access.\nAllowed options are");
     desc.add_options()
         ("help,h", "* \tproduces this help message")
@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
 
 	if (vm.count("file"))
 	{
-		//÷ffnen der .pjob-Datei und Fehler abfangen
+		//√ñffnen der .pjob-Datei und Fehler abfangen
 		try
 		{
 			file = new PJobFileFormat(QString::fromStdString(filePath));
@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 			return 1;
 		}
 
-		//Ausgabeklasse verkn¸pfen und Ausgabe
+		//Ausgabeklasse verkn√ºpfen und Ausgabe
 		output = new PJobOutput(file);
 		if(verbose)
 		{
@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	//Anzahl der Befehle z‰hlen und ggf. Fehler ausgeben
+	//Anzahl der Befehle z√§hlen und ggf. Fehler ausgeben
 	if(vm.count("extract")) count++;
 	if(vm.count("peek")) count++;
 	if(vm.count("create")) count++;
@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
 		
 		std::vector<std::string>::iterator i;
 
-		//¸ber Parameter iterieren und entpacken
+		//√ºber Parameter iterieren und entpacken
 		for(i = peekParams.begin(); i != peekParams.end(); i++)
 			file->extract(QString::fromStdString(out),QString::fromStdString(*i),overwrite);
 	}
@@ -164,10 +164,10 @@ int main(int argc, char* argv[])
 		
 		std::vector<std::string>::iterator i;
 		
-		// in 2er-Schritten ¸ber Parameter iterieren
+		// in 2er-Schritten √ºber Parameter iterieren
 		for(i = addParams.begin();(i != addParams.end()); i++)
 		{
-			//Wenn nur 1 Argument am Ende ¸brig ist kann dies nicht innerhalb der Schleife verarbeitet werden
+			//Wenn nur 1 Argument am Ende √ºbrig ist kann dies nicht innerhalb der Schleife verarbeitet werden
 			if(i+1 == addParams.end())
 				break;
 
@@ -180,17 +180,17 @@ int main(int argc, char* argv[])
 			if((*i!="NULL")&&(*i!="."))
 				s2 = QString::fromStdString(*i);
 
-			//Datei(en) hinzuf¸gen
+			//Datei(en) hinzuf√ºgen
 			file->appendFolder(QString::fromStdString(temp),s2,overwrite);
 		}
 
-		//Wenn noch ein Argument am Ende einzeln ¸bergeben wurde
+		//Wenn noch ein Argument am Ende einzeln √ºbergeben wurde
 		if(i!=addParams.end())
 			file->appendFolder(QString::fromStdString(*i),NULL,overwrite);
 
 		std::cout << "\n";
 		
-		//ƒnderungen speichern
+		//√Ñnderungen speichern
                 file->flush();
 	}
 
