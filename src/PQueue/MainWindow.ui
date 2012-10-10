@@ -407,7 +407,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="tab_2">
+    <widget class="QWidget" name="resultsTab">
      <attribute name="title">
       <string>Results</string>
      </attribute>
@@ -444,7 +444,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="Seite">
+    <widget class="QWidget" name="visualizationTab">
      <attribute name="title">
       <string>Visualization</string>
      </attribute>

@@ -11,6 +11,9 @@ public:
         bool autoSaveToPjob();
         void setAutoSaveToPjob(bool);
 
+        bool internal_results_activated();
+        void set_internal_results_activated(bool);
+
 	void setScriptDirectory(QString directory);
 	QString scriptDirectory();
 
@@ -20,6 +23,7 @@ public:
 private:
 	Settings(void);
         bool m_autoSaveToPjob;
+        bool m_internal_results_activated;
 	QString m_scriptDirectory;
 
 };

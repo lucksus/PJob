@@ -23,6 +23,7 @@ public:
     unsigned int thread_count();
     unsigned int enqueued_thread_count();
     ParameterVariation parameter_variation() const;
+    void add_raw_results(QByteArray*);
 
 
 
@@ -47,6 +48,7 @@ public slots:
     QString pjob_file_signature();
     void prepare_runners_with_pjob_file();
     void start_parameter_variation(ParameterVariation);
+    void write_raw_results();
 
 
 signals:
@@ -114,7 +116,20 @@ private:
         virtual void run();
         Workspace* m_workspace;
     };
-
     ParameterVariationThread m_parameter_variation_thread;
+
+
+    QList<QByteArray*> m_raw_results;
+    QMutex m_mutex_raw_results;
+
+
+    class RawResultSaverThread : public QThread{
+    public:
+        RawResultSaverThread(Workspace* w):m_workspace(w){}
+    protected:
+        virtual void run();
+        Workspace* m_workspace;
+    };
+    RawResultSaverThread m_raw_resultsaver_thread;
 };
 

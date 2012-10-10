@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>419</width>
-    <height>85</height>
+    <height>103</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,6 +22,13 @@
     <widget class="QCheckBox" name="autoSaveToPjob">
      <property name="text">
       <string>Auto save to PJOB file</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="internalResultsActivated">
+     <property name="text">
+      <string>Internal Results activated</string>
      </property>
     </widget>
    </item>

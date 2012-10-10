@@ -8,7 +8,7 @@
 #include <QDateTime>
 
 Workspace::Workspace(void)
-    : m_pjob_file(0), m_job_lists_mutex(QMutex::Recursive), m_running(false), m_parameter_variation_thread(this)
+    : m_pjob_file(0), m_job_lists_mutex(QMutex::Recursive), m_running(false), m_parameter_variation_thread(this), m_raw_resultsaver_thread(this)
 {
     qRegisterMetaType< QHash<QString,double> >("QHash<QString,double>");
     qRegisterMetaType<QHash< QHash<QString,double>, QHash<QString,double> > >("QHash< QHash<QString,double>, QHash<QString,double> >");
@@ -24,10 +24,14 @@ Workspace::Workspace(void)
     m_job_deleter_timer.start(500);
     m_session_thread_update_timer.start(500);
     qRegisterMetaType<Job::State>("Job::State");
+    m_raw_resultsaver_thread.start();
 }
 
 Workspace::~Workspace(void)
 {
+    stop();
+    m_raw_resultsaver_thread.quit();
+    m_raw_resultsaver_thread.wait();
 }
 
 Workspace& Workspace::getInstace(void)
@@ -156,6 +160,7 @@ void Workspace::stop(){
     if(!m_running) return;
 	m_running = false;
     m_parameter_variation_thread.quit();
+    m_parameter_variation_thread.wait();
 	emit stopped();
 }
 
@@ -295,7 +300,7 @@ void Workspace::session_finished(){
     PJobRunnerSessionThread* thread = dynamic_cast<PJobRunnerSessionThread*>(sender_object);
     if(!thread) return;
     unsigned int max_thread_count = PJobRunnerPool::instance().max_thread_count();
-    unsigned int session_thread_count = thread_count();
+    int session_thread_count = thread_count()-10;
 
     if(max_thread_count < session_thread_count){
         foreach(QHostAddress host, m_session_threads.keys()){
@@ -450,6 +455,31 @@ ParameterVariation Workspace::parameter_variation() const{
 void Workspace::ParameterVariationThread::run(){
     QTimer timer;
     connect(&timer, SIGNAL(timeout()), m_workspace, SLOT(parameter_variation_update()), Qt::DirectConnection);
+    timer.start(1000);
+    exec();
+}
+
+void Workspace::write_raw_results(){
+    if(!m_pjob_file) return;
+    QMutexLocker lock(&m_mutex_raw_results);
+    QFile file(m_pjob_file->path());
+    file.open(QIODevice::WriteOnly | QIODevice::Append);
+    foreach(QByteArray* bytes, m_raw_results){
+        file.write(*bytes);
+        delete bytes;
+    }
+    file.close();
+    m_raw_results.clear();
+}
+
+void Workspace::add_raw_results(QByteArray* raw_results){
+    QMutexLocker lock(&m_mutex_raw_results);
+    m_raw_results.append(raw_results);
+}
+
+void Workspace::RawResultSaverThread::run(){
+    QTimer timer;
+    connect(&timer, SIGNAL(timeout()), m_workspace, SLOT(write_raw_results()), Qt::DirectConnection);
     timer.start(1000);
     exec();
 }

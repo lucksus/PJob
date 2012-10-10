@@ -107,18 +107,20 @@ private slots:
 	void on_actionMruAction3_triggered();
 
 	void on_loadPreviousRunsButton_clicked();
-        void hide_splash_screen();
+    void hide_splash_screen();
 
-        void found_new_pjob_runner(QHostAddress);
-        void lost_pjob_runner(QHostAddress);
-        void probing_host(QHostAddress);
-        void lookedUp(const QHostInfo& host);
-        void pjob_runner_search_finished();
-        void pjob_runner_search_started();
+    void found_new_pjob_runner(QHostAddress);
+    void lost_pjob_runner(QHostAddress);
+    void probing_host(QHostAddress);
+    void lookedUp(const QHostInfo& host);
+    void pjob_runner_search_finished();
+    void pjob_runner_search_started();
 
-        void pjobFile_changed();
+    void pjobFile_changed();
 
-        void update_statistics();
+    void update_statistics();
+
+    void settings_updated();
 
 public:
 signals:

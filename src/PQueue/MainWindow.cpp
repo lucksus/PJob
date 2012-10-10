@@ -18,6 +18,7 @@
 #include "JobOutputWidget.h"
 #include <QRadioButton>
 #include "ParameterVariationDialog.h"
+#include "Settings.h"
 
 MainWindow::MainWindow(void)
     : m_pjob_file(0), m_jobs_mutex(QMutex::Recursive)
@@ -121,6 +122,8 @@ MainWindow::MainWindow(void)
 
         connect(&m_statistics_update_timer, SIGNAL(timeout()), this, SLOT(update_statistics()));
         m_statistics_update_timer.start(500);
+
+        settings_updated();
 }
 
 void MainWindow::on_actionOpen_triggered(){
@@ -405,7 +408,7 @@ void MainWindow::newValue(QString phoFile, QString result, QHash<QString,double>
 
 void MainWindow::on_actionEdit_triggered(){
 	SettingsDialog d;
-	d.exec();
+    if(d.exec() == QDialog::Accepted) settings_updated();
 }
 
 void MainWindow::on_actionExport_To_CSV_triggered()
@@ -845,4 +848,9 @@ void MainWindow::on_parameterVariationButton_clicked(){
     if(dialog.exec() == QDialog::Accepted){
         Workspace::getInstace().start_parameter_variation(*dialog.parameter_variation());
     }
+}
+
+void MainWindow::settings_updated(){
+    ui.resultsTab->setEnabled(Settings::getInstance().internal_results_activated());
+    ui.visualizationTab->setEnabled(Settings::getInstance().internal_results_activated());
 }

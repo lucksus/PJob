@@ -3,6 +3,7 @@
 #include "Workspace.h"
 #include <memory>
 #include "Logger.h"
+#include "Settings.h"
 
 PJobRunnerSessionThread::PJobRunnerSessionThread(QHostAddress address, Workspace* workspace)
     : m_peer(address), m_workspace(workspace)
@@ -70,15 +71,22 @@ try{
             job->failed();
         else{
             //Job is finished. Get results.
-            QByteArray results;
-            session->download_results(results);
-            try{
-                QString run_name = PJobFile::name_of_first_run_in_raw_bytes(results);
-                pjob_file->add_raw_files(results);
-                job->process_finished_run(run_name);
+            QByteArray *results = new QByteArray;
+            session->download_results(*results);
+
+            if(Settings::getInstance().internal_results_activated()){
+                try{
+                    QString run_name = PJobFile::name_of_first_run_in_raw_bytes(*results);
+                    pjob_file->add_raw_files(*results);
+                    job->process_finished_run(run_name);
+                    job->finished();
+                    delete results;
+                }catch(QString s){
+                    job->failed();
+                }
+            }else{
+                Workspace::getInstace().add_raw_results(results);
                 job->finished();
-            }catch(QString s){
-                job->failed();
             }
         }
     }else job->failed();
