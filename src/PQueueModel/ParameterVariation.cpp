@@ -23,8 +23,8 @@ QHash<QString, double> ParameterVariation::parameter_combination(unsigned int in
     while(it.hasPrevious()){
         QString current_parameter_name = it.previous();
         unsigned int values_count = values_for_parameter(current_parameter_name);
-        unsigned int index_for_current_parameter = index / values_count;
-        index = index % values_count;
+        unsigned int index_for_current_parameter = index % values_count;
+        index = index / values_count;
         result[current_parameter_name] = ith_value_for_parameter(current_parameter_name, index_for_current_parameter);
     }
     return result;
