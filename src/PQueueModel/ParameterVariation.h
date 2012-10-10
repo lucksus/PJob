@@ -12,9 +12,9 @@ public:
         double min, max, step;
     };
 
-    inline unsigned int combination_count() const;
-    inline unsigned int parameter_count() const;
-    inline unsigned int values_for_parameter(QString) const;
+    unsigned int combination_count() const;
+    unsigned int parameter_count() const;
+    unsigned int values_for_parameter(QString) const;
 
     bool index_valid() const;
     QHash<QString, double> parameter_combination() const;
