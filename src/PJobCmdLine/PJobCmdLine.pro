@@ -5,7 +5,8 @@ INCLUDEPATH += . ../PJobFile
 CONFIG += console
 CONFIG += debug_and_release
 LIBS += -L../../lib
-unix: LIBS += -lboost_program_options
+!macx:unix: LIBS += -lboost_program_options
+macx: LIBS += -lboost_program_options-mt
 DESTDIR = ../../bin
 
 include(../src.pri)
