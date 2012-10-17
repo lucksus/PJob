@@ -38,7 +38,7 @@ void ResultLoaderAndSaver::setSeperators(QString columnSep, QString rowSep, QStr
 
 QHash< QString,QHash< QHash<QString,double>,QHash<QString,double> > > ResultLoaderAndSaver::importFromCSV(QString inputFile)
 {
-	//Datei Öffnen
+	//Datei Ã–ffnen
 	QFile file(inputFile);
 	file.open(QIODevice::ReadOnly | QIODevice::Text);
 	QByteArray data = file.readAll(); 
@@ -49,14 +49,14 @@ QHash< QString,QHash< QHash<QString,double>,QHash<QString,double> > > ResultLoad
 	data.remove(0,9);
 	QStringList varList = parseLine(data);
 
-	//Bevor es weitergeht kann bereits auf Konsistenz geprüft werden!
+	//Bevor es weitergeht kann bereits auf Konsistenz geprÃ¼ft werden!
 
 	//FEHLT NOCH
 	
-	//Nun könnten die Werte ausgelesen werden:
+	//Nun kÃ¶nnten die Werte ausgelesen werden:
 	QList< std::pair<QString,QStringList> > values;
 	
-	//über alle Zeilen iterieren
+	//Ã¼ber alle Zeilen iterieren
 	while(!data.isEmpty())
 	{
 		//Kommentare ignorieren
@@ -71,7 +71,7 @@ QHash< QString,QHash< QHash<QString,double>,QHash<QString,double> > > ResultLoad
 		values.append(parseValueLine(data));
 	}
 
-	//Nun wurde das gesamte File geparst! Jetzt müssen die Werte nur noch richtig zusammengebastelt werden.
+	//Nun wurde das gesamte File geparst! Jetzt mÃ¼ssen die Werte nur noch richtig zusammengebastelt werden.
 	//
 	//header(1...n):	QHash<QString, std::pair<QStringList,QStringList> > headerLines;
 	//header(n+1):		QStringList varList;
@@ -86,7 +86,7 @@ QHash< QString,QHash< QHash<QString,double>,QHash<QString,double> > > ResultLoad
 	int n = varList.length();
 	QHash< QString,QHash< QHash<QString,double>,QHash<QString,double> > > valuesForFile;
 
-	//über die einzelnen Wertezeilen iterieren
+	//Ã¼ber die einzelnen Wertezeilen iterieren
 	std::pair<QString,QStringList> line;
 	foreach(line, values)
 	{
@@ -94,7 +94,7 @@ QHash< QString,QHash< QHash<QString,double>,QHash<QString,double> > > ResultLoad
 		QHash<QString,double> resultCombination;
 		QString jobFile = line.first;
 
-		//über die Spalten iterieren
+		//Ã¼ber die Spalten iterieren
 		for(int i=0;i<n;i++)
 		{
 			QString name = varList.at(i);
@@ -109,7 +109,7 @@ QHash< QString,QHash< QHash<QString,double>,QHash<QString,double> > > ResultLoad
 			else
 				value = valueString.toDouble();
 
-			//Fehlerfälle noch berücksichtigen!!!
+			//FehlerfÃ¤lle noch berÃ¼cksichtigen!!!
 
 			//wenn die Variable der Spalte bekannt ist => result oder parameter?
 			if(headerLines[jobFile].first.contains(name))
@@ -117,7 +117,7 @@ QHash< QString,QHash< QHash<QString,double>,QHash<QString,double> > > ResultLoad
 			else if(headerLines[jobFile].second.contains(name))
 				resultCombination[name] = value;
 		}
-		//nun wird die Zeile zu den results hinzugefügt
+		//nun wird die Zeile zu den results hinzugefÃ¼gt
 		valuesForFile[jobFile].insert(parameterCombination,resultCombination);
 	}
 	return valuesForFile;
@@ -140,7 +140,7 @@ void ResultLoaderAndSaver::exportToCSV(QString outputFile, QStringList pjobFiles
 	{
 		out << '%' << jobFile;
 
-		//Mergen fü die n+1. Zeile
+		//Mergen fÃ¼ die n+1. Zeile
 		std::pair<QStringList,QStringList> header = headerForResult(jobFile,results);
 		allColumnsList.first.append(header.first);
 		allColumnsList.second.append(header.second);
@@ -159,8 +159,8 @@ void ResultLoaderAndSaver::exportToCSV(QString outputFile, QStringList pjobFiles
 		out << m_seperators.row;
 	}
 	
-	//gleichnamige Parameter/Results zusammenführen, aschließend sortieren
-	//kann auf Wunsch später auskommentiert werden => keine anderen Anpassungen nötig
+	//gleichnamige Parameter/Results zusammenfÃ¼hren, aschlieÃŸend sortieren
+	//kann auf Wunsch spÃ¤ter auskommentiert werden => keine anderen Anpassungen nÃ¶tig
 	allColumnsList.first.removeDuplicates();
 	allColumnsList.second.removeDuplicates();
 	allColumnsList.first.sort();
@@ -175,8 +175,8 @@ void ResultLoaderAndSaver::exportToCSV(QString outputFile, QStringList pjobFiles
 		QHash<QString,double> parameterCombination;
 		foreach(parameterCombination, results[jobFile].keys())
 		{
-			//Anm.:jobFile enthält absolute Pfade
-			//auf Wunsch kann hier jobFile.section('/',-1,-1) übergeben werden 
+			//Anm.:jobFile enthÃ¤lt absolute Pfade
+			//auf Wunsch kann hier jobFile.section('/',-1,-1) Ã¼bergeben werden 
 			//um nur den Dateinamen zu behalten!
 			out << jobFile;
 			writeLine(out, allColumnsList, parameterCombination, results[jobFile][parameterCombination]);
@@ -195,7 +195,7 @@ QHash<QString, std::pair<QStringList,QStringList> > ResultLoaderAndSaver::parseH
 	{
 		//wenn es sich um die letzte Headerzeile handelt, startet diese mit "PJobFile" + Spalten-Trennzeichen
 		if(data.left(10)=="%PJobFile" + m_seperators.column)
-			//Da dieser Fall bei validen Dateien am Ende _immer_ auftritt => Behandlung außerhalb der Schleife
+			//Da dieser Fall bei validen Dateien am Ende _immer_ auftritt => Behandlung auÃŸerhalb der Schleife
 			break;
 
 		//Kommentarzeichen entfernen
