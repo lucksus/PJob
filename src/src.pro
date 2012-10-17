@@ -3,7 +3,8 @@ CONFIG += debug_and_release
 SUBDIRS = CondorC++Adapter PQueueModel PQueue PJobFile PJobCmdLine PJobFileEditor \
     PJobRunner \
     PJobClient \
-    PJobFileResultExporter
+    PJobFileResultExporter \
+    Schlangensicht
 
 PQueueModel.subdir = PQueueModel
 PQueueModel.depends = PJobFile CondorC++Adapter
