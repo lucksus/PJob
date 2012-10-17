@@ -15,7 +15,8 @@ INCLUDEPATH += ../PJobFile
 DEPENDPATH += . ../PJobFile
 
 include(../src.pri)
-unix: LIBS += -lboost_program_options
+!macx:unix: LIBS += -lboost_program_options
+macx: LIBS += -lboost_program_options-mt
 
 build_pass:CONFIG(debug, debug|release) {
     mac: LIBS +=  -lPJobFile_debug
