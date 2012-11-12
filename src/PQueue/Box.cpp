@@ -11,7 +11,7 @@
 #ifdef Q_OS_UNIX
 #ifdef Q_OS_MACX
 #include <glu.h>
-#elif
+#else
 #include <GL/glu.h>
 #endif
 #endif
