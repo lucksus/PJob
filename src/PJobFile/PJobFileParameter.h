@@ -3,6 +3,7 @@
 
 class PJobFileParameter
 {
+friend bool operator ==(const PJobFileParameter& p1, const PJobFileParameter& p2);
 public:
 	PJobFileParameter();
 	
@@ -23,3 +24,5 @@ private:
 	double m_value, m_min, m_max, m_step;
 	bool m_isVariation;
 };
+
+bool operator ==(const PJobFileParameter& p1, const PJobFileParameter& p2);

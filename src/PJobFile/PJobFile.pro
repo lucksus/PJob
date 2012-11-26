@@ -26,7 +26,8 @@ HEADERS += FileHelperFunctions.h \
             ../PJobFileEditor/PJobDirTree.h \
             Syntaxhighlighter.h \
 			MainWindowWithProgressPopups.h \
-    PJobFileApplication.h
+    PJobFileApplication.h \
+    PJobFileLean.h
 			
 SOURCES += FileHelperFunctions.cpp \
 			PJobFile.cpp \
@@ -41,6 +42,7 @@ SOURCES += FileHelperFunctions.cpp \
 			../PJobFileEditor/PJobDirModel.cpp \
             ../PJobFileEditor/PJobDirTree.cpp \
             Syntaxhighlighter.cpp \
-			MainWindowWithProgressPopups.cpp
+			MainWindowWithProgressPopups.cpp \
+    PJobFileLean.cpp
 			
 FORMS += PJobWidget.ui

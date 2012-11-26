@@ -45,3 +45,7 @@ void PJobFileParameter::setVariation(double min, double max, double step){
 	m_step = step;
 	m_isVariation = true;
 }
+
+bool operator ==(const PJobFileParameter& p1, const PJobFileParameter& p2){
+    return p1.m_name == p2.m_name && p1.m_value == p2.m_value;
+}
