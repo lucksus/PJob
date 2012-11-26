@@ -119,14 +119,19 @@ void Workspace::prepare_runners_with_pjob_file(){
         if(! session.open_pjob_from_user_file(m_pjob_file_signature) ){
             QByteArray *raw = getPJobFile()->raw_without_results();
             bool ok = false;
-            while(!ok){
+            int super_tries = 0;
+            while(!ok && super_tries <= 3){
                 if(!session.upload_pjobfile(*raw)) continue;
-                while(!ok){
+                super_tries++;
+                int tries=0;
+                while(!ok && tries <= 3){
                     try{
                         ok = session.save_user_file(m_pjob_file_signature);
+                        tries++;
                     }catch(LostConnectionException e){}
                 }
             }
+            if(!ok) PJobRunnerPool::instance().remove(host);
             delete raw;
         }
         m_prepared_hosts_count++;

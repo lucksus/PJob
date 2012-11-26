@@ -25,7 +25,7 @@ MainWindow::MainWindow(void)
 {
 	ui.setupUi(this);
 
-        QTimer::singleShot(1500, this, SLOT(hide_splash_screen()));
+        QTimer::singleShot(1000, this, SLOT(hide_splash_screen()));
 
 	UserInputMediator::getInstance().setUserInputHandler(this);
 
