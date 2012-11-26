@@ -33,9 +33,9 @@
          </layout>
         </item>
         <item row="0" column="3">
-         <widget class="QPushButton" name="loadPreviousRunsButton">
+         <widget class="QPushButton" name="setPJobFileButton">
           <property name="text">
-           <string>Load runs from previous simulations</string>
+           <string>Set PJob file...</string>
           </property>
          </widget>
         </item>
@@ -51,6 +51,13 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="fileLabel">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -129,7 +136,7 @@
      <x>0</x>
      <y>0</y>
      <width>695</width>
-     <height>22</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -170,5 +177,22 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>setPJobFileButton</sender>
+   <signal>clicked()</signal>
+   <receiver>actionOpen_PJob_file</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>618</x>
+     <y>100</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>347</x>
+     <y>330</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
