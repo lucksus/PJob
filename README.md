@@ -48,6 +48,6 @@ The chapters about the PJob file format is still valid.
 Build
 -----
 In order to build the whole project, change into the cloned directory and say
-  qmake
-  make
+    qmake
+    make
 or open the .pro file with [Qt-Creator](http://qt-project.org/wiki/Category:Tools::QtCreator).
